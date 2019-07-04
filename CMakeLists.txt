@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.2.3)
+
 if (COMMAND cmake_policy)
     cmake_policy (SET CMP0003 NEW)
     cmake_policy (SET CMP0022 NEW)
@@ -14,8 +15,9 @@ include(UrhoCommon)
 
 set(TARGET_NAME project3D)
 
-# define_source_files(GLOB_CPP_PATTERNS src/*.cpp RECURSE GROUP EXCLUDE_PATTERNS libs/.*)
+# define_source_files()
 file(GLOB CPP_FILES src/*.cpp RECURSE GROUP)
 file(GLOB H_FILES src/*.h* RECURSE GROUP)
 set(SOURCE_FILES ${CPP_FILES} ${H_FILES})
+
 setup_main_executable()
