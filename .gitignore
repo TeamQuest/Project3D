@@ -1,0 +1,6 @@
+# Project files
+.vscode/
+.idea/
+
+# Build files
+build/
