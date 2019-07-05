@@ -1,2 +1,5 @@
 bin/* linguist-generated=true
 CMake/* linguist-generated=true
+.bash_helpers.sh lignuist-generated=true
+cmake_clean.sh lignuist-generated=true
+cmake_generic.sh lignuist-generated=true
