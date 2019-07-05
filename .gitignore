@@ -2,5 +2,5 @@
 .vscode/
 .idea/
 
-# Build files
-build/
+# Root build directory
+/build/
