@@ -1,4 +1,5 @@
 #include "App.hpp"
+
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
@@ -28,12 +29,6 @@ App::App(Context* context) : Application{context}, m_scene{new Scene{context}}
 {
 }
 
-/**
- * This method is called before the engine has been initialized.
- * Thusly, we can setup the engine parameters before anything else
- * of engine importance happens (such as windows, search paths,
- * resolution and other things that might be user configurable).
- */
 void App::Setup()
 {
     engineParameters_["FullScreen"] = false;
@@ -53,25 +48,29 @@ void App::Start()
     m_scene->CreateComponent<Octree>();
 
     /* Button example */
-    GetSubsystem<UI>()->GetRoot()->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
-    auto button = new Button(context_);
-    GetSubsystem<UI>()->GetRoot()->AddChild(button);
-    button->SetName("Button Quit");
-    button->SetStyle("Button");
-    button->SetSize(64, 64);
-    button->SetPosition(16, 116);
-    SubscribeToEvent(button, E_RELEASED, URHO3D_HANDLER(App, handle_closed_pressed));
+    {
+        GetSubsystem<UI>()->GetRoot()->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
+        auto button = new Button(context_);
+        GetSubsystem<UI>()->GetRoot()->AddChild(button);
+        button->SetName("Quit Button");
+        button->SetStyle("Button");
+        button->SetSize(64, 64);
+        button->SetPosition(16, 116);
+        SubscribeToEvent(button, E_RELEASED, URHO3D_HANDLER(App, handle_closed_pressed));
+    }
     /* - */
 
     /* Text example */
-    auto text = new Text(context_);
-    text->SetName("instrukcja");
-    text->SetText("Press TAB to show/hide mouse");
-    text->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40);
-    text->SetColor(Color(0.f, 0.f, .3f));
-    text->SetHorizontalAlignment(HA_CENTER);
-    text->SetVerticalAlignment(VA_TOP);
-    GetSubsystem<UI>()->GetRoot()->AddChild(text);
+    {
+        auto text = new Text(context_);
+        text->SetName("Hint Text");
+        text->SetText("Press TAB to show/hide mouse");
+        text->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40);
+        text->SetColor(Color(0.f, 0.f, .3f));
+        text->SetHorizontalAlignment(HA_CENTER);
+        text->SetVerticalAlignment(VA_TOP);
+        GetSubsystem<UI>()->GetRoot()->AddChild(text);
+    }
     /* - */
 
     /* Ground example */
@@ -86,6 +85,7 @@ void App::Start()
         auto collider = floor->CreateComponent<CollisionShape>();
         collider->SetBox(Vector3::ONE);
         auto [x, y, z] = floor->GetPosition();
+        // Custom warning
         URHO3D_LOGWARNINGF("Creating ground at position (%f, %f, %f).", x, y, z);
         URHO3D_LOGINFO("Model name: " + floor_model->GetModel()->GetName());
     }
@@ -149,7 +149,7 @@ void App::handle_key_down(StringHash eventType, VariantMap& eventData)
         case KEY_TAB: {
             const auto is_mouse_visible = GetSubsystem<Input>()->IsMouseVisible();
             GetSubsystem<Input>()->SetMouseVisible(!is_mouse_visible);
-            auto text = dynamic_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("instrukcja")));
+            auto text = dynamic_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("Hint Text")));
             text->SetText(is_mouse_visible ? "Press WSAD to move around" : "Press TAB to show/hide mouse");
             break;
         }
