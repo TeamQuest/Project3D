@@ -11,7 +11,10 @@
 #include <Urho3D/Graphics/Skybox.h>
 #include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Graphics/Viewport.h>
+#include <Urho3D/IO/Log.h>
 #include <Urho3D/Input/Input.h>
+#include <Urho3D/Physics/CollisionShape.h>
+#include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/UI/Button.h>
 #include <Urho3D/UI/Font.h>
@@ -37,7 +40,7 @@ void App::Setup()
     engineParameters_["WindowWidth"] = 1280;
     engineParameters_["WindowHeight"] = 720;
     engineParameters_["WindowResizable"] = false;
-    engine_->SetMaxFps(60);
+    engineParameters_["VSync"] = true;
     engine_->SetMaxInactiveFps(20);
 }
 
@@ -71,11 +74,28 @@ void App::Start()
     GetSubsystem<UI>()->GetRoot()->AddChild(text);
     /* - */
 
+    /* Ground example */
+    {
+        auto floor = m_scene->CreateChild("Floor");
+        floor->SetPosition(Vector3(0.f, -5.f, 0.f));
+        floor->SetScale(Vector3(500.f, 1.f, 500.f));
+        auto floor_model = floor->CreateComponent<StaticModel>();
+        floor_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+        floor_model->SetMaterial(cache->GetResource<Material>("Materials/StoneTiled.xml"));
+        auto body = floor->CreateComponent<RigidBody>();
+        auto collider = floor->CreateComponent<CollisionShape>();
+        collider->SetBox(Vector3::ONE);
+        auto [x, y, z] = floor->GetPosition();
+        URHO3D_LOGWARNINGF("Creating ground at position (%f, %f, %f).", x, y, z);
+        URHO3D_LOGINFO("Model name: " + floor_model->GetModel()->GetName());
+    }
+    /* - */
+
     constexpr auto NUM_OBJECTS = 2000u;
     for (unsigned i = 0; i < NUM_OBJECTS; ++i) {
         auto box = m_scene->CreateChild("Box");
-        box->SetPosition(Vector3(Random(200.0f) - 100.0f, Random(200.0f) - 100.0f, Random(200.0f) - 100.0f));
-        box->SetRotation(Quaternion(Random(360.0f), Random(360.0f), Random(360.0f)));
+        box->SetPosition(Vector3(Random(200.f) - 100.f, Random(200.f) + 5.f, Random(200.f) - 100.f));
+        box->SetRotation(Quaternion(Random(360.f), Random(360.f), Random(360.f)));
         auto box_model = box->CreateComponent<StaticModel>();
         box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
         box_model->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
@@ -92,7 +112,7 @@ void App::Start()
         camera->SetFarClip(2000);
         auto light = m_camera->CreateComponent<Light>();
         light->SetLightType(LIGHT_POINT);
-        light->SetRange(30.0f);
+        light->SetRange(200.f);
     }
     {
         auto renderer = GetSubsystem<Renderer>();
@@ -158,14 +178,14 @@ void App::adjust_camera(float time_step)
         return;
 
     // Movement speed as world units per second
-    constexpr auto MOVE_SPEED = 20.0f;
+    constexpr auto MOVE_SPEED = 20.f;
     // Mouse sensitivity as degrees per pixel
     constexpr auto MOUSE_SENSITIVITY = 0.1f;
 
     // Use this frame's mouse motion to adjust camera node yaw, pitch and roll. Clamp the pitch between -90 and 90 degrees
     auto mouse_moved = input->GetMouseMove();
     m_head.yaw += MOUSE_SENSITIVITY * mouse_moved.x_;
-    m_head.pitch = Clamp(m_head.pitch += MOUSE_SENSITIVITY * mouse_moved.y_, -90.0f, 90.0f);
+    m_head.pitch = Clamp(m_head.pitch += MOUSE_SENSITIVITY * mouse_moved.y_, -90.f, 90.f);
     m_camera->SetRotation(Quaternion(m_head.pitch, m_head.yaw, m_head.roll));
 
     if (input->GetKeyDown(KEY_W)) {
