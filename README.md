@@ -1,7 +1,7 @@
 # Project3D Game
 
 ### Compilation with CMake
-Go to the project directory and run script ./cmake\_generic to generate CMake files.
+Go to the project directory and run script `./cmake_generic.sh` to generate CMake files.
 
 After successful configuration go to build directory and then compile & run (make and ./bin/project3D)
 
