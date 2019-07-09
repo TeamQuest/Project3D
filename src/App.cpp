@@ -65,11 +65,25 @@ void App::Start()
         auto text = new Text(context_);
         text->SetName("Hint Text");
         text->SetText("Press TAB to show/hide mouse");
-        text->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40);
-        text->SetColor(Color(0.f, 0.f, .3f));
+        text->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 50);
+        text->SetTextEffect(TextEffect::TE_STROKE);
+        text->SetEffectStrokeThickness(5);
+        text->SetEffectColor(Color(0.f, 0.f, 0.f));
+        text->SetColor(Color(1.f, 1.f, 1.f));
         text->SetHorizontalAlignment(HA_CENTER);
         text->SetVerticalAlignment(VA_TOP);
         GetSubsystem<UI>()->GetRoot()->AddChild(text);
+
+        auto text_fps = new Text(context_);
+        text_fps->SetName("FPS");
+        text_fps->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 50);
+        text_fps->SetTextEffect(TextEffect::TE_STROKE);
+        text_fps->SetEffectStrokeThickness(5);
+        text_fps->SetEffectColor(Color(0.f, 0.f, 0.f));
+        text_fps->SetColor(Color(1.f, 1.f, 1.f));
+        text_fps->SetHorizontalAlignment(HorizontalAlignment::HA_LEFT);
+        text_fps->SetPosition(40, 20);
+        GetSubsystem<UI>()->GetRoot()->AddChild(text_fps);
     }
     /* - */
 
@@ -167,6 +181,13 @@ void App::handle_key_up(Urho3D::StringHash eventType, Urho3D::VariantMap& eventD
 void App::handle_update(StringHash eventType, VariantMap& eventData)
 {
     const auto time_step = eventData[Urho3D::Update::P_TIMESTEP].GetFloat();
+
+    static float counter = 0;
+    if ((counter += time_step) > 0.5) {
+        auto text = dynamic_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("FPS")));
+        text->SetText("FPS: " + String(int(counter / time_step / 0.5)));
+        counter = 0;
+    }
     adjust_camera(time_step);
 }
 

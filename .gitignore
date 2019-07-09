@@ -4,3 +4,6 @@
 
 # Root build directory
 /build/
+
+# Mac OS files
+.DS_Store
