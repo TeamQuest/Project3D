@@ -1,5 +1,6 @@
 bin/* linguist-generated=true
 CMake/* linguist-generated=true
+libs/* linguist-generated=true
 .bash_helpers.sh linguist-detectable=false
 cmake_clean.sh linguist-detectable=false
 cmake_generic.sh linguist-detectable=false
