@@ -181,11 +181,11 @@ void App::handle_key_up(Urho3D::StringHash eventType, Urho3D::VariantMap& eventD
 void App::handle_update(StringHash eventType, VariantMap& eventData)
 {
     const auto time_step = eventData[Urho3D::Update::P_TIMESTEP].GetFloat();
-
-    static float counter = 0;
-    if ((counter += time_step) > 0.5) {
+    static auto counter = 0.f;
+    constexpr auto fps_update_time = 0.5f;
+    if ((counter += time_step) > fps_update_time) {
         auto text = dynamic_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("FPS")));
-        text->SetText("FPS: " + String(int(counter / time_step / 0.5)));
+        text->SetText("FPS: " + String(int(counter / time_step / fps_update_time)));
         counter = 0;
     }
     adjust_camera(time_step);
