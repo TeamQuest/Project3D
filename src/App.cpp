@@ -55,49 +55,8 @@ void App::Start()
     m_scene->CreateComponent<Octree>();
 
     init_user_interface();
+    init_scene();
 
-    /* Ground example */
-    {
-        auto floor = m_scene->CreateChild("Floor");
-        floor->SetPosition(Vector3(0.f, -5.f, 0.f));
-        floor->SetScale(Vector3(500.f, 1.f, 500.f));
-        auto floor_model = floor->CreateComponent<StaticModel>();
-        floor_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
-        floor_model->SetMaterial(cache->GetResource<Material>("Materials/StoneTiled.xml"));
-        auto body = floor->CreateComponent<RigidBody>();
-        body->SetMass(0.f);
-        auto collider = floor->CreateComponent<CollisionShape>();
-        collider->SetBox(Vector3::ONE);
-        auto [x, y, z] = floor->GetPosition();
-        // Custom warning
-        URHO3D_LOGWARNINGF("Creating ground at position (%f, %f, %f).", x, y, z);
-        URHO3D_LOGINFO("Model name: " + floor_model->GetModel()->GetName());
-    }
-    /* - */
-
-    constexpr auto NUM_OBJECTS = 2000u;
-    for (unsigned i = 0; i < NUM_OBJECTS; ++i) {
-        auto box = m_scene->CreateChild("Box");
-        box->SetPosition(Vector3(Random(200.f) - 100.f, Random(200.f) + 5.f, Random(200.f) - 100.f));
-        box->SetRotation(Quaternion(Random(360.f), Random(360.f), Random(360.f)));
-        auto box_model = box->CreateComponent<StaticModel>();
-        box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
-        box_model->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
-    }
-    {
-        auto sky = m_scene->CreateChild("Sky");
-        auto skybox = sky->CreateComponent<Skybox>();
-        skybox->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
-        skybox->SetMaterial(cache->GetResource<Material>("Materials/Skybox.xml"));
-    }
-    {
-        m_camera = m_scene->CreateChild("Camera");
-        auto camera = m_camera->CreateComponent<Camera>();
-        camera->SetFarClip(2000);
-        auto light = m_camera->CreateComponent<Light>();
-        light->SetLightType(LIGHT_POINT);
-        light->SetRange(200.f);
-    }
     {
         auto renderer = GetSubsystem<Renderer>();
         auto viewport = MakeShared<Viewport>(context_, m_scene, m_camera->GetComponent<Camera>());
@@ -239,6 +198,48 @@ void App::init_user_interface()
     text_fps->SetVerticalAlignment(VerticalAlignment::VA_TOP);
     text_fps->SetPosition(40, 20);
     ui->GetRoot()->AddChild(text_fps);
+}
+
+void App::init_scene()
+{
+    auto cache = GetSubsystem<ResourceCache>();
+
+    { /* Ground */
+        auto floor = m_scene->CreateChild("Floor");
+        floor->SetPosition(Vector3(0.f, -5.f, 0.f));
+        floor->SetScale(Vector3(500.f, 1.f, 500.f));
+        auto floor_model = floor->CreateComponent<StaticModel>();
+        floor_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+        floor_model->SetMaterial(cache->GetResource<Material>("Materials/StoneTiled.xml"));
+        auto body = floor->CreateComponent<RigidBody>();
+        body->SetMass(0.f);
+        auto collider = floor->CreateComponent<CollisionShape>();
+        collider->SetBox(Vector3::ONE);
+    }
+
+    constexpr auto NUM_OBJECTS = 2000u;
+    for (unsigned i = 0; i < NUM_OBJECTS; ++i) {
+        auto box = m_scene->CreateChild("Box");
+        box->SetPosition(Vector3(Random(200.f) - 100.f, Random(200.f) + 5.f, Random(200.f) - 100.f));
+        box->SetRotation(Quaternion(Random(360.f), Random(360.f), Random(360.f)));
+        auto box_model = box->CreateComponent<StaticModel>();
+        box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+        box_model->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
+    }
+    {
+        auto sky = m_scene->CreateChild("Sky");
+        auto skybox = sky->CreateComponent<Skybox>();
+        skybox->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+        skybox->SetMaterial(cache->GetResource<Material>("Materials/Skybox.xml"));
+    }
+    {
+        m_camera = m_scene->CreateChild("Camera");
+        auto camera = m_camera->CreateComponent<Camera>();
+        camera->SetFarClip(2000);
+        auto light = m_camera->CreateComponent<Light>();
+        light->SetLightType(LIGHT_POINT);
+        light->SetRange(200.f);
+    }
 }
 
 URHO3D_DEFINE_APPLICATION_MAIN(App)

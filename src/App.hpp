@@ -32,6 +32,7 @@ public:
     void handle_closed_pressed(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void adjust_camera(float time_step);
     void init_user_interface();
+    void init_scene();
 
 private:
     Urho3D::SharedPtr<Urho3D::Scene> m_scene = nullptr;
