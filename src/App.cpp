@@ -47,46 +47,7 @@ void App::Start()
     m_scene->CreateComponent<DebugRenderer>();
     m_scene->CreateComponent<Octree>();
 
-    /* Button example */
-    {
-        GetSubsystem<UI>()->GetRoot()->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
-        auto button = new Button(context_);
-        GetSubsystem<UI>()->GetRoot()->AddChild(button);
-        button->SetName("Quit Button");
-        button->SetStyle("Button");
-        button->SetSize(64, 64);
-        button->SetPosition(16, 116);
-        SubscribeToEvent(button, E_RELEASED, URHO3D_HANDLER(App, handle_closed_pressed));
-    }
-    /* - */
-
-    /* Text example */
-    {
-        auto text = new Text(context_);
-        text->SetName("Hint Text");
-        text->SetText("Press TAB to show/hide mouse");
-        text->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 50);
-        text->SetTextEffect(TextEffect::TE_STROKE);
-        text->SetEffectStrokeThickness(5);
-        text->SetEffectColor(Color(0.f, 0.f, 0.f));
-        text->SetColor(Color(1.f, 1.f, 1.f));
-        text->SetHorizontalAlignment(HA_CENTER);
-        text->SetVerticalAlignment(VA_TOP);
-        GetSubsystem<UI>()->GetRoot()->AddChild(text);
-
-        auto text_fps = new Text(context_);
-        text_fps->SetName("FPS");
-        text_fps->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 50);
-        text_fps->SetTextEffect(TextEffect::TE_STROKE);
-        text_fps->SetEffectStrokeThickness(5);
-        text_fps->SetEffectColor(Color(0.f, 0.f, 0.f));
-        text_fps->SetColor(Color(1.f, 1.f, 1.f));
-        text_fps->SetHorizontalAlignment(HorizontalAlignment::HA_LEFT);
-        text_fps->SetVerticalAlignment(VerticalAlignment::VA_TOP);
-        text_fps->SetPosition(40, 20);
-        GetSubsystem<UI>()->GetRoot()->AddChild(text_fps);
-    }
-    /* - */
+    init_user_interface();
 
     /* Ground example */
     {
@@ -164,8 +125,8 @@ void App::handle_key_down(StringHash eventType, VariantMap& eventData)
         case KEY_TAB: {
             const auto is_mouse_visible = GetSubsystem<Input>()->IsMouseVisible();
             GetSubsystem<Input>()->SetMouseVisible(!is_mouse_visible);
-            auto text = dynamic_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("Hint Text")));
-            text->SetText(is_mouse_visible ? "Press WSAD to move around" : "Press TAB to show/hide mouse");
+            auto hint_text = dynamic_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("Hint Text")));
+            hint_text->SetText(is_mouse_visible ? "Press WSAD to move around" : "Press TAB to show/hide mouse");
             break;
         }
     }
@@ -183,10 +144,10 @@ void App::handle_update(StringHash eventType, VariantMap& eventData)
 {
     const auto time_step = eventData[Urho3D::Update::P_TIMESTEP].GetFloat();
     static auto counter = 0.f;
-    constexpr auto fps_update_time = 0.5f;
+    constexpr auto fps_update_time = 0.5f;  // in seconds
     if ((counter += time_step) > fps_update_time) {
-        auto text = dynamic_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("FPS")));
-        text->SetText("FPS: " + String(int(counter / time_step / fps_update_time)));
+        auto hint_text = dynamic_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("FPS")));
+        hint_text->SetText(ToString("FPS: %f", std::roundf(counter / time_step / fps_update_time)));
         counter = 0;
     }
     adjust_camera(time_step);
@@ -231,6 +192,45 @@ void App::handle_postrender_update(StringHash eventType, VariantMap& eventData)
 void App::handle_closed_pressed(StringHash eventType, VariantMap& eventData)
 {
     engine_->Exit();
+}
+
+void App::init_user_interface()
+{
+    auto cache = GetSubsystem<ResourceCache>();
+    auto ui = GetSubsystem<UI>();
+    ui->GetRoot()->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
+
+    auto quit_button = new Button(context_);
+    quit_button->SetName("Quit Button");
+    quit_button->SetStyle("Button");
+    quit_button->SetSize(64, 64);
+    quit_button->SetPosition(16, 116);
+    ui->GetRoot()->AddChild(quit_button);
+    SubscribeToEvent(quit_button, E_RELEASED, URHO3D_HANDLER(App, handle_closed_pressed));
+
+    auto hint_text = new Text(context_);
+    hint_text->SetName("Hint Text");
+    hint_text->SetText("Press TAB to show/hide mouse");
+    hint_text->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 50);
+    hint_text->SetTextEffect(TextEffect::TE_STROKE);
+    hint_text->SetEffectStrokeThickness(5);
+    hint_text->SetEffectColor(Color(0.f, 0.f, 0.f));
+    hint_text->SetColor(Color(1.f, 1.f, 1.f));
+    hint_text->SetHorizontalAlignment(HA_CENTER);
+    hint_text->SetVerticalAlignment(VA_TOP);
+    ui->GetRoot()->AddChild(hint_text);
+
+    auto text_fps = new Text(context_);
+    text_fps->SetName("FPS");
+    text_fps->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 50);
+    text_fps->SetTextEffect(TextEffect::TE_STROKE);
+    text_fps->SetEffectStrokeThickness(5);
+    text_fps->SetEffectColor(Color(0.f, 0.f, 0.f));
+    text_fps->SetColor(Color(1.f, 1.f, 1.f));
+    text_fps->SetHorizontalAlignment(HorizontalAlignment::HA_LEFT);
+    text_fps->SetVerticalAlignment(VerticalAlignment::VA_TOP);
+    text_fps->SetPosition(40, 20);
+    ui->GetRoot()->AddChild(text_fps);
 }
 
 URHO3D_DEFINE_APPLICATION_MAIN(App)
