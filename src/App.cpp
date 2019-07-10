@@ -82,6 +82,7 @@ void App::Start()
         text_fps->SetEffectColor(Color(0.f, 0.f, 0.f));
         text_fps->SetColor(Color(1.f, 1.f, 1.f));
         text_fps->SetHorizontalAlignment(HorizontalAlignment::HA_LEFT);
+        text_fps->SetVerticalAlignment(VerticalAlignment::VA_TOP);
         text_fps->SetPosition(40, 20);
         GetSubsystem<UI>()->GetRoot()->AddChild(text_fps);
     }
