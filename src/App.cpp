@@ -1,5 +1,10 @@
 #include "App.hpp"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wall"
+#pragma clang diagnostic ignored "-Wextra"
+#pragma clang diagnostic ignored "-Wpedantic"
+
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
@@ -22,6 +27,8 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/UIEvents.h>
+
+#pragma clang diagnostic pop
 
 using namespace Urho3D;
 
@@ -58,6 +65,7 @@ void App::Start()
         floor_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
         floor_model->SetMaterial(cache->GetResource<Material>("Materials/StoneTiled.xml"));
         auto body = floor->CreateComponent<RigidBody>();
+        body->SetMass(0.f);
         auto collider = floor->CreateComponent<CollisionShape>();
         collider->SetBox(Vector3::ONE);
         auto [x, y, z] = floor->GetPosition();
@@ -110,11 +118,11 @@ void App::Stop()
 {
 }
 
-void App::handle_begin_frame(StringHash eventType, VariantMap& eventData)
+void App::handle_begin_frame(StringHash /* eventType */, VariantMap& /* eventData */)
 {
 }
 
-void App::handle_key_down(StringHash eventType, VariantMap& eventData)
+void App::handle_key_down(StringHash /* eventType */, VariantMap& eventData)
 {
     int key = eventData[KeyDown::P_KEY].GetInt();
     switch (key) {
@@ -132,7 +140,7 @@ void App::handle_key_down(StringHash eventType, VariantMap& eventData)
     }
 }
 
-void App::handle_key_up(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData)
+void App::handle_key_up(Urho3D::StringHash /* eventType */, Urho3D::VariantMap& /* eventData */)
 {
     // int key = eventData[KeyDown::P_KEY].GetInt();
     // switch (key) {
@@ -140,7 +148,7 @@ void App::handle_key_up(Urho3D::StringHash eventType, Urho3D::VariantMap& eventD
     // }
 }
 
-void App::handle_update(StringHash eventType, VariantMap& eventData)
+void App::handle_update(StringHash /* eventType */, VariantMap& eventData)
 {
     const auto time_step = eventData[Urho3D::Update::P_TIMESTEP].GetFloat();
     static auto counter = 0.f;
@@ -185,11 +193,11 @@ void App::adjust_camera(float time_step)
     }
 }
 
-void App::handle_postrender_update(StringHash eventType, VariantMap& eventData)
+void App::handle_postrender_update(StringHash /* eventType */, VariantMap& /* eventData */)
 {
 }
 
-void App::handle_closed_pressed(StringHash eventType, VariantMap& eventData)
+void App::handle_closed_pressed(StringHash /* eventType */, VariantMap& /* eventData */)
 {
     engine_->Exit();
 }

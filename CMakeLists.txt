@@ -12,6 +12,7 @@ project(Project3D)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/Modules)
 set(CMAKE_CXX_STANDARD 17)
 include(UrhoCommon)
+add_compile_options(-Wall -Wextra -Weffc++ -Wpedantic)
 
 set(TARGET_NAME project3D)
 
