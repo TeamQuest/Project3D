@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Character.hpp"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
 #pragma clang diagnostic ignored "-Wextra"
@@ -16,6 +18,12 @@ struct Head {
     float roll;
 };
 
+namespace {
+constexpr float CAMERA_MIN_DIST = 1.0f;
+constexpr float CAMERA_INITIAL_DIST = 5.0f;
+constexpr float CAMERA_MAX_DIST = 20.0f;
+}  // namespace
+
 class App : public Urho3D::Application {
 public:
     App(Urho3D::Context* context);
@@ -30,11 +38,14 @@ public:
     void handle_update(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void handle_postrender_update(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
     void handle_closed_pressed(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+    void handle_post_update(StringHash eventType, VariantMap& eventData);
     void adjust_camera(float time_step);
     void init_user_interface();
+    void create_character();
 
 private:
     Urho3D::SharedPtr<Urho3D::Scene> m_scene = nullptr;
     Urho3D::SharedPtr<Urho3D::Node> m_camera = nullptr;
     Head m_head = {0.f, 0.f, 0.f};
+    Urho3D::WeakPtr<Character> m_character;
 };
