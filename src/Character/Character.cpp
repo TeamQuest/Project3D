@@ -13,15 +13,19 @@
 
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Math/Ray.h>
+#include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Physics/PhysicsEvents.h>
 #include <Urho3D/Physics/RigidBody.h>
+
+#include "Utils/Pickable.hpp"
+
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Scene/SceneEvents.h>
 #include <Urho3D/UI/UI.h>
 
 #pragma clang diagnostic pop
 
-#include <tuple>
+#include <iostream>
 
 using namespace Urho3D;
 
@@ -45,8 +49,18 @@ Character::Character(Context* context) : LogicComponent(context), m_on_ground(fa
 
 void Character::Start()
 {
+    m_action_collider = GetNode()->CreateChild("Action Collider");
+
+    auto rigidbody = m_action_collider->CreateComponent<RigidBody>();
+
+    rigidbody->SetTrigger(true);
+
+    auto collider = m_action_collider->CreateComponent<CollisionShape>();
+    collider->SetSphere(2, GetNode()->GetPosition() + Vector3(0.f, 0.f, 2.f));
+
     // Component has been inserted into its scene node. Subscribe to events now
     SubscribeToEvent(GetNode(), E_NODECOLLISION, URHO3D_HANDLER(Character, handle_collision));
+    SubscribeToEvent(m_action_collider, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_interaction));
 }
 
 void Character::FixedUpdate(float time_step)
@@ -187,5 +201,18 @@ void Character::handle_collision(StringHash /* event_type */, VariantMap& event_
             m_on_ground = true;
         }
         // }
+    }
+}
+
+void Character::handle_interaction(StringHash /* event_type */, VariantMap& event_data)
+{
+    auto input = GetSubsystem<Input>();
+
+    if (input->GetKeyDown(KEY_E)) {
+        auto node_collider = static_cast<Node*>(event_data[NodeCollision::P_OTHERNODE].GetPtr());
+
+        if (auto pick = node_collider->GetComponent<Pickable>()) {
+            std::cout << "getMessage " << pick->GetMessage().CString() << std::endl;
+        }
     }
 }

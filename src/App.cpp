@@ -31,6 +31,8 @@
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/UIEvents.h>
 
+#include "Utils/Pickable.hpp"
+
 #pragma clang diagnostic pop
 
 using namespace Urho3D;
@@ -38,6 +40,7 @@ using namespace Urho3D;
 App::App(Context* context) : Application{context}, m_scene{new Scene{context}}
 {
     context->RegisterFactory<Character>();
+    context->RegisterFactory<Pickable>();
 }
 
 void App::Setup()
@@ -266,12 +269,16 @@ void App::init_scene()
         auto box = m_scene->CreateChild("Box");
         box->SetPosition(Vector3(Random(200.f) - 100.f, Random(200.f) + 5.f, Random(200.f) - 100.f));
         box->SetRotation(Quaternion(Random(360.f), Random(360.f), Random(360.f)));
+        box->SetScale(5.f);
 
         auto rigidbody = box->CreateComponent<RigidBody>();
         rigidbody->SetMass(1.f);
 
         auto collider = box->CreateComponent<CollisionShape>();
         collider->SetBox(Vector3::ONE);
+
+        auto pickable = box->CreateComponent<Pickable>();
+        pickable->SetMessage("Pick up object");
 
         auto box_model = box->CreateComponent<StaticModel>();
         box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));

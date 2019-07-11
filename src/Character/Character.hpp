@@ -26,6 +26,7 @@ public:
 
 private:
     void handle_collision(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
+    void handle_interaction(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
 
 private:
 public:
@@ -33,4 +34,5 @@ public:
     bool m_on_ground;
     bool m_can_jump;
     float m_time_in_air;
+    Urho3D::Node* m_action_collider;
 };
