@@ -12,13 +12,23 @@ project(Project3D)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/Modules)
 set(CMAKE_CXX_STANDARD 17)
 include(UrhoCommon)
-add_compile_options(-Wall -Wextra -Weffc++ -Wpedantic)
+add_compile_options(
+    # Warnings
+    -Wall
+    -Wextra
+    -Weffc++
+    -Wpedantic
+    -Wno-inconsistent-missing-override
+)
 
 set(TARGET_NAME project3D)
 
 # define_source_files()
-file(GLOB CPP_FILES src/*.cpp RECURSE GROUP)
-file(GLOB H_FILES src/*.h* RECURSE GROUP)
+file(GLOB_RECURSE CPP_FILES src/*.cpp)
+
+# file(GLOB H_FILES src/*.h* src/*/*.h* RECURSE GROUP)
+include_directories(src)
+
 set(SOURCE_FILES ${CPP_FILES} ${H_FILES})
 
 setup_main_executable()

@@ -37,7 +37,7 @@ using namespace Urho3D;
 
 App::App(Context* context) : Application{context}, m_scene{new Scene{context}}
 {
-    Character::RegisterObject(context);
+    context->RegisterFactory<Character>();
 }
 
 void App::Setup()
@@ -54,7 +54,6 @@ void App::Start()
 {
     GetSubsystem<Input>()->SetMouseVisible(true);
 
-    const auto cache = GetSubsystem<ResourceCache>();
     m_scene->CreateComponent<DebugRenderer>();
     m_scene->CreateComponent<Octree>();
     m_scene->CreateComponent<PhysicsWorld>();
@@ -85,27 +84,26 @@ void App::Stop()
 
 void App::create_character()
 {
-    auto* cache = GetSubsystem<ResourceCache>();
+    auto cache = GetSubsystem<ResourceCache>();
 
-    Node* objectNode = m_scene->CreateChild("Jack");
-    objectNode->SetPosition(Vector3(0.0f, 1.0f, 0.0f));
+    auto jack = m_scene->CreateChild("Jack");
+    jack->SetPosition(Vector3(0.0f, 1.0f, 0.0f));
 
-    // spin node
-    Node* adjustNode = objectNode->CreateChild("AdjNode");
-    adjustNode->SetRotation(Quaternion(180, Vector3(0, 1, 0)));
+    auto asset_node = jack->CreateChild("Character Asset Node");
+    asset_node->SetRotation(Quaternion(180, Vector3(0, 1, 0)));
 
     // Create the rendering component + animation controller
-    auto* object = adjustNode->CreateComponent<AnimatedModel>();
-    object->SetModel(cache->GetResource<Model>("Models/Mutant/Mutant.mdl"));
-    object->SetMaterial(cache->GetResource<Material>("Models/Mutant/Materials/mutant_M.xml"));
-    object->SetCastShadows(true);
-    adjustNode->CreateComponent<AnimationController>();
+    auto model = asset_node->CreateComponent<AnimatedModel>();
+    model->SetModel(cache->GetResource<Model>("Models/Mutant/Mutant.mdl"));
+    model->SetMaterial(cache->GetResource<Material>("Models/Mutant/Materials/mutant_M.xml"));
+    model->SetCastShadows(true);
+    asset_node->CreateComponent<AnimationController>();
 
     // Set the head bone for manual control
-    object->GetSkeleton().GetBone("Mutant:Head")->animated_ = false;
+    model->GetSkeleton().GetBone("Mutant:Head")->animated_ = false;
 
     // Create rigidbody, and set non-zero mass so that the body becomes dynamic
-    auto* body = objectNode->CreateComponent<RigidBody>();
+    auto body = jack->CreateComponent<RigidBody>();
     body->SetCollisionLayer(1);
     body->SetMass(1.0f);
 
@@ -114,25 +112,25 @@ void App::create_character()
     body->SetAngularFactor(Vector3::ZERO);
 
     // Set the rigidbody to signal collision also when in rest, so that we get ground collisions properly
-    body->SetCollisionEventMode(COLLISION_ALWAYS);
+    body->SetCollisionEventMode(CollisionEventMode::COLLISION_ALWAYS);
 
     // Set a capsule shape for collision
-    auto* shape = objectNode->CreateComponent<CollisionShape>();
+    auto shape = jack->CreateComponent<CollisionShape>();
     shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
 
     // Create the character logic component, which takes care of steering the rigidbody
     // Remember it so that we can set the controls. Use a WeakPtr because the scene hierarchy already owns it
     // and keeps it alive as long as it's not removed from the hierarchy
-    m_character = objectNode->CreateComponent<Character>();
+    m_character = jack->CreateComponent<Character>();
 }
 
-void App::handle_begin_frame(StringHash /* eventType */, VariantMap& /* eventData */)
+void App::handle_begin_frame(StringHash /* event_type */, VariantMap& /* event_data */)
 {
 }
 
-void App::handle_key_down(StringHash /* eventType */, VariantMap& eventData)
+void App::handle_key_down(StringHash /* event_type */, VariantMap& event_data)
 {
-    int key = eventData[KeyDown::P_KEY].GetInt();
+    int key = event_data[KeyDown::P_KEY].GetInt();
     switch (key) {
         case KEY_ESCAPE: {
             engine_->Exit();
@@ -148,17 +146,17 @@ void App::handle_key_down(StringHash /* eventType */, VariantMap& eventData)
     }
 }
 
-void App::handle_key_up(Urho3D::StringHash /* eventType */, Urho3D::VariantMap& /* eventData */)
+void App::handle_key_up(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& /* event_data */)
 {
-    // int key = eventData[KeyDown::P_KEY].GetInt();
+    // int key = event_data[KeyDown::P_KEY].GetInt();
     // switch (key) {
 
     // }
 }
 
-void App::handle_update(StringHash eventType, VariantMap& eventData)
+void App::handle_update(StringHash event_type, VariantMap& event_data)
 {
-    const auto time_step = eventData[Urho3D::Update::P_TIMESTEP].GetFloat();
+    const auto time_step = event_data[Urho3D::Update::P_TIMESTEP].GetFloat();
     static auto counter = 0.f;
     constexpr auto fps_update_time = 0.5f;  // in seconds
     if ((counter += time_step) > fps_update_time) {
@@ -168,110 +166,37 @@ void App::handle_update(StringHash eventType, VariantMap& eventData)
     }
     // adjust_camera(time_step);
 
-    using namespace Update;
-
-    auto* input = GetSubsystem<Input>();
-
     if (m_character) {
-        // Clear previous controls
-        m_character->controls_.Set(CTRL_FORWARD | CTRL_BACK | CTRL_LEFT | CTRL_RIGHT | CTRL_JUMP, false);
-
-        // Update controls using keys
-        auto* ui = GetSubsystem<UI>();
-        if (!ui->GetFocusElement()) {
-            m_character->controls_.Set(CTRL_FORWARD, input->GetKeyDown(KEY_W));
-            m_character->controls_.Set(CTRL_BACK, input->GetKeyDown(KEY_S));
-            m_character->controls_.Set(CTRL_LEFT, input->GetKeyDown(KEY_A));
-            m_character->controls_.Set(CTRL_RIGHT, input->GetKeyDown(KEY_D));
-
-            m_character->controls_.Set(CTRL_JUMP, input->GetKeyDown(KEY_SPACE));
-
-            // Add character yaw & pitch from the mouse motion or touch input
-
-            m_character->controls_.yaw_ += (float)input->GetMouseMoveX() * YAW_SENSITIVITY;
-            m_character->controls_.pitch_ += (float)input->GetMouseMoveY() * YAW_SENSITIVITY;
-
-            // Limit pitch
-            m_character->controls_.pitch_ = Clamp(m_character->controls_.pitch_, -80.0f, 80.0f);
-            // Set rotation already here so that it's updated every rendering frame instead of every physics frame
-            m_character->GetNode()->SetRotation(Quaternion(m_character->controls_.yaw_, Vector3::UP));
-        }
+        m_character->handle_movement();
     }
-    handle_post_update(eventType, eventData);
+    handle_post_update(event_type, event_data);
 }
 
-void App::handle_post_update(StringHash eventType, VariantMap& eventData)
+void App::handle_post_update(StringHash /* event_type */, VariantMap& /* event_data */)
 {
-    if (!m_character)
+    auto character = m_character->GetNode();
+    const auto rotation = character->GetRotation();
+    // Head pitch based on camera
+    {
+        const auto head = character->GetChild("Mutant:Head", true);
+        const auto pitch_constraint = Clamp(m_character->m_controls.pitch_, -45.0f, 45.0f);
+        // Rotate head along x-axis by the pitch angle
+        const auto head_dir = rotation * Quaternion(pitch_constraint, Vector3::RIGHT);
+        const auto target = head->GetWorldPosition() + head_dir * Vector3::BACK;
+        head->LookAt(target, Vector3::UP);
+    }
+
+    if (!m_character || GetSubsystem<Input>()->IsMouseVisible() || GetSubsystem<UI>()->GetFocusElement()) {
         return;
-
-    Node* characterNode = m_character->GetNode();
-
-    // Get camera lookat dir from character yaw + pitch
-    const Quaternion& rot = characterNode->GetRotation();
-    Quaternion dir = rot * Quaternion(m_character->controls_.pitch_, Vector3::RIGHT);
-
-    // Turn head to camera pitch, but limit to avoid unnatural animation
-    Node* headNode = characterNode->GetChild("Mutant:Head", true);
-    float limitPitch = Clamp(m_character->controls_.pitch_, -45.0f, 45.0f);
-    Quaternion headDir = rot * Quaternion(limitPitch, Vector3(1.0f, 0.0f, 0.0f));
-    // This could be expanded to look at an arbitrary target, now just look at a point in front
-    Vector3 headWorldTarget = headNode->GetWorldPosition() + headDir * Vector3(0.0f, 0.0f, -1.0f);
-    headNode->LookAt(headWorldTarget, Vector3(0.0f, 1.0f, 0.0f));
-
-    // Third person camera: position behind the character
-    Vector3 aimPoint = characterNode->GetPosition() + rot * Vector3(0.0f, 1.7f, 0.0f);
-
-    // Collide camera ray with static physics objects (layer bitmask 2) to ensure we see the character properly
-    Vector3 rayDir = dir * Vector3::BACK;
-    float rayDistance = CAMERA_INITIAL_DIST;
-    PhysicsRaycastResult result;
-    m_scene->GetComponent<PhysicsWorld>()->RaycastSingle(result, Ray(aimPoint, rayDir), rayDistance, 2);
-    if (result.body_)
-        rayDistance = Min(rayDistance, result.distance_);
-    rayDistance = Clamp(rayDistance, CAMERA_MIN_DIST, CAMERA_MAX_DIST);
-
-    m_camera->SetPosition(aimPoint + rayDir * rayDistance);
-    m_camera->SetRotation(dir);
+    }
+    m_character->handle_camera(m_camera, m_scene->GetComponent<PhysicsWorld>());
 }
 
-void App::adjust_camera(float time_step)
-{
-    auto input = GetSubsystem<Input>();
-    // Do not move camera if cursor is visible or the UI has a focused element (e.g. the console)
-    if (input->IsMouseVisible() || GetSubsystem<UI>()->GetFocusElement())
-        return;
-
-    // Movement speed as world units per second
-    constexpr auto MOVE_SPEED = 20.f;
-    // Mouse sensitivity as degrees per pixel
-    constexpr auto MOUSE_SENSITIVITY = 0.1f;
-
-    // Use this frame's mouse motion to adjust camera node yaw, pitch and roll. Clamp the pitch between -90 and 90 degrees
-    auto mouse_moved = input->GetMouseMove();
-    m_head.yaw += MOUSE_SENSITIVITY * mouse_moved.x_;
-    m_head.pitch = Clamp(m_head.pitch += MOUSE_SENSITIVITY * mouse_moved.y_, -90.f, 90.f);
-    m_camera->SetRotation(Quaternion(m_head.pitch, m_head.yaw, m_head.roll));
-
-    if (input->GetKeyDown(KEY_W)) {
-        m_camera->Translate(Vector3::FORWARD * MOVE_SPEED * time_step);
-    }
-    if (input->GetKeyDown(KEY_S)) {
-        m_camera->Translate(Vector3::BACK * MOVE_SPEED * time_step);
-    }
-    if (input->GetKeyDown(KEY_A)) {
-        m_camera->Translate(Vector3::LEFT * MOVE_SPEED * time_step);
-    }
-    if (input->GetKeyDown(KEY_D)) {
-        m_camera->Translate(Vector3::RIGHT * MOVE_SPEED * time_step);
-    }
-}
-
-void App::handle_postrender_update(StringHash /* eventType */, VariantMap& /* eventData */)
+void App::handle_postrender_update(StringHash /* event_type */, VariantMap& /* event_data */)
 {
 }
 
-void App::handle_closed_pressed(StringHash /* eventType */, VariantMap& /* eventData */)
+void App::handle_closed_pressed(StringHash /* event_type */, VariantMap& /* event_data */)
 {
     engine_->Exit();
 }
@@ -327,6 +252,10 @@ void App::init_scene()
         floor_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
         floor_model->SetMaterial(cache->GetResource<Material>("Materials/StoneTiled.xml"));
         auto body = floor->CreateComponent<RigidBody>();
+        // TODO: Explain this and replace raw number with an enum.
+        //       Collision Layer is set to allow collision with the camera raycast.
+        // This means that the camera behind the player never goes under ground.
+        body->SetCollisionLayer(2);
         body->SetMass(0.f);
         auto collider = floor->CreateComponent<CollisionShape>();
         collider->SetBox(Vector3::ONE);
