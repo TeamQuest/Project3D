@@ -261,11 +261,18 @@ void App::init_scene()
         collider->SetBox(Vector3::ONE);
     }
 
-    constexpr auto NUM_OBJECTS = 2000u;
+    constexpr auto NUM_OBJECTS = 1000u;
     for (unsigned i = 0; i < NUM_OBJECTS; ++i) {
         auto box = m_scene->CreateChild("Box");
         box->SetPosition(Vector3(Random(200.f) - 100.f, Random(200.f) + 5.f, Random(200.f) - 100.f));
         box->SetRotation(Quaternion(Random(360.f), Random(360.f), Random(360.f)));
+
+        auto rigidbody = box->CreateComponent<RigidBody>();
+        rigidbody->SetMass(1.f);
+
+        auto collider = box->CreateComponent<CollisionShape>();
+        collider->SetBox(Vector3::ONE);
+
         auto box_model = box->CreateComponent<StaticModel>();
         box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
         box_model->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
