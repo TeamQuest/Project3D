@@ -1,5 +1,7 @@
 #include "App.hpp"
 
+#include "Utility/Pickable.hpp"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
 #pragma clang diagnostic ignored "-Wextra"
@@ -30,8 +32,6 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/UIEvents.h>
-
-#include "Utils/Pickable.hpp"
 
 #pragma clang diagnostic pop
 
@@ -167,7 +167,6 @@ void App::handle_update(StringHash event_type, VariantMap& event_data)
         hint_text->SetText(ToString("FPS: %f", std::roundf(counter / time_step / fps_update_time)));
         counter = 0;
     }
-    // adjust_camera(time_step);
 
     if (m_character) {
         m_character->handle_movement();
@@ -177,19 +176,13 @@ void App::handle_update(StringHash event_type, VariantMap& event_data)
 
 void App::handle_post_update(StringHash /* event_type */, VariantMap& /* event_data */)
 {
-    auto character = m_character->GetNode();
-    const auto rotation = character->GetRotation();
-    // Head pitch based on camera
-    {
-        const auto head = character->GetChild("Mutant:Head", true);
-        const auto pitch_constraint = Clamp(m_character->m_controls.pitch_, -45.0f, 45.0f);
-        // Rotate head along x-axis by the pitch angle
-        const auto head_dir = rotation * Quaternion(pitch_constraint, Vector3::RIGHT);
-        const auto target = head->GetWorldPosition() + head_dir * Vector3::BACK;
-        head->LookAt(target, Vector3::UP);
+    if (!m_character) {
+        return;
     }
 
-    if (!m_character || GetSubsystem<Input>()->IsMouseVisible() || GetSubsystem<UI>()->GetFocusElement()) {
+    m_character->adjust_head_pitch();
+
+    if (GetSubsystem<Input>()->IsMouseVisible() || GetSubsystem<UI>()->GetFocusElement()) {
         return;
     }
     m_character->handle_camera(m_camera, m_scene->GetComponent<PhysicsWorld>());
@@ -197,6 +190,8 @@ void App::handle_post_update(StringHash /* event_type */, VariantMap& /* event_d
 
 void App::handle_postrender_update(StringHash /* event_type */, VariantMap& /* event_data */)
 {
+    // Comment to hide Debug wireframes
+    m_scene->GetComponent<PhysicsWorld>()->DrawDebugGeometry(true);
 }
 
 void App::handle_closed_pressed(StringHash /* event_type */, VariantMap& /* event_data */)
@@ -264,12 +259,12 @@ void App::init_scene()
         collider->SetBox(Vector3::ONE);
     }
 
-    constexpr auto NUM_OBJECTS = 1000u;
+    constexpr auto NUM_OBJECTS = 100u;
     for (unsigned i = 0; i < NUM_OBJECTS; ++i) {
         auto box = m_scene->CreateChild("Box");
         box->SetPosition(Vector3(Random(200.f) - 100.f, Random(200.f) + 5.f, Random(200.f) - 100.f));
         box->SetRotation(Quaternion(Random(360.f), Random(360.f), Random(360.f)));
-        box->SetScale(5.f);
+        box->SetScale(3.f);
 
         auto rigidbody = box->CreateComponent<RigidBody>();
         rigidbody->SetMass(1.f);
@@ -278,7 +273,9 @@ void App::init_scene()
         collider->SetBox(Vector3::ONE);
 
         auto pickable = box->CreateComponent<Pickable>();
-        pickable->SetMessage("Pick up object");
+        auto possible_items = std::vector<String>{"Health Potion (+40%)", "Old trousers", "Bottle of wine", "Shoes", "Gold (1000GP)", "Gold (9GP)"};
+        const auto& random_item = possible_items[Random(0, possible_items.size())];
+        pickable->set_item(random_item);
 
         auto box_model = box->CreateComponent<StaticModel>();
         box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));

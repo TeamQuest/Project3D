@@ -1,31 +1,25 @@
 #include "Character/Character.hpp"
 
 #include "Constants.hpp"
+#include "Utility/Pickable.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
 #pragma clang diagnostic ignored "-Wextra"
 #pragma clang diagnostic ignored "-Wpedantic"
-
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Graphics/AnimationController.h>
+#include <Urho3D/IO/Log.h>
 #include <Urho3D/IO/MemoryBuffer.h>
-
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Math/Ray.h>
 #include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Physics/PhysicsEvents.h>
 #include <Urho3D/Physics/RigidBody.h>
-
-#include "Utils/Pickable.hpp"
-
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Scene/SceneEvents.h>
 #include <Urho3D/UI/UI.h>
-
 #pragma clang diagnostic pop
-
-#include <iostream>
 
 using namespace Urho3D;
 
@@ -49,17 +43,16 @@ Character::Character(Context* context) : LogicComponent(context), m_on_ground(fa
 
 void Character::Start()
 {
-    m_action_collider = GetNode()->CreateChild("Action Collider");
-
-    auto rigidbody = m_action_collider->CreateComponent<RigidBody>();
-
-    rigidbody->SetTrigger(true);
-
-    auto collider = m_action_collider->CreateComponent<CollisionShape>();
-    collider->SetSphere(2, GetNode()->GetPosition() + Vector3(0.f, 0.f, 2.f));
+    {  // Setup action collider
+        m_action_collider = node_->CreateChild("Action Collider");
+        auto&& rigidbody = m_action_collider->CreateComponent<RigidBody>();
+        rigidbody->SetTrigger(true);
+        auto&& collider = m_action_collider->CreateComponent<CollisionShape>();
+        collider->SetCone(5.f, 2.f, Vector3(0.f, 1.f, 1.f), Quaternion(-90.f, Vector3::RIGHT));
+    }
 
     // Component has been inserted into its scene node. Subscribe to events now
-    SubscribeToEvent(GetNode(), E_NODECOLLISION, URHO3D_HANDLER(Character, handle_collision));
+    SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_collision));
     SubscribeToEvent(m_action_collider, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_interaction));
 }
 
@@ -157,16 +150,16 @@ void Character::handle_movement()
     // Limit pitch
     m_controls.pitch_ = Clamp(m_controls.pitch_, -80.0f, 80.0f);
     // Set rotation already here so that it's updated every rendering frame instead of every physics frame
-    GetNode()->SetRotation(Quaternion(m_controls.yaw_, Vector3::UP));
+    node_->SetRotation(Quaternion(m_controls.yaw_, Vector3::UP));
 }
 
 void Character::handle_camera(SharedPtr<Node> camera, PhysicsWorld* world)
 {
-    auto&& rotation = GetNode()->GetRotation();
+    auto&& rotation = node_->GetRotation();
     const auto dir = rotation * Quaternion(m_controls.pitch_, Vector3::RIGHT);
     //////// Somebody explain why aim_point is calculated like this
     // Third person camera: position behind the character
-    const auto aim_point = GetNode()->GetPosition() + rotation * Vector3::UP * 1.7f;
+    const auto aim_point = node_->GetPosition() + rotation * Vector3::UP * 1.7f;
 
     // Collide camera ray with static physics objects (layer bitmask 2) to ensure we see the character properly
     const auto ray_dir = dir * Vector3::BACK;
@@ -206,13 +199,25 @@ void Character::handle_collision(StringHash /* event_type */, VariantMap& event_
 
 void Character::handle_interaction(StringHash /* event_type */, VariantMap& event_data)
 {
-    auto input = GetSubsystem<Input>();
-
-    if (input->GetKeyDown(KEY_E)) {
-        auto node_collider = static_cast<Node*>(event_data[NodeCollision::P_OTHERNODE].GetPtr());
+    const auto input = GetSubsystem<Input>();
+    if (input->GetKeyPress(KEY_E)) {
+        auto node_collider = dynamic_cast<Node*>(event_data[NodeCollision::P_OTHERNODE].GetPtr());
 
         if (auto pick = node_collider->GetComponent<Pickable>()) {
-            std::cout << "getMessage " << pick->GetMessage().CString() << std::endl;
+            URHO3D_LOGWARNING("Found item: " + pick->item());
         }
     }
+}
+
+void Character::adjust_head_pitch()
+{
+    // Sets head pitch based on camera
+
+    const auto rotation = node_->GetRotation();
+    const auto head = node_->GetChild("Mutant:Head", true);
+    const auto pitch_constraint = Clamp(m_controls.pitch_, -45.0f, 45.0f);
+    // Rotate head along x-axis by the pitch angle
+    const auto head_dir = node_->GetRotation() * Quaternion(pitch_constraint, Vector3::RIGHT);
+    const auto target = head->GetWorldPosition() + head_dir * Vector3::BACK;
+    head->LookAt(target, Vector3::UP);
 }
