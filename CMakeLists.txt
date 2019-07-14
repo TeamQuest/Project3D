@@ -19,6 +19,7 @@ add_compile_options(
     -Weffc++
     -Wpedantic
     -Wno-inconsistent-missing-override
+    -Wno-sign-compare
 )
 
 set(TARGET_NAME project3D)
