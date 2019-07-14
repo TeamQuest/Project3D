@@ -5,6 +5,7 @@
 class MainMenu : public State {
 public:
     MainMenu(Urho3D::Context* context);
+    ~MainMenu();
 
     void Update(float time_step) override;
 

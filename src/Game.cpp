@@ -77,16 +77,9 @@ void Game::Start()
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(Game, handle_key_down));
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Game, handle_update));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(Game, handle_postrender_update));
-    // May not work when scene is changed (CHECK IT!)
-    SubscribeToEvent(m_active_state->GetNode(), E_EXITREQUESTED, [&](auto, auto&) { engine_->Exit(); });
-    SubscribeToEvent(E_STARTGAME, [&](auto&&...) {
-        GetSubsystem<UI>()->GetRoot()->RemoveAllChildren();
-        m_next_state = Scenes::Gameplay;
-    });
-    SubscribeToEvent(E_MENUREQUESTED, [&](auto&&...) {
-        GetSubsystem<UI>()->GetRoot()->RemoveAllChildren();
-        m_next_state = Scenes::MainMenu;
-    });
+    SubscribeToEvent(E_EXITREQUESTED, [&](auto&&...) { engine_->Exit(); });
+    SubscribeToEvent(E_STARTGAME, [&](auto&&...) { m_next_state = Scenes::Gameplay; });
+    SubscribeToEvent(E_MENUREQUESTED, [&](auto&&...) { m_next_state = Scenes::MainMenu; });
 }
 
 void Game::Stop()
@@ -96,9 +89,12 @@ void Game::Stop()
 
 void Game::handle_begin_frame(StringHash /* event_type */, VariantMap& /* event_data */)
 {
+    if (m_next_state == Scenes::Empty) {
+        return;
+    }
+    GetSubsystem<UI>()->GetRoot()->RemoveAllChildren();
+    m_active_state.Reset();
     switch (m_next_state) {
-        case Scenes::Empty:
-            return;
         case Scenes::MainMenu: {
             m_active_state = new MainMenu(context_);
             break;
@@ -108,6 +104,7 @@ void Game::handle_begin_frame(StringHash /* event_type */, VariantMap& /* event_
             break;
         }
         default:
+            // Unhandled scene caught
             assert(false);
             break;
     }

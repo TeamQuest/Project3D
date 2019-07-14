@@ -28,7 +28,7 @@ using namespace Urho3D;
 
 Gameplay::Gameplay(Context* context) : State(context)
 {
-    URHO3D_LOGWARNING("Setting up Gameplay scene...");
+    URHO3D_LOGINFO("Setting up Gameplay scene...");
     const auto cache = GetSubsystem<ResourceCache>();
     auto ui = GetSubsystem<UI>();
     ui->GetRoot()->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
@@ -49,10 +49,7 @@ Gameplay::Gameplay(Context* context) : State(context)
     quit_button->AddChild(quit_button_label);
     ui->GetRoot()->AddChild(quit_button);
 
-    SubscribeToEvent(quit_button, E_RELEASED, [&](StringHash, VariantMap&) {
-        SendEvent(E_MENUREQUESTED);
-        URHO3D_LOGWARNING("Exitting Gameplay scene...");
-    });
+    SubscribeToEvent(quit_button, E_RELEASED, [&](auto&&...) { SendEvent(E_MENUREQUESTED); });
 
     auto fps_text = new Text(context_);
     fps_text->SetName("FPS");
@@ -80,4 +77,5 @@ void Gameplay::Update(float time_step)
 
 Gameplay::~Gameplay()
 {
+    URHO3D_LOGINFO("Exitting Gameplay scene...");
 }

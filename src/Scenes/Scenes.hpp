@@ -11,6 +11,7 @@ URHO3D_EVENT(E_STARTGAME, StartGameEvent)
 
 URHO3D_EVENT(E_MENUREQUESTED, RequestMenuEvent)
 {
+    URHO3D_PARAM(P_STATE, State);
 }
 
 enum class Scenes { Empty, MainMenu, Gameplay };

@@ -26,6 +26,7 @@ using namespace Urho3D;
 
 MainMenu::MainMenu(Context* context) : State(context)
 {
+    URHO3D_LOGINFO("Setting up MainMenu scene...");
     const auto cache = GetSubsystem<ResourceCache>();
     auto ui = GetSubsystem<UI>();
     ui->GetRoot()->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
@@ -113,4 +114,9 @@ void MainMenu::Update(float time_step)
 void MainMenu::handle_closed_pressed(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& /* event_data */)
 {
     SendEvent(E_EXITREQUESTED);
+}
+
+MainMenu::~MainMenu()
+{
+    URHO3D_LOGINFO("Exitting MainMenu scene...");
 }
