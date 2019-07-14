@@ -48,7 +48,8 @@ void Character::Start()
         auto&& rigidbody = m_action_collider->CreateComponent<RigidBody>();
         rigidbody->SetTrigger(true);
         auto&& collider = m_action_collider->CreateComponent<CollisionShape>();
-        collider->SetCone(5.f, 2.f, Vector3(0.f, 1.f, 1.f), Quaternion(-90.f, Vector3::RIGHT));
+        collider->SetBox({2.f, 2.f, 4.f}, {0.f, 1.f, 2.5f});
+        // collider->SetCone(5.f, 2.f, Vector3(0.f, 1.f, 1.f), Quaternion(-90.f, Vector3::RIGHT));
     }
 
     // Component has been inserted into its scene node. Subscribe to events now
@@ -160,7 +161,6 @@ void Character::handle_camera(SharedPtr<Node> camera, PhysicsWorld* world)
     //////// Somebody explain why aim_point is calculated like this
     // Third person camera: position behind the character
     const auto aim_point = node_->GetPosition() + rotation * Vector3::UP * 1.7f;
-
     // Collide camera ray with static physics objects (layer bitmask 2) to ensure we see the character properly
     const auto ray_dir = dir * Vector3::BACK;
     auto ray_distance = CAMERA_INITIAL_DIST;
@@ -185,15 +185,9 @@ void Character::handle_collision(StringHash /* event_type */, VariantMap& event_
         auto contact_normal = contacts.ReadVector3();
         /* auto contact_distance = */ contacts.ReadFloat();
         /* auto contact_impulse = */ contacts.ReadFloat();
-
-        //////// Commented because this doesn't seem to be needed
-        // If contact is below node center and pointing up, assume it's a ground contact
-        // if (contact_position.y_ < node_->GetPosition().y_ + 1.f) {
-        auto&& level = contact_normal.y_;
-        if (level > 0.75f) {
+        if (contact_normal.y_ > 0.75f) {
             m_on_ground = true;
         }
-        // }
     }
 }
 
@@ -201,7 +195,7 @@ void Character::handle_interaction(StringHash /* event_type */, VariantMap& even
 {
     const auto input = GetSubsystem<Input>();
     if (input->GetKeyPress(KEY_E)) {
-        auto node_collider = dynamic_cast<Node*>(event_data[NodeCollision::P_OTHERNODE].GetPtr());
+        auto node_collider = static_cast<Node*>(event_data[NodeCollision::P_OTHERNODE].GetPtr());
 
         if (auto pick = node_collider->GetComponent<Pickable>()) {
             URHO3D_LOGWARNING("Found item: " + pick->item());

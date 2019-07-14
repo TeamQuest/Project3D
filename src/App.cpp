@@ -142,7 +142,7 @@ void App::handle_key_down(StringHash /* event_type */, VariantMap& event_data)
         case KEY_TAB: {
             const auto is_mouse_visible = GetSubsystem<Input>()->IsMouseVisible();
             GetSubsystem<Input>()->SetMouseVisible(!is_mouse_visible);
-            auto hint_text = dynamic_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("Hint Text")));
+            auto hint_text = static_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("Hint Text")));
             hint_text->SetText(is_mouse_visible ? "Press WSAD to move around" : "Press TAB to show/hide mouse");
             break;
         }
@@ -151,41 +151,32 @@ void App::handle_key_down(StringHash /* event_type */, VariantMap& event_data)
 
 void App::handle_key_up(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& /* event_data */)
 {
-    // int key = event_data[KeyDown::P_KEY].GetInt();
-    // switch (key) {
-
-    // }
 }
 
-void App::handle_update(StringHash event_type, VariantMap& event_data)
+void App::handle_update(StringHash /* event_type */, VariantMap& event_data)
 {
     const auto time_step = event_data[Urho3D::Update::P_TIMESTEP].GetFloat();
     static auto counter = 0.f;
     constexpr auto fps_update_time = 0.5f;  // in seconds
     if ((counter += time_step) > fps_update_time) {
-        auto hint_text = dynamic_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("FPS")));
+        auto hint_text = static_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("FPS")));
         hint_text->SetText(ToString("FPS: %f", std::roundf(counter / time_step / fps_update_time)));
         counter = 0;
     }
 
     if (m_character) {
         m_character->handle_movement();
+        m_character->adjust_head_pitch();
+
+        if (GetSubsystem<Input>()->IsMouseVisible() || GetSubsystem<UI>()->GetFocusElement()) {
+            return;
+        }
+        m_character->handle_camera(m_camera, m_scene->GetComponent<PhysicsWorld>());
     }
-    handle_post_update(event_type, event_data);
 }
 
 void App::handle_post_update(StringHash /* event_type */, VariantMap& /* event_data */)
 {
-    if (!m_character) {
-        return;
-    }
-
-    m_character->adjust_head_pitch();
-
-    if (GetSubsystem<Input>()->IsMouseVisible() || GetSubsystem<UI>()->GetFocusElement()) {
-        return;
-    }
-    m_character->handle_camera(m_camera, m_scene->GetComponent<PhysicsWorld>());
 }
 
 void App::handle_postrender_update(StringHash /* event_type */, VariantMap& /* event_data */)
