@@ -2,6 +2,7 @@
 
 #include "Scenes/Gameplay.hpp"
 #include "Scenes/MainMenu.hpp"
+#include "Scenes/Options.hpp"
 #include "Utility/Common.hpp"
 #include "Utility/FPSCounter.hpp"
 
@@ -48,6 +49,8 @@ void Game::Start()
     SubscribeToEvent(E_EXITREQUESTED, [&](auto&&...) { engine_->Exit(); });
     SubscribeToEvent(E_STARTGAME, [&](auto&&...) { m_next_state = Scenes::Gameplay; });
     SubscribeToEvent(E_MENUREQUESTED, [&](auto&&...) { m_next_state = Scenes::MainMenu; });
+    SubscribeToEvent(E_OPTIONS, [&](auto&&...) { m_next_state = Scenes::Options; });
+    SubscribeToEvent(E_BACK_TO_MENU, [&](auto&&...) { m_next_state = Scenes::MainMenu; });
 }
 
 void Game::Stop()
@@ -65,6 +68,10 @@ void Game::handle_change_state(StringHash /* event_type */, VariantMap& /* event
     switch (m_next_state) {
         case Scenes::MainMenu: {
             m_active_state = new MainMenu(context_);
+            break;
+        }
+        case Scenes::Options: {
+            m_active_state = new Options(context_);
             break;
         }
         case Scenes::Gameplay: {
