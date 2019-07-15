@@ -50,7 +50,6 @@ void Game::Start()
     SubscribeToEvent(E_STARTGAME, [&](auto&&...) { m_next_state = Scenes::Gameplay; });
     SubscribeToEvent(E_MENUREQUESTED, [&](auto&&...) { m_next_state = Scenes::MainMenu; });
     SubscribeToEvent(E_OPTIONS, [&](auto&&...) { m_next_state = Scenes::Options; });
-    SubscribeToEvent(E_BACK_TO_MENU, [&](auto&&...) { m_next_state = Scenes::MainMenu; });
 }
 
 void Game::Stop()

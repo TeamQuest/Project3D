@@ -45,7 +45,6 @@ Options::Options(Context* context) : State(context, Scenes::Options)
     }
 
     SubscribeToEvent(ui_root->GetChild("BackToMenuButton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_MENUREQUESTED); });
-    // SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(Options, handle_key_down));
 }
 
 void Options::Update(float /* time_step */)
@@ -55,16 +54,4 @@ void Options::Update(float /* time_step */)
 Options::~Options()
 {
     URHO3D_LOGINFO("Options scene disabled");
-}
-
-void Options::handle_key_down(StringHash /* event_type */, VariantMap& event_data)
-{
-    const auto key = event_data[KeyDown::P_KEY].GetInt();
-    switch (key) {
-        case KEY_TAB: {
-            const auto is_mouse_visible = GetSubsystem<Input>()->IsMouseVisible();
-            GetSubsystem<Input>()->SetMouseVisible(!is_mouse_visible);
-            break;
-        }
-    }
 }

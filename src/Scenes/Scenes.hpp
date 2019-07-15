@@ -19,9 +19,4 @@ URHO3D_EVENT(E_OPTIONS, RequestOptionsEvent)
     URHO3D_PARAM(P_STATE, State);
 }
 
-URHO3D_EVENT(E_BACK_TO_MENU, RequestBackToMenuEvent)
-{
-    URHO3D_PARAM(P_STATE, State);
-}
-
 enum class Scenes { Empty, MainMenu, Options, Gameplay };
