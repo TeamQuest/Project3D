@@ -19,7 +19,7 @@ public:
     void Start() override;
     void Stop() override;
 
-    void handle_begin_frame(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
+    void handle_change_state(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
     void handle_key_down(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
     void handle_update(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
     void handle_postrender_update(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);

@@ -9,30 +9,8 @@
 #pragma clang diagnostic ignored "-Wpedantic"
 
 #include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Graphics/AnimatedModel.h>
-#include <Urho3D/Graphics/AnimationController.h>
-#include <Urho3D/Graphics/Camera.h>
-#include <Urho3D/Graphics/DebugRenderer.h>
-#include <Urho3D/Graphics/Graphics.h>
-#include <Urho3D/Graphics/Light.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/Octree.h>
-#include <Urho3D/Graphics/Renderer.h>
-#include <Urho3D/Graphics/Skybox.h>
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Graphics/Viewport.h>
-#include <Urho3D/IO/Log.h>
 #include <Urho3D/Input/Input.h>
-#include <Urho3D/Physics/CollisionShape.h>
-#include <Urho3D/Physics/PhysicsWorld.h>
-#include <Urho3D/Physics/RigidBody.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/UI/Button.h>
-#include <Urho3D/UI/Font.h>
-#include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
-#include <Urho3D/UI/UIEvents.h>
 
 #pragma clang diagnostic pop
 
@@ -50,6 +28,7 @@ void Game::Setup()
     engineParameters_["WindowResizable"] = false;
     engineParameters_["VSync"] = true;
     engine_->SetMaxInactiveFps(20);
+    GetSubsystem<Input>()->SetMouseVisible(true);
 }
 
 void Game::Start()
@@ -57,23 +36,8 @@ void Game::Start()
     m_active_state = new MainMenu(context_);
     assert(m_active_state);
     assert(m_active_state->scene);
-    auto scene = m_active_state->scene;
 
-    scene->CreateComponent<DebugRenderer>();
-    scene->CreateComponent<Octree>();
-    scene->CreateComponent<PhysicsWorld>();
-    {
-        m_camera = scene->CreateChild("Camera");
-        auto camera = m_camera->CreateComponent<Camera>();
-        camera->SetFarClip(2000);
-    }
-    {
-        auto renderer = GetSubsystem<Renderer>();
-        auto viewport = MakeShared<Viewport>(context_, m_active_state->scene, m_camera->GetComponent<Camera>());
-        renderer->SetViewport(0, viewport);
-    }
-
-    SubscribeToEvent(E_BEGINFRAME, URHO3D_HANDLER(Game, handle_begin_frame));
+    SubscribeToEvent(E_BEGINFRAME, URHO3D_HANDLER(Game, handle_change_state));
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(Game, handle_key_down));
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Game, handle_update));
     SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(Game, handle_postrender_update));
@@ -87,7 +51,7 @@ void Game::Stop()
     engine_->Exit();
 }
 
-void Game::handle_begin_frame(StringHash /* event_type */, VariantMap& /* event_data */)
+void Game::handle_change_state(StringHash /* event_type */, VariantMap& /* event_data */)
 {
     if (m_next_state == Scenes::Empty) {
         return;
@@ -122,11 +86,6 @@ void Game::handle_key_down(Urho3D::StringHash /* event_type */, Urho3D::VariantM
         case KEY_K: {
             // Something bad must happen here... MUAAHAHAHAHAHAHA!
             m_next_state = Scenes::Gameplay;
-            break;
-        }
-        case KEY_TAB: {
-            const auto is_mouse_visible = GetSubsystem<Input>()->IsMouseVisible();
-            GetSubsystem<Input>()->SetMouseVisible(!is_mouse_visible);
             break;
         }
     }

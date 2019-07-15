@@ -1,7 +1,5 @@
 #include "Scenes/MainMenu.hpp"
 
-#include "Scenes/Scenes.hpp"
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
 #pragma clang diagnostic ignored "-Wextra"
@@ -24,80 +22,60 @@
 
 using namespace Urho3D;
 
-MainMenu::MainMenu(Context* context) : State(context)
+MainMenu::MainMenu(Context* context) : State(context, Scenes::MainMenu)
 {
-    URHO3D_LOGINFO("Setting up MainMenu scene...");
+    URHO3D_LOGINFO("MainMenu scene enabled");
     const auto cache = GetSubsystem<ResourceCache>();
-    auto ui = GetSubsystem<UI>();
-    ui->GetRoot()->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
+    auto ui_root = GetSubsystem<UI>()->GetRoot();
+    ui_root->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
 
-    // ======= New Game Start Button
-    auto start_new_game_label = new Text(context);
-    start_new_game_label->SetName("New Game Button Label");
-    start_new_game_label->SetText("Start New Game");
-    start_new_game_label->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 30);
-    start_new_game_label->SetStyleAuto();
-    start_new_game_label->SetTextAlignment(HA_CENTER);
+    {  // StartGame button and label
+        auto start_game_button = new Button(context);
+        start_game_button->SetName("StartGameButton");
+        start_game_button->SetStyle("Button");
+        start_game_button->SetSize(200, 100);
+        start_game_button->SetAlignment(HA_CENTER, VA_CENTER);
+        start_game_button->SetPosition(0, -110);
+        auto start_game_label = new Text(context);
+        start_game_label->SetName("StartGameLabel");
+        start_game_label->SetText("start new game");
+        start_game_label->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 17);
+        start_game_label->SetAlignment(HA_CENTER, VA_CENTER);
+        start_game_label->SetTextAlignment(HA_CENTER);
+        start_game_button->AddChild(start_game_label);
+        ui_root->AddChild(start_game_button);
+    }
+    {  // Quit button and label
+        auto quit_button = new Button(context);
+        quit_button->SetName("QuitButton");
+        quit_button->SetStyle("Button");
+        quit_button->SetSize(200, 100);
+        quit_button->SetAlignment(HA_CENTER, VA_CENTER);
+        auto quit_button_label = new Text(context);
+        quit_button_label->SetName("QuitLabel");
+        quit_button_label->SetText("quit game");
+        quit_button_label->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 17);
+        quit_button_label->SetAlignment(HA_CENTER, VA_CENTER);
+        quit_button_label->SetTextAlignment(HA_CENTER);
+        quit_button->AddChild(quit_button_label);
+        ui_root->AddChild(quit_button);
+    }
+    {  // FPS display
+        auto fps_text = new Text(context);
+        fps_text->SetName("FPS");
+        fps_text->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 50);
+        fps_text->SetTextEffect(TextEffect::TE_STROKE);
+        fps_text->SetEffectStrokeThickness(5);
+        fps_text->SetEffectColor(Color(0.f, 0.f, 0.f));
+        fps_text->SetColor(Color(1.f, 1.f, 1.f));
+        fps_text->SetAlignment(HA_LEFT, VA_TOP);
+        fps_text->SetPosition(40, 20);
+        ui_root->AddChild(fps_text);
+    }
 
-    auto start_new_game_button = new Button(context);
-    start_new_game_button->SetName("New Game Button");
-    start_new_game_button->SetStyle("Button");
-    start_new_game_button->SetSize(200, 100);
-    start_new_game_button->SetAlignment(HA_CENTER, VA_CENTER);
-    start_new_game_button->SetPosition(0, -110);
-    start_new_game_button->AddChild(start_new_game_label);
-    ui->GetRoot()->AddChild(start_new_game_button);
-    SubscribeToEvent(start_new_game_button, E_RELEASED, [&](auto&&...) { SendEvent(E_STARTGAME); });
-
-    // ======= Quit Button
-    auto quit_button_label = new Text(context);
-    quit_button_label->SetName("Quit Button Label");
-    quit_button_label->SetText("Quit Button");
-    quit_button_label->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 30);
-    quit_button_label->SetStyleAuto();
-    quit_button_label->SetTextAlignment(HA_CENTER);
-
-    auto quit_button = new Button(context);
-    quit_button->SetName("Quit Button");
-    quit_button->SetStyle("Button");
-    quit_button->SetSize(200, 100);
-    quit_button->SetAlignment(HA_CENTER, VA_CENTER);
-    quit_button->AddChild(quit_button_label);
-    ui->GetRoot()->AddChild(quit_button);
-
-    SubscribeToEvent(quit_button, E_RELEASED, URHO3D_HANDLER(MainMenu, handle_closed_pressed));
-
-    // auto quit_button = new Button(context_);
-    // quit_button->SetName("Quit Button");
-    // quit_button->SetStyle("Button");
-    // quit_button->SetSize(64, 64);
-    // quit_button->SetPosition(16, 116);
-    // ui->GetRoot()->AddChild(quit_button);
-    // SubscribeToEvent(quit_button, E_RELEASED, URHO3D_HANDLER(App, handle_closed_pressed));
-
-    // auto hint_text = new Text(context_);
-    // hint_text->SetName("Hint Text");
-    // hint_text->SetText("Press TAB to show/hide mouse");
-    // hint_text->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 50);
-    // hint_text->SetTextEffect(TextEffect::TE_STROKE);
-    // hint_text->SetEffectStrokeThickness(5);
-    // hint_text->SetEffectColor(Color(0.f, 0.f, 0.f));
-    // hint_text->SetColor(Color(1.f, 1.f, 1.f));
-    // hint_text->SetHorizontalAlignment(HA_CENTER);
-    // hint_text->SetVerticalAlignment(VA_TOP);
-    // ui->GetRoot()->AddChild(hint_text);
-
-    auto fps_text = new Text(context_);
-    fps_text->SetName("FPS");
-    fps_text->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 50);
-    fps_text->SetTextEffect(TextEffect::TE_STROKE);
-    fps_text->SetEffectStrokeThickness(5);
-    fps_text->SetEffectColor(Color(0.f, 0.f, 0.f));
-    fps_text->SetColor(Color(1.f, 1.f, 1.f));
-    fps_text->SetHorizontalAlignment(HorizontalAlignment::HA_LEFT);
-    fps_text->SetVerticalAlignment(VerticalAlignment::VA_TOP);
-    fps_text->SetPosition(40, 20);
-    ui->GetRoot()->AddChild(fps_text);
+    SubscribeToEvent(ui_root->GetChild("StartGameButton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_STARTGAME); });
+    SubscribeToEvent(ui_root->GetChild("QuitButton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_EXITREQUESTED); });
+    SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(MainMenu, handle_key_down));
 }
 
 void MainMenu::Update(float time_step)
@@ -111,12 +89,19 @@ void MainMenu::Update(float time_step)
     }
 }
 
-void MainMenu::handle_closed_pressed(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& /* event_data */)
-{
-    SendEvent(E_EXITREQUESTED);
-}
-
 MainMenu::~MainMenu()
 {
-    URHO3D_LOGINFO("Exitting MainMenu scene...");
+    URHO3D_LOGINFO("MainMenu scene disabled");
+}
+
+void MainMenu::handle_key_down(StringHash /* event_type */, VariantMap& event_data)
+{
+    const auto key = event_data[KeyDown::P_KEY].GetInt();
+    switch (key) {
+        case KEY_TAB: {
+            const auto is_mouse_visible = GetSubsystem<Input>()->IsMouseVisible();
+            GetSubsystem<Input>()->SetMouseVisible(!is_mouse_visible);
+            break;
+        }
+    }
 }

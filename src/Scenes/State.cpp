@@ -1,9 +1,10 @@
 #include "Scenes/State.hpp"
+
 #include <Urho3D/Scene/Node.h>
 
 using namespace Urho3D;
 
-State::State(Context* context) : LogicComponent(context), scene(new Scene(context))
+State::State(Context* context, Scenes type) : LogicComponent(context), scene(new Scene(context)), type(type)
 {
 }
 
