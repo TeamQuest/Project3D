@@ -288,4 +288,4 @@ void App::init_scene()
     }
 }
 
-URHO3D_DEFINE_APPLICATION_MAIN(App)
+// URHO3D_DEFINE_APPLICATION_MAIN(App)
