@@ -1,4 +1,6 @@
 #include "Scenes/MainMenu.hpp"
+#include "Utility/Common.hpp"
+#include "Utility/FPSCounter.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -22,6 +24,11 @@ using namespace Urho3D;
 MainMenu::MainMenu(Context* context) : State(context, Scenes::MainMenu)
 {
     URHO3D_LOGINFO("MainMenu scene enabled");
+
+    {  // setup_scene_components
+        scene->CreateComponent<FPSCounter>();
+    }
+
     const auto cache = GetSubsystem<ResourceCache>();
     auto ui_root = GetSubsystem<UI>()->GetRoot();
     ui_root->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
@@ -57,33 +64,14 @@ MainMenu::MainMenu(Context* context) : State(context, Scenes::MainMenu)
         quit_button->AddChild(quit_button_label);
         ui_root->AddChild(quit_button);
     }
-    {  // FPS display
-        auto fps_text = new Text(context);
-        fps_text->SetName("FPS");
-        fps_text->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 50);
-        fps_text->SetTextEffect(TextEffect::TE_STROKE);
-        fps_text->SetEffectStrokeThickness(5);
-        fps_text->SetEffectColor(Color(0.f, 0.f, 0.f));
-        fps_text->SetColor(Color(1.f, 1.f, 1.f));
-        fps_text->SetAlignment(HA_LEFT, VA_TOP);
-        fps_text->SetPosition(40, 20);
-        ui_root->AddChild(fps_text);
-    }
 
     SubscribeToEvent(ui_root->GetChild("StartGameButton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_STARTGAME); });
     SubscribeToEvent(ui_root->GetChild("QuitButton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_EXITREQUESTED); });
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(MainMenu, handle_key_down));
 }
 
-void MainMenu::Update(float time_step)
+void MainMenu::Update(float /* time_step */)
 {
-    static auto counter = 0.f;
-    constexpr auto fps_update_time = 0.5f;  // in seconds
-    if ((counter += time_step) > fps_update_time) {
-        auto fps_text = static_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("FPS")));
-        fps_text->SetText(ToString("FPS: %f", std::roundf(counter / time_step / fps_update_time)));
-        counter = 0;
-    }
 }
 
 MainMenu::~MainMenu()

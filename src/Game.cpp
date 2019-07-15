@@ -2,6 +2,8 @@
 
 #include "Scenes/Gameplay.hpp"
 #include "Scenes/MainMenu.hpp"
+#include "Utility/Common.hpp"
+#include "Utility/FPSCounter.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -19,7 +21,7 @@ using namespace Urho3D;
 Game::Game(Urho3D::Context* context) : Application(context)
 {
     // Component Register
-    // register_component<TYPE_COMPONENT_NAME_HERE>(context);
+    register_component<FPSCounter>(context);
 }
 
 void Game::Setup()

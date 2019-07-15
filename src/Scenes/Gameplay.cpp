@@ -1,5 +1,7 @@
 #include "Gameplay.hpp"
 
+#include "Utility/FPSCounter.hpp"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
 #pragma clang diagnostic ignored "-Wextra"
@@ -31,13 +33,16 @@ Gameplay::Gameplay(Context* context) : State(context, Scenes::Gameplay)
 {
     URHO3D_LOGINFO("Gameplay scene enabled");
 
-    assert(context == context_);
+    assert(context == context_);  // If that failed context would have to be passed to init_* functions
     init_ui();
     init_gamescene();
 }
 
 void Gameplay::init_ui()
 {
+    {  // setup_scene_components
+        scene->CreateComponent<FPSCounter>();
+    }
     const auto cache = GetSubsystem<ResourceCache>();
     auto ui_root = GetSubsystem<UI>()->GetRoot();
     ui_root->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
@@ -57,25 +62,12 @@ void Gameplay::init_ui()
         exit_game_button->AddChild(exit_game_label);
         ui_root->AddChild(exit_game_button);
     }
-    {  // FPS display
-        auto fps_text = new Text(context_);
-        fps_text->SetName("FPS");
-        fps_text->SetFont(cache->GetResource<Font>("Fonts/gta5.ttf"), 50);
-        fps_text->SetTextEffect(TextEffect::TE_STROKE);
-        fps_text->SetEffectStrokeThickness(5);
-        fps_text->SetEffectColor(Color(0.f, 0.f, 0.f));
-        fps_text->SetColor(Color(1.f, 1.f, 1.f));
-        fps_text->SetAlignment(HA_LEFT, VA_TOP);
-        fps_text->SetPosition(40, 20);
-        ui_root->AddChild(fps_text);
-    }
 
     SubscribeToEvent(ui_root->GetChild("ExitGameButton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_MENUREQUESTED); });
 }
 
 void Gameplay::init_gamescene()
 {
-    const auto cache = GetSubsystem<ResourceCache>();
     {  // setup_scene_components
         scene->CreateComponent<DebugRenderer>();
         scene->CreateComponent<Octree>();
@@ -84,6 +76,7 @@ void Gameplay::init_gamescene()
         auto camera = m_camera->CreateComponent<Camera>();
         camera->SetFarClip(2000);
     }
+    const auto cache = GetSubsystem<ResourceCache>();
     {  // setup_viewport
         auto renderer = GetSubsystem<Renderer>();
         auto viewport = MakeShared<Viewport>(context_, scene.Get(), m_camera->GetComponent<Camera>());
@@ -97,15 +90,8 @@ void Gameplay::init_gamescene()
     }
 }
 
-void Gameplay::Update(float time_step)
+void Gameplay::Update(float /* time_step */)
 {
-    static auto counter = 0.f;
-    constexpr auto fps_update_time = 0.5f;  // in seconds
-    if ((counter += time_step) > fps_update_time) {
-        auto fps_text = static_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild(String("FPS")));
-        fps_text->SetText(ToString("FPS: %f", std::roundf(counter / time_step / fps_update_time)));
-        counter = 0;
-    }
 }
 
 Gameplay::~Gameplay()
