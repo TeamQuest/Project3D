@@ -52,7 +52,7 @@ MainMenu::MainMenu(Context* context) : State(context, Scenes::MainMenu)
     }
     {  // Options button and label
         auto options_button = new Button(context);
-        options_button->SetName("Optionsutton");
+        options_button->SetName("OptionsButton");
         options_button->SetStyle("Button");
         options_button->SetSize(500, 100);
         options_button->SetPosition(0, -110);
@@ -85,7 +85,7 @@ MainMenu::MainMenu(Context* context) : State(context, Scenes::MainMenu)
     }
 
     SubscribeToEvent(ui_root->GetChild("StartGameButton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_STARTGAME); });
-    SubscribeToEvent(ui_root->GetChild("Optionsutton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_OPTIONS); });
+    SubscribeToEvent(ui_root->GetChild("OptionsButton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_OPTIONSREQUESTED); });
     SubscribeToEvent(ui_root->GetChild("QuitButton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_EXITREQUESTED); });
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(MainMenu, handle_key_down));
 }

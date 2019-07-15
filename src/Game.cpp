@@ -49,7 +49,7 @@ void Game::Start()
     SubscribeToEvent(E_EXITREQUESTED, [&](auto&&...) { engine_->Exit(); });
     SubscribeToEvent(E_STARTGAME, [&](auto&&...) { m_next_state = Scenes::Gameplay; });
     SubscribeToEvent(E_MENUREQUESTED, [&](auto&&...) { m_next_state = Scenes::MainMenu; });
-    SubscribeToEvent(E_OPTIONS, [&](auto&&...) { m_next_state = Scenes::Options; });
+    SubscribeToEvent(E_OPTIONSREQUESTED, [&](auto&&...) { m_next_state = Scenes::Options; });
 }
 
 void Game::Stop()
