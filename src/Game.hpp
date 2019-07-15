@@ -11,6 +11,12 @@
 #include <Urho3D/Scene/Scene.h>
 #pragma clang diagnostic pop
 
+template <typename Component, typename... Args>
+void register_component(Urho3D::Context* context, Args&&... args)
+{
+    context->RegisterFactory<Component>(args...);
+}
+
 class Game : public Urho3D::Application {
 public:
     Game(Urho3D::Context* context);

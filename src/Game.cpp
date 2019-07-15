@@ -18,6 +18,8 @@ using namespace Urho3D;
 
 Game::Game(Urho3D::Context* context) : Application(context)
 {
+    // Component Register
+    // register_component<TYPE_COMPONENT_NAME_HERE>(context);
 }
 
 void Game::Setup()

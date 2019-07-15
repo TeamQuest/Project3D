@@ -14,7 +14,6 @@ public:
 
     void Update(float time_step) override;
 
-    static void register_component(Urho3D::Context* context);
     void activate(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
     void deactivate(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
 
