@@ -14,9 +14,6 @@ public:
 
     void Update(float time_step) override;
 
-    void activate(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
-    void deactivate(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
-
 public:
     Urho3D::UniquePtr<Urho3D::Scene> scene;
     Scenes type;
