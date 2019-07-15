@@ -6,6 +6,7 @@
 #include "Scenes/Options.hpp"
 #include "Utility/Common.hpp"
 #include "Utility/FPSCounter.hpp"
+#include "Utility/InteractionCollider.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -26,6 +27,7 @@ Game::Game(Urho3D::Context* context) : Application(context)
     register_component<FPSCounter>(context);
     register_component<Character>(context);
     register_component<Pickable>(context);
+    register_component<InteractionCollider>(context);
 }
 
 void Game::Setup()

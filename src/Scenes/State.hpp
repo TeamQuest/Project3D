@@ -2,7 +2,6 @@
 
 #include "Scenes/Scenes.hpp"
 
-// #include <Urho3D/Scene/LogicComponent.h>
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Scene/Scene.h>
 

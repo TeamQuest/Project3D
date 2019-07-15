@@ -130,7 +130,7 @@ void Gameplay::init_gamescene()
     }
 
     { /* Boxes */
-        constexpr auto NUM_OBJECTS = 100u;
+        constexpr auto NUM_OBJECTS = 1000u;
         for (unsigned i = 0; i < NUM_OBJECTS; ++i) {
             auto box = scene->CreateChild("Box");
             box->SetPosition(Vector3(Random(200.f) - 100.f, Random(200.f) + 5.f, Random(200.f) - 100.f));

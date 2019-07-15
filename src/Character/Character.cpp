@@ -2,6 +2,7 @@
 
 #include "Constants.hpp"
 #include "Items/Pickable.hpp"
+#include "Utility/InteractionCollider.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -35,8 +36,6 @@ using namespace Urho3D;
 
 Character::Character(Context* context) : LogicComponent(context), m_on_ground(false), m_can_jump(true), m_time_in_air(0.f)
 {
-    // Only the physics update event is needed: unsubscribe from the rest for optimization
-    SetUpdateEventMask(USE_FIXEDUPDATE);
 }
 
 // void Character::register_object(Context* context)
@@ -84,21 +83,13 @@ void Character::Start()
     auto shape = node_->CreateComponent<CollisionShape>();
     shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
 
-    {  // Setup action collider
-        m_action_collider = node_->CreateChild("Action Collider");
-        auto&& rigidbody = m_action_collider->CreateComponent<RigidBody>();
-        rigidbody->SetTrigger(false);
-        auto&& collider = m_action_collider->CreateComponent<CollisionShape>();
-        collider->SetBox({2.f, 2.f, 4.f}, {0.f, 1.f, 2.5f});
-        // collider->SetCone(5.f, 2.f, Vector3(0.f, 1.f, 1.f), Quaternion(-90.f, Vector3::RIGHT));
-    }
+    node_->CreateComponent<InteractionCollider>();
 
     // Component has been inserted into its scene node. Subscribe to events now
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_collision));
-    SubscribeToEvent(m_action_collider, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_interaction));
 }
 
-void Character::FixedUpdate(float time_step)
+void Character::Update(float time_step)
 {
     // TODO: Could cache the components for faster access instead of finding them each frame
     auto body = GetComponent<RigidBody>();
@@ -228,18 +219,6 @@ void Character::handle_collision(StringHash /* event_type */, VariantMap& event_
         /* auto contact_impulse = */ contacts.ReadFloat();
         if (contact_normal.y_ > 0.75f) {
             m_on_ground = true;
-        }
-    }
-}
-
-void Character::handle_interaction(StringHash /* event_type */, VariantMap& event_data)
-{
-    const auto input = GetSubsystem<Input>();
-    if (input->GetKeyPress(KEY_E)) {
-        auto node_collider = static_cast<Node*>(event_data[NodeCollision::P_OTHERNODE].GetPtr());
-
-        if (auto pick = node_collider->GetComponent<Pickable>()) {
-            URHO3D_LOGWARNING("Found item: " + pick->item());
         }
     }
 }

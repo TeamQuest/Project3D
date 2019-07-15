@@ -18,7 +18,7 @@ public:
     explicit Character(Urho3D::Context* context);
 
     void Start() override;
-    void FixedUpdate(float time_step) override;
+    void Update(float time_step) override;
 
     void handle_movement();
     void handle_camera(Urho3D::SharedPtr<Urho3D::Node> camera, Urho3D::PhysicsWorld* world);
@@ -26,11 +26,9 @@ public:
 
 private:
     void handle_collision(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
-    void handle_interaction(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
 
 private:
     Urho3D::Controls m_controls;
-    Urho3D::Node* m_action_collider;
     bool m_on_ground;
     bool m_can_jump;
     float m_time_in_air;
