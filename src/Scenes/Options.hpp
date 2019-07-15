@@ -7,5 +7,5 @@ public:
     Options(Urho3D::Context* context);
     ~Options();
 
-    void Update(float time_step) override;
+    void update(float time_step) override;
 };

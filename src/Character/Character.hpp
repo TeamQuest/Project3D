@@ -19,7 +19,6 @@ public:
 
     void Start() override;
     void FixedUpdate(float time_step) override;
-    // static void register_object(Urho3D::Context* context);
 
     void handle_movement();
     void handle_camera(Urho3D::SharedPtr<Urho3D::Node> camera, Urho3D::PhysicsWorld* world);

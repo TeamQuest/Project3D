@@ -1,6 +1,6 @@
 #include "App.hpp"
 
-#include "Utility/Pickable.hpp"
+#include "Items/Pickable.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"

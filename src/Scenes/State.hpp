@@ -2,17 +2,18 @@
 
 #include "Scenes/Scenes.hpp"
 
-#include <Urho3D/Scene/LogicComponent.h>
+// #include <Urho3D/Scene/LogicComponent.h>
+#include <Urho3D/Core/Object.h>
 #include <Urho3D/Scene/Scene.h>
 
-class State : public Urho3D::LogicComponent {
-    URHO3D_OBJECT(State, LogicComponent);
+class State : public Urho3D::Object {
+    URHO3D_OBJECT(State, Object);
 
 public:
     State(Urho3D::Context*, Scenes type);
     virtual ~State();
 
-    void Update(float time_step) override;
+    virtual void update(float time_step) = 0;
 
 public:
     Urho3D::UniquePtr<Urho3D::Scene> scene;

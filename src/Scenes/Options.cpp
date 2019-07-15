@@ -47,7 +47,7 @@ Options::Options(Context* context) : State(context, Scenes::Options)
     SubscribeToEvent(ui_root->GetChild("BackToMenuButton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_MENUREQUESTED); });
 }
 
-void Options::Update(float /* time_step */)
+void Options::update(float /* time_step */)
 {
 }
 

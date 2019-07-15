@@ -90,7 +90,7 @@ MainMenu::MainMenu(Context* context) : State(context, Scenes::MainMenu)
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(MainMenu, handle_key_down));
 }
 
-void MainMenu::Update(float /* time_step */)
+void MainMenu::update(float /* time_step */)
 {
 }
 

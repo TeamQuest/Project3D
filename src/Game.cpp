@@ -1,5 +1,6 @@
 #include "Game.hpp"
 
+#include "Items/Pickable.hpp"
 #include "Scenes/Gameplay.hpp"
 #include "Scenes/MainMenu.hpp"
 #include "Scenes/Options.hpp"
@@ -23,6 +24,8 @@ Game::Game(Urho3D::Context* context) : Application(context)
 {
     // Component Register
     register_component<FPSCounter>(context);
+    register_component<Character>(context);
+    register_component<Pickable>(context);
 }
 
 void Game::Setup()
@@ -104,7 +107,7 @@ void Game::handle_key_down(Urho3D::StringHash /* event_type */, Urho3D::VariantM
 void Game::handle_update(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& event_data)
 {
     const auto time_step = event_data[Urho3D::Update::P_TIMESTEP].GetFloat();
-    m_active_state->Update(time_step);
+    m_active_state->update(time_step);
 }
 
 void Game::handle_postrender_update(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& /* event_data */)
