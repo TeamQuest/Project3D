@@ -9,6 +9,10 @@ public:
     InteractionCollider(Urho3D::Context*);
 
     void Start() override;
+    void Update(float time_step) override;
 
-    void handle_collision(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
+    void handle_collision();
+
+private:
+    Urho3D::WeakPtr<Urho3D::Node> m_highlighted;
 };

@@ -84,6 +84,7 @@ void Character::Start()
     auto shape = node_->CreateComponent<CollisionShape>();
     shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
 
+    // Set an interaction component
     node_->CreateComponent<InteractionCollider>();
 
     // Component has been inserted into its scene node. Subscribe to events now

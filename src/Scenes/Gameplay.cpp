@@ -96,7 +96,7 @@ void Gameplay::init_gamescene()
         camera->SetFarClip(2000);
         auto light = m_camera->CreateComponent<Light>();
         light->SetLightType(LIGHT_POINT);
-        light->SetRange(200.f);
+        light->SetRange(10.f);
     }
 
     {  // setup_viewport
