@@ -18,7 +18,7 @@ public:
     explicit Character(Urho3D::Context* context);
 
     void Start() override;
-    void Update(float time_step) override;
+    void FixedUpdate(float time_step) override;
 
     void handle_movement();
     void handle_camera(Urho3D::SharedPtr<Urho3D::Node> camera, Urho3D::PhysicsWorld* world);

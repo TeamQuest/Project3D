@@ -135,7 +135,7 @@ void Gameplay::init_gamescene()
             auto box = scene->CreateChild("Box");
             box->SetPosition(Vector3(Random(200.f) - 100.f, Random(200.f) + 5.f, Random(200.f) - 100.f));
             box->SetRotation(Quaternion(Random(360.f), Random(360.f), Random(360.f)));
-            box->SetScale(3.f);
+            box->SetScale(0.5f);
 
             auto rigidbody = box->CreateComponent<RigidBody>();
             rigidbody->SetMass(1.f);

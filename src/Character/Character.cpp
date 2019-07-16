@@ -36,6 +36,7 @@ using namespace Urho3D;
 
 Character::Character(Context* context) : LogicComponent(context), m_on_ground(false), m_can_jump(true), m_time_in_air(0.f)
 {
+    SetUpdateEventMask(USE_FIXEDUPDATE);
 }
 
 // void Character::register_object(Context* context)
@@ -89,7 +90,7 @@ void Character::Start()
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_collision));
 }
 
-void Character::Update(float time_step)
+void Character::FixedUpdate(float time_step)
 {
     // TODO: Could cache the components for faster access instead of finding them each frame
     auto body = GetComponent<RigidBody>();
