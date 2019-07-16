@@ -16,6 +16,10 @@
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Scene/LogicComponent.h>
 #include <Urho3D/Scene/Scene.h>
+#include <Urho3D/UI/Button.h>
+#include <Urho3D/UI/Text.h>
+#include <Urho3D/UI/UI.h>
+#include <Urho3D/UI/Window.h>
 
 #pragma clang diagnostic pop
 
@@ -42,6 +46,11 @@ void InteractionCollider::Start()
     SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
         auto node = static_cast<Node*>(event_data[NodeCollisionEnd::P_OTHERNODE].GetPtr());
         if (auto to_remove = node->GetChild("SpotlightOnSelection")) {
+            if (m_window_open) {
+                const auto ui_root = GetSubsystem<UI>()->GetRoot();
+                ui_root->RemoveChild(ui_root->GetChild("LootWindow", true));
+                m_window_open = false;
+            }
             node->RemoveChild(to_remove);
             m_highlighted.Reset();
         }
@@ -51,6 +60,7 @@ void InteractionCollider::Start()
 void InteractionCollider::Update(float /* time_step */)
 {
     handle_collision();
+    handle_interaction();
 }
 
 void InteractionCollider::handle_collision()
@@ -87,5 +97,38 @@ void InteractionCollider::handle_collision()
         auto light = light_node->CreateComponent<Light>();
         light->SetLightType(LightType::LIGHT_SPOT);
         light->SetRange(5.f);
+    }
+}
+
+void InteractionCollider::handle_interaction()
+{
+    if (m_highlighted && GetSubsystem<Input>()->GetKeyPress(KEY_E) && !m_window_open) {
+        m_window_open = true;
+        auto ui_root = GetSubsystem<UI>()->GetRoot();
+        auto window = new Window(context_);
+        window->SetName("LootWindow");
+        window->SetMinSize(100, 100);
+        window->SetLayout(LM_VERTICAL, 6, IntRect(6, 6, 6, 6));
+        window->SetAlignment(HA_LEFT, VA_CENTER);
+        window->SetStyleAuto();
+        window->SetPosition(100, 0);
+        ui_root->AddChild(window);
+
+        auto window_title = new Text(context_);
+        window_title->SetName("LootWindowTitle");
+        window_title->SetStyleAuto();
+        window->AddChild(window_title);
+
+        auto item_button = new Button(context_);
+        item_button->SetMinHeight(24);
+        item_button->SetStyleAuto();
+
+        window->AddChild(item_button);
+
+        auto item_text = item_button->CreateChild<Text>("ItemText");
+        item_text->SetText(m_highlighted->GetComponent<Pickable>()->item());
+        // item_text->SetAlignment(HA_CENTER, VA_CENTER);
+        item_text->SetStyle("Text");
+        item_button->AddChild(item_text);
     }
 }
