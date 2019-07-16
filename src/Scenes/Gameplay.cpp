@@ -1,8 +1,8 @@
 #include "Gameplay.hpp"
 
-#include "Items/PickableGold.hpp"
-#include "Items/PickableHPPotion.hpp"
-#include "Items/PickableSword.hpp"
+#include "Items/Gold.hpp"
+#include "Items/HpPotion.hpp"
+#include "Items/Sword.hpp"
 
 #include "Utility/FPSCounter.hpp"
 
@@ -150,20 +150,20 @@ void Gameplay::init_gamescene()
             // (9GP)"}; const auto& random_item = possible_items[Random(0, possible_items.size())]; pickable->set_item(random_item);
 
             if (i % 3 == 0) {
-                auto pickable_hp_potion = box->CreateComponent<PickableHPPotion>();
+                auto pickable_hp_potion = box->CreateComponent<HpPotion>();
                 pickable_hp_potion->set_name("HP Potion");
                 pickable_hp_potion->set_description("Restoring a total of 150 health.");
             }
 
             if (i % 3 == 1) {
-                auto pickable_sword = box->CreateComponent<PickableSword>();
+                auto pickable_sword = box->CreateComponent<Sword>();
                 pickable_sword->set_name("Weapon Sword");
                 pickable_sword->set_description("Sharp as hell");
                 pickable_sword->set_dmg(10);
             }
 
             if (i % 3 == 2) {
-                auto pickable_gold = box->CreateComponent<PickableGold>();
+                auto pickable_gold = box->CreateComponent<Gold>();
                 pickable_gold->set_name("Gold");
                 pickable_gold->set_description("Money, money, money...");
                 pickable_gold->set_amout(100);
