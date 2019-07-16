@@ -1,6 +1,9 @@
 #include "Gameplay.hpp"
 
-#include "Items/Pickable.hpp"
+#include "Items/PickableGold.hpp"
+#include "Items/PickableHPPotion.hpp"
+#include "Items/PickableSword.hpp"
+
 #include "Utility/FPSCounter.hpp"
 
 #pragma clang diagnostic push
@@ -143,10 +146,28 @@ void Gameplay::init_gamescene()
             auto collider = box->CreateComponent<CollisionShape>();
             collider->SetBox(Vector3::ONE);
 
-            auto pickable = box->CreateComponent<Pickable>();
-            std::vector<String> possible_items = {"Health Potion (+40%)", "Old trousers", "Bottle of wine", "Shoes", "Gold (1000GP)", "Gold (9GP)"};
-            const auto& random_item = possible_items[Random(0, possible_items.size())];
-            pickable->set_item(random_item);
+            // std::vector<String> possible_items = {"Health Potion (+40%)", "Old trousers", "Bottle of wine", "Shoes", "Gold (1000GP)", "Gold
+            // (9GP)"}; const auto& random_item = possible_items[Random(0, possible_items.size())]; pickable->set_item(random_item);
+
+            if (i % 3 == 0) {
+                auto pickable_hp_potion = box->CreateComponent<PickableHPPotion>();
+                pickable_hp_potion->set_name("HP Potion");
+                pickable_hp_potion->set_description("Restoring a total of 150 health.");
+            }
+
+            if (i % 3 == 1) {
+                auto pickable_sword = box->CreateComponent<PickableSword>();
+                pickable_sword->set_name("Weapon Sword");
+                pickable_sword->set_description("Sharp as hell");
+                pickable_sword->set_dmg(10);
+            }
+
+            if (i % 3 == 2) {
+                auto pickable_gold = box->CreateComponent<PickableGold>();
+                pickable_gold->set_name("Gold");
+                pickable_gold->set_description("Money, money, money...");
+                pickable_gold->set_amout(100);
+            }
 
             auto box_model = box->CreateComponent<StaticModel>();
             box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));

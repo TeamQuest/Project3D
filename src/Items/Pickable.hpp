@@ -15,9 +15,7 @@ class Pickable : public Urho3D::LogicComponent {
 public:
     Pickable(Urho3D::Context* context);
 
-    void set_item(const Urho3D::String& item);
-    const Urho3D::String& item() const;
-
 private:
-    Urho3D::String m_item;
+    Urho3D::String m_name;
+    Urho3D::String m_description;
 };

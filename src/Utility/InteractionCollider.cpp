@@ -1,6 +1,8 @@
 #include "Utility/InteractionCollider.hpp"
 
-#include "Items/Pickable.hpp"
+#include "Items/PickableGold.hpp"
+#include "Items/PickableHPPotion.hpp"
+#include "Items/PickableSword.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -72,8 +74,27 @@ void InteractionCollider::handle_collision()
         const auto dist2 = (rigid2->GetNode()->GetWorldPosition() - collision_body->GetNode()->GetWorldPosition()).LengthSquared();
         return dist1 < dist2;
     });
-    // auto pick = closest_body->GetComponent<Pickable>();
-    // URHO3D_LOGWARNING("Found a pickable item: " + pick->item());
+    {
+        auto pickable_hp_potion = closest_body->GetComponent<PickableHPPotion>();
+        if (pickable_hp_potion != nullptr) {
+            URHO3D_LOGWARNING("Found a pickable item: " + pickable_hp_potion->get_name());
+            URHO3D_LOGWARNING("description: " + pickable_hp_potion->get_desctiption());
+        }
+
+        auto pickable_sword = closest_body->GetComponent<PickableSword>();
+        if (pickable_sword != nullptr) {
+            URHO3D_LOGWARNING("Found a pickable item: " + pickable_sword->get_name());
+            URHO3D_LOGWARNING("description: " + pickable_sword->get_desctiption());
+            URHO3D_LOGWARNINGF("dmg: %d", pickable_sword->get_dmg());
+        }
+
+        auto pickable_gold = closest_body->GetComponent<PickableGold>();
+        if (pickable_gold != nullptr) {
+            URHO3D_LOGWARNING("Found a pickable item: " + pickable_gold->get_name());
+            URHO3D_LOGWARNING("description: " + pickable_gold->get_desctiption());
+            URHO3D_LOGWARNINGF("amount: %d", pickable_gold->get_amout());
+        }
+    }
     if (!closest_body->GetNode()->GetChild("SpotlightOnSelection")) {
         if (m_highlighted) {
             m_highlighted->RemoveChild(m_highlighted->GetChild("SpotlightOnSelection"));

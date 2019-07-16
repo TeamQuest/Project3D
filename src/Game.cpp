@@ -1,6 +1,9 @@
 #include "Game.hpp"
 
-#include "Items/Pickable.hpp"
+#include "Items/PickableGold.hpp"
+#include "Items/PickableHPPotion.hpp"
+#include "Items/PickableSword.hpp"
+
 #include "Scenes/Gameplay.hpp"
 #include "Scenes/MainMenu.hpp"
 #include "Scenes/Options.hpp"
@@ -25,8 +28,13 @@ Game::Game(Urho3D::Context* context) : Application(context)
 {
     // Component Register
     register_component<FPSCounter>(context);
+
     register_component<Character>(context);
-    register_component<Pickable>(context);
+
+    register_component<PickableHPPotion>(context);
+    register_component<PickableSword>(context);
+    register_component<PickableGold>(context);
+
     register_component<InteractionCollider>(context);
 }
 
