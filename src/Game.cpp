@@ -1,6 +1,7 @@
 #include "Game.hpp"
 
 #include "Items/Pickable.hpp"
+#include "Items/Lootable.hpp"
 #include "Scenes/Gameplay.hpp"
 #include "Scenes/MainMenu.hpp"
 #include "Scenes/Options.hpp"
@@ -28,6 +29,7 @@ Game::Game(Urho3D::Context* context) : Application(context)
     register_component<Character>(context);
     register_component<Pickable>(context);
     register_component<InteractionCollider>(context);
+    register_component<Lootable>(context);
 }
 
 void Game::Setup()

@@ -1,6 +1,7 @@
 #include "Gameplay.hpp"
 
 #include "Items/Pickable.hpp"
+#include "Items/Lootable.hpp"
 #include "Utility/FPSCounter.hpp"
 
 #pragma clang diagnostic push
@@ -26,12 +27,12 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/UIEvents.h>
-
 #include <Urho3D/Core/Context.h>
 
 #pragma clang diagnostic pop
 
 #include <cmath>
+#include <vector>
 
 using namespace Urho3D;
 
@@ -143,10 +144,14 @@ void Gameplay::init_gamescene()
             auto collider = box->CreateComponent<CollisionShape>();
             collider->SetBox(Vector3::ONE);
 
-            auto pickable = box->CreateComponent<Pickable>();
+            auto lootable = box->CreateComponent<Lootable>();
             std::vector<String> possible_items = {"Health Potion (+40%)", "Old trousers", "Bottle of wine", "Shoes", "Gold (1000GP)", "Gold (9GP)"};
-            const auto& random_item = possible_items[Random(0, possible_items.size())];
-            pickable->set_item(random_item);
+            for (int i=0; i<Random(1, 6); ++i) {
+                const auto& random_name = possible_items[Random(0, possible_items.size())];
+                auto item = new Pickable(context_);
+                item->set_name(random_name);
+                lootable->add_item(item);
+            }
 
             auto box_model = box->CreateComponent<StaticModel>();
             box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));

@@ -6,12 +6,12 @@ Pickable::Pickable(Context* context) : LogicComponent(context)
 {
 }
 
-void Pickable::set_item(const String& item)
+void Pickable::set_name(const String& item_name)
 {
-    m_item = item;
+    m_name = item_name;
 }
 
-const String& Pickable::item() const
+const String& Pickable::name() const
 {
-    return m_item;
+    return m_name;
 }

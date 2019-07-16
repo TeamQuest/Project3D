@@ -1,5 +1,6 @@
 #include "Utility/InteractionCollider.hpp"
 
+#include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 
 #pragma clang diagnostic push
@@ -14,9 +15,11 @@
 #include <Urho3D/Physics/PhysicsEvents.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/RigidBody.h>
+#include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/LogicComponent.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/UI/Button.h>
+#include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/Window.h>
@@ -74,7 +77,8 @@ void InteractionCollider::handle_collision()
     }
     auto last_rigid_ptr = std::remove_if(bodies.Buffer(), bodies.Buffer() + bodies.Size(), [](RigidBody* rigid) {
         // Remove all non-pickable nodes
-        return !rigid->GetNode()->HasComponent<Pickable>();
+        auto node = rigid->GetNode();
+        return !node->HasComponent<Pickable>() || !node->HasComponent<Lootable>();
     });
 
     auto closest_body = *std::min_element(bodies.Buffer(), last_rigid_ptr, [&](auto rigid1, auto rigid2) {
@@ -107,10 +111,10 @@ void InteractionCollider::handle_interaction()
         auto ui_root = GetSubsystem<UI>()->GetRoot();
         auto window = new Window(context_);
         window->SetName("LootWindow");
-        window->SetMinSize(100, 100);
+        window->SetStyleAuto();
+        window->SetMinSize(300, 300);
         window->SetLayout(LM_VERTICAL, 6, IntRect(6, 6, 6, 6));
         window->SetAlignment(HA_LEFT, VA_CENTER);
-        window->SetStyleAuto();
         window->SetPosition(100, 0);
         ui_root->AddChild(window);
 
@@ -119,16 +123,22 @@ void InteractionCollider::handle_interaction()
         window_title->SetStyleAuto();
         window->AddChild(window_title);
 
-        auto item_button = new Button(context_);
-        item_button->SetMinHeight(24);
-        item_button->SetStyleAuto();
+        if (auto lootable_item = m_highlighted->GetComponent<Lootable>()) {
+            for (Pickable* item : lootable_item->get_items()) {
+                auto item_button = new Button(context_);
+                item_button->SetStyleAuto();
+                item_button->SetMinHeight(24);
+                item_button->SetMinWidth(10);
+                window->AddChild(item_button);
 
-        window->AddChild(item_button);
-
-        auto item_text = item_button->CreateChild<Text>("ItemText");
-        item_text->SetText(m_highlighted->GetComponent<Pickable>()->item());
-        // item_text->SetAlignment(HA_CENTER, VA_CENTER);
-        item_text->SetStyle("Text");
-        item_button->AddChild(item_text);
+                auto item_text = item_button->CreateChild<Text>("ItemText");
+                const auto cache = GetSubsystem<ResourceCache>();
+                item_text->SetText(item->name());
+                item_text->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 30);
+                item_text->SetFontSize(30);
+                item_button->AddChild(item_text);
+                window->SetWidth(150);
+            }
+        }
     }
 }
