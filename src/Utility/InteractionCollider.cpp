@@ -72,23 +72,22 @@ void InteractionCollider::handle_collision()
     PODVector<RigidBody*> bodies;
     auto collision_body = node_->GetComponent<RigidBody>();
     world->GetCollidingBodies(bodies, node_->GetChild("Interaction")->GetComponent<RigidBody>());
-    if (bodies.Empty()) {
-        return;
-    }
     auto last_rigid_ptr = std::remove_if(bodies.Buffer(), bodies.Buffer() + bodies.Size(), [](RigidBody* rigid) {
         // Remove all non-pickable nodes
         auto node = rigid->GetNode();
-        return !node->HasComponent<Pickable>() || !node->HasComponent<Lootable>();
+        return !node->HasComponent<Pickable>() && !node->HasComponent<Lootable>();
     });
+    if (bodies.Empty() || bodies.Buffer() == last_rigid_ptr) {
+        return;
+    }
 
     auto closest_body = *std::min_element(bodies.Buffer(), last_rigid_ptr, [&](auto rigid1, auto rigid2) {
-        const auto dist1 = (rigid1->GetNode()->GetWorldPosition() - collision_body->GetNode()->GetWorldPosition()).LengthSquared();
-        const auto dist2 = (rigid2->GetNode()->GetWorldPosition() - collision_body->GetNode()->GetWorldPosition()).LengthSquared();
+        const auto collision_body_pos = collision_body->GetNode()->GetWorldPosition();
+        const auto dist1 = (rigid1->GetNode()->GetWorldPosition() - collision_body_pos).LengthSquared();
+        const auto dist2 = (rigid2->GetNode()->GetWorldPosition() - collision_body_pos).LengthSquared();
         return dist1 < dist2;
     });
-    // auto pick = closest_body->GetComponent<Pickable>();
-    // URHO3D_LOGWARNING("Found a pickable item: " + pick->item());
-    if (!closest_body->GetNode()->GetChild("SpotlightOnSelection")) {
+    if (closest_body->GetNode() != m_highlighted) {
         if (m_highlighted) {
             m_highlighted->RemoveChild(m_highlighted->GetChild("SpotlightOnSelection"));
             m_highlighted.Reset();
