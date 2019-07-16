@@ -1,9 +1,12 @@
 #include "Game.hpp"
 
+#include "Items/Pickable.hpp"
 #include "Scenes/Gameplay.hpp"
 #include "Scenes/MainMenu.hpp"
+#include "Scenes/Options.hpp"
 #include "Utility/Common.hpp"
 #include "Utility/FPSCounter.hpp"
+#include "Utility/InteractionCollider.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -22,6 +25,9 @@ Game::Game(Urho3D::Context* context) : Application(context)
 {
     // Component Register
     register_component<FPSCounter>(context);
+    register_component<Character>(context);
+    register_component<Pickable>(context);
+    register_component<InteractionCollider>(context);
 }
 
 void Game::Setup()
@@ -48,6 +54,7 @@ void Game::Start()
     SubscribeToEvent(E_EXITREQUESTED, [&](auto&&...) { engine_->Exit(); });
     SubscribeToEvent(E_STARTGAME, [&](auto&&...) { m_next_state = Scenes::Gameplay; });
     SubscribeToEvent(E_MENUREQUESTED, [&](auto&&...) { m_next_state = Scenes::MainMenu; });
+    SubscribeToEvent(E_OPTIONSREQUESTED, [&](auto&&...) { m_next_state = Scenes::Options; });
 }
 
 void Game::Stop()
@@ -65,6 +72,10 @@ void Game::handle_change_state(StringHash /* event_type */, VariantMap& /* event
     switch (m_next_state) {
         case Scenes::MainMenu: {
             m_active_state = new MainMenu(context_);
+            break;
+        }
+        case Scenes::Options: {
+            m_active_state = new Options(context_);
             break;
         }
         case Scenes::Gameplay: {
@@ -98,7 +109,7 @@ void Game::handle_key_down(Urho3D::StringHash /* event_type */, Urho3D::VariantM
 void Game::handle_update(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& event_data)
 {
     const auto time_step = event_data[Urho3D::Update::P_TIMESTEP].GetFloat();
-    m_active_state->Update(time_step);
+    m_active_state->update(time_step);
 }
 
 void Game::handle_postrender_update(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& /* event_data */)

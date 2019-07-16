@@ -10,8 +10,8 @@ public:
 
     void init_ui();
     void init_gamescene();
-
-    void Update(float time_step) override;
+    void handle_key_down(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
+    void update(float time_step) override;
 
 private:
     Urho3D::WeakPtr<Character> m_character;

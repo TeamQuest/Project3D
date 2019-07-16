@@ -1,7 +1,8 @@
 #include "Character/Character.hpp"
 
 #include "Constants.hpp"
-#include "Utility/Pickable.hpp"
+#include "Items/Pickable.hpp"
+#include "Utility/InteractionCollider.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -21,13 +22,20 @@
 #include <Urho3D/Scene/SceneEvents.h>
 #include <Urho3D/UI/UI.h>
 
+#include <Urho3D/Graphics/AnimatedModel.h>
+#include <Urho3D/Graphics/Material.h>
+#include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Physics/CollisionShape.h>
+#include <Urho3D/Physics/PhysicsWorld.h>
+#include <Urho3D/Physics/RigidBody.h>
+#include <Urho3D/Resource/ResourceCache.h>
+
 #pragma clang diagnostic pop
 
 using namespace Urho3D;
 
-Character::Character(Context* context) : LogicComponent(context), m_on_ground(false), m_can_jump(true), m_time_in_air(0.0f)
+Character::Character(Context* context) : LogicComponent(context), m_on_ground(false), m_can_jump(true), m_time_in_air(0.f)
 {
-    // Only the physics update event is needed: unsubscribe from the rest for optimization
     SetUpdateEventMask(USE_FIXEDUPDATE);
 }
 
@@ -45,18 +53,42 @@ Character::Character(Context* context) : LogicComponent(context), m_on_ground(fa
 
 void Character::Start()
 {
-    {  // Setup action collider
-        m_action_collider = node_->CreateChild("Action Collider");
-        auto&& rigidbody = m_action_collider->CreateComponent<RigidBody>();
-        rigidbody->SetTrigger(true);
-        auto&& collider = m_action_collider->CreateComponent<CollisionShape>();
-        collider->SetBox({2.f, 2.f, 4.f}, {0.f, 1.f, 2.5f});
-        // collider->SetCone(5.f, 2.f, Vector3(0.f, 1.f, 1.f), Quaternion(-90.f, Vector3::RIGHT));
-    }
+    auto cache = GetSubsystem<ResourceCache>();
+
+    auto asset_node = node_->CreateChild("Character Asset Node");
+    asset_node->SetRotation(Quaternion(180.f, Vector3(0.f, 1.f, 0.f)));
+
+    // Create the rendering component + animation controller
+    auto model = asset_node->CreateComponent<AnimatedModel>();
+    model->SetModel(cache->GetResource<Model>("Models/Mutant/Mutant.mdl"));
+    model->SetMaterial(cache->GetResource<Material>("Models/Mutant/Materials/mutant_M.xml"));
+    model->SetCastShadows(true);
+    asset_node->CreateComponent<AnimationController>();
+
+    // Set the head bone for manual control
+    model->GetSkeleton().GetBone("Mutant:Head")->animated_ = false;
+
+    // Create rigidbody, and set non-zero mass so that the body becomes dynamic
+    auto body = node_->CreateComponent<RigidBody>();
+    body->SetCollisionLayer(1);
+    body->SetMass(1.0f);
+
+    // Set zero angular factor so that physics doesn't turn the character on its own.
+    // Instead we will control the character yaw manually
+    body->SetAngularFactor(Vector3::ZERO);
+
+    // Set the rigidbody to signal collision also when in rest, so that we get ground collisions properly
+    body->SetCollisionEventMode(CollisionEventMode::COLLISION_ALWAYS);
+
+    // Set a capsule shape for collision
+    auto shape = node_->CreateComponent<CollisionShape>();
+    shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
+
+    // Set an interaction component
+    node_->CreateComponent<InteractionCollider>();
 
     // Component has been inserted into its scene node. Subscribe to events now
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_collision));
-    SubscribeToEvent(m_action_collider, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_interaction));
 }
 
 void Character::FixedUpdate(float time_step)
@@ -189,18 +221,6 @@ void Character::handle_collision(StringHash /* event_type */, VariantMap& event_
         /* auto contact_impulse = */ contacts.ReadFloat();
         if (contact_normal.y_ > 0.75f) {
             m_on_ground = true;
-        }
-    }
-}
-
-void Character::handle_interaction(StringHash /* event_type */, VariantMap& event_data)
-{
-    const auto input = GetSubsystem<Input>();
-    if (input->GetKeyPress(KEY_E)) {
-        auto node_collider = static_cast<Node*>(event_data[NodeCollision::P_OTHERNODE].GetPtr());
-
-        if (auto pick = node_collider->GetComponent<Pickable>()) {
-            URHO3D_LOGWARNING("Found item: " + pick->item());
         }
     }
 }
