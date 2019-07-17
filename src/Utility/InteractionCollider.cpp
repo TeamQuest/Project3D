@@ -75,24 +75,21 @@ void InteractionCollider::handle_collision()
         return dist1 < dist2;
     });
     {
-        auto pickable_hp_potion = closest_body->GetComponent<HpPotion>();
-        if (pickable_hp_potion != nullptr) {
+        if (auto pickable_hp_potion = closest_body->GetComponent<HpPotion>()) {
             URHO3D_LOGWARNING("Found a pickable item: " + pickable_hp_potion->get_name());
             URHO3D_LOGWARNING("description: " + pickable_hp_potion->get_desctiption());
         }
 
-        auto pickable_sword = closest_body->GetComponent<Sword>();
-        if (pickable_sword != nullptr) {
+        if (auto pickable_sword = closest_body->GetComponent<Sword>()) {
             URHO3D_LOGWARNING("Found a pickable item: " + pickable_sword->get_name());
             URHO3D_LOGWARNING("description: " + pickable_sword->get_desctiption());
             URHO3D_LOGWARNINGF("dmg: %d", pickable_sword->get_dmg());
         }
 
-        auto pickable_gold = closest_body->GetComponent<Gold>();
-        if (pickable_gold != nullptr) {
+        if (auto pickable_gold = closest_body->GetComponent<Gold>()) {
             URHO3D_LOGWARNING("Found a pickable item: " + pickable_gold->get_name());
             URHO3D_LOGWARNING("description: " + pickable_gold->get_desctiption());
-            URHO3D_LOGWARNINGF("amount: %d", pickable_gold->get_amout());
+            URHO3D_LOGWARNINGF("amount: %d", pickable_gold->get_amount());
         }
     }
     if (!closest_body->GetNode()->GetChild("SpotlightOnSelection")) {

@@ -16,8 +16,8 @@ class Gold : public Pickable {
 public:
     Gold(Urho3D::Context* context);
 
-        void set_amout(int amout);
-    const int& get_amout() const;
+    void set_amount(int amout);
+    const int& get_amount() const;
 
 private:
     Urho3D::String m_name;

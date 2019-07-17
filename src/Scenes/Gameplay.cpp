@@ -166,7 +166,7 @@ void Gameplay::init_gamescene()
                 auto pickable_gold = box->CreateComponent<Gold>();
                 pickable_gold->set_name("Gold");
                 pickable_gold->set_description("Money, money, money...");
-                pickable_gold->set_amout(100);
+                pickable_gold->set_amount(100);
             }
 
             auto box_model = box->CreateComponent<StaticModel>();
