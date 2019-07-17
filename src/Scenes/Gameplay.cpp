@@ -1,5 +1,6 @@
 #include "Gameplay.hpp"
 
+#include "Items/Gold.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 #include "Utility/FPSCounter.hpp"
@@ -145,12 +146,13 @@ void Gameplay::init_gamescene()
             collider->SetBox(Vector3::ONE);
 
             auto lootable = box->CreateComponent<Lootable>();
-            std::vector<String> possible_items = {"Health Potion (+40%)", "Old trousers", "Bottle of wine", "Shoes", "Gold (1000GP)", "Gold (9GP)"};
             for (int i = 0; i < Random(1, 6); ++i) {
-                const auto& random_name = possible_items[Random(0, possible_items.size())];
-                auto item = new Pickable(context_);
-                item->set_name(random_name);
-                lootable->add_item(item);
+                auto gold_coins = new Gold(context_);
+                auto random_amount = Random(100, 1000);
+                gold_coins->set_name(ToString("%d gold coins", random_amount));
+                gold_coins->set_description("Gold coins");
+                gold_coins->set_amount(random_amount);
+                lootable->add_item(gold_coins);
             }
 
             auto box_model = box->CreateComponent<StaticModel>();

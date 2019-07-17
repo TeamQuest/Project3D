@@ -1,11 +1,6 @@
 #pragma once
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
 #include <Urho3D/Scene/LogicComponent.h>
-#pragma clang diagnostic pop
 
 class Pickable : public Urho3D::LogicComponent {
     URHO3D_OBJECT(Pickable, Urho3D::LogicComponent);
@@ -13,9 +8,13 @@ class Pickable : public Urho3D::LogicComponent {
 public:
     Pickable(Urho3D::Context* context);
 
-    void set_name(const Urho3D::String& item_name);
-    const Urho3D::String& name() const;
+    void set_name(const Urho3D::String& name);
+    const Urho3D::String& get_name() const;
 
-protected:
+    void set_description(const Urho3D::String& description);
+    const Urho3D::String& get_description() const;
+
+private:
     Urho3D::String m_name;
+    Urho3D::String m_description;
 };

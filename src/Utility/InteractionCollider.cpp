@@ -44,7 +44,7 @@ void InteractionCollider::Start()
         rigidbody->SetKinematic(true);
         rigidbody->SetCollisionLayerAndMask(2, 1);
         auto&& collider = interaction_node->CreateComponent<CollisionShape>();
-        collider->SetBox({1.f, 2.f, 2.f}, {0.f, 1.f, 1.5f});
+        collider->SetBox({0.5f, 2.f, 2.f}, {0.f, 1.f, 1.5f});
     }
     SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
         auto node = static_cast<Node*>(event_data[NodeCollisionEnd::P_OTHERNODE].GetPtr());
@@ -126,13 +126,13 @@ void InteractionCollider::handle_interaction()
                 item_button->SetMinHeight(50);
                 auto item_text = new Text(context_);
                 const auto cache = GetSubsystem<ResourceCache>();
-                item_text->SetText(item->name());
+                item_text->SetText(item->get_name());
                 item_text->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"));
                 item_text->SetFontSize(15);
                 item_text->SetAlignment(HA_CENTER, VA_CENTER);
                 item_text->SetTextAlignment(HA_CENTER);
                 item_button->AddChild(item_text);
-                item_button->SetMinWidth(item->name().Length() * 15);
+                item_button->SetMinWidth(item->get_name().Length() * 15);
                 window->AddChild(item_button);
             }
         }
