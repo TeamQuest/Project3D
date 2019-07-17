@@ -7,17 +7,15 @@
 #include <Urho3D/Scene/LogicComponent.h>
 #pragma clang diagnostic pop
 
-#include <vector>
-
 class Pickable : public Urho3D::LogicComponent {
     URHO3D_OBJECT(Pickable, Urho3D::LogicComponent);
 
 public:
     Pickable(Urho3D::Context* context);
 
-    void set_item(const Urho3D::String& item);
-    const Urho3D::String& item() const;
+    void set_name(const Urho3D::String& item_name);
+    const Urho3D::String& name() const;
 
-private:
-    Urho3D::String m_item;
+protected:
+    Urho3D::String m_name;
 };
