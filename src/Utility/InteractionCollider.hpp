@@ -12,7 +12,10 @@ public:
     void Update(float time_step) override;
 
     void handle_collision();
+    void handle_interaction();
+    void close_window();
 
 private:
     Urho3D::WeakPtr<Urho3D::Node> m_highlighted;
+    bool m_window_open = false;
 };

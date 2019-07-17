@@ -1,9 +1,8 @@
 #include "Gameplay.hpp"
 
 #include "Items/Gold.hpp"
-#include "Items/HpPotion.hpp"
-#include "Items/Sword.hpp"
-
+#include "Items/Lootable.hpp"
+#include "Items/Pickable.hpp"
 #include "Utility/FPSCounter.hpp"
 
 #pragma clang diagnostic push
@@ -11,6 +10,7 @@
 #pragma clang diagnostic ignored "-Wextra"
 #pragma clang diagnostic ignored "-Wpedantic"
 
+#include <Urho3D/Core/Context.h>
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
@@ -30,11 +30,10 @@
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/UIEvents.h>
 
-#include <Urho3D/Core/Context.h>
-
 #pragma clang diagnostic pop
 
 #include <cmath>
+#include <vector>
 
 using namespace Urho3D;
 
@@ -146,30 +145,21 @@ void Gameplay::init_gamescene()
             auto collider = box->CreateComponent<CollisionShape>();
             collider->SetBox(Vector3::ONE);
 
-            if (i % 3 == 0) {
-                auto pickable_hp_potion = box->CreateComponent<HpPotion>();
-                pickable_hp_potion->set_name("HP Potion");
-                pickable_hp_potion->set_description("Restoring a total of 150 health.");
-            }
-
-            if (i % 3 == 1) {
-                auto pickable_sword = box->CreateComponent<Sword>();
-                pickable_sword->set_name("Weapon Sword");
-                pickable_sword->set_description("Sharp as hell");
-                pickable_sword->set_dmg(10);
-            }
-
-            if (i % 3 == 2) {
-                auto pickable_gold = box->CreateComponent<Gold>();
-                pickable_gold->set_name("Gold");
-                pickable_gold->set_description("Money, money, money...");
-                pickable_gold->set_amount(100);
+            auto lootable = box->CreateComponent<Lootable>();
+            for (int i = 0; i < Random(1, 6); ++i) {
+                auto gold_coins = new Gold(context_);
+                auto random_amount = Random(100, 1000);
+                gold_coins->set_name(ToString("%d gold coins", random_amount));
+                gold_coins->set_description("Gold coins");
+                gold_coins->set_amount(random_amount);
+                lootable->add_item(gold_coins);
             }
 
             auto box_model = box->CreateComponent<StaticModel>();
             box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
             box_model->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
         }
+        scene->GetChild("Box", false)->SetPosition(Vector3::FORWARD);
     }
 }
 

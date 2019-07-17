@@ -2,18 +2,16 @@
 
 #include <Urho3D/Scene/LogicComponent.h>
 
-#include <vector>
-
 class Pickable : public Urho3D::LogicComponent {
     URHO3D_OBJECT(Pickable, Urho3D::LogicComponent);
 
 public:
     Pickable(Urho3D::Context* context);
 
-    void set_name(const Urho3D::String& item);
+    void set_name(const Urho3D::String& name);
     const Urho3D::String& get_name() const;
 
-    void set_description(const Urho3D::String& item);
+    void set_description(const Urho3D::String& description);
     const Urho3D::String& get_description() const;
 
 private:

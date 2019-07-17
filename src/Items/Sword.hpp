@@ -10,7 +10,7 @@ class Sword : public Pickable {
 public:
     Sword(Urho3D::Context* context);
 
-    void set_dmg(int dmg);
+    void set_dmg(int value);
     const int& get_dmg() const;
 
 private:

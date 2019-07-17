@@ -2,8 +2,9 @@
 
 #include "Items/Gold.hpp"
 #include "Items/HpPotion.hpp"
+#include "Items/Lootable.hpp"
+#include "Items/Pickable.hpp"
 #include "Items/Sword.hpp"
-
 #include "Scenes/Gameplay.hpp"
 #include "Scenes/MainMenu.hpp"
 #include "Scenes/Options.hpp"
@@ -33,6 +34,7 @@ Game::Game(Urho3D::Context* context) : Application(context)
     register_component<Sword>(context);
     register_component<Gold>(context);
     register_component<InteractionCollider>(context);
+    register_component<Lootable>(context);
 }
 
 void Game::Setup()
