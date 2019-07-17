@@ -2,12 +2,7 @@
 
 #include "Items/Pickable.hpp"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
 #include <Urho3D/Scene/LogicComponent.h>
-#pragma clang diagnostic pop
 
 #include <vector>
 
