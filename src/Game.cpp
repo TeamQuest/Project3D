@@ -28,13 +28,10 @@ Game::Game(Urho3D::Context* context) : Application(context)
 {
     // Component Register
     register_component<FPSCounter>(context);
-
     register_component<Character>(context);
-
     register_component<HpPotion>(context);
     register_component<Sword>(context);
     register_component<Gold>(context);
-
     register_component<InteractionCollider>(context);
 }
 

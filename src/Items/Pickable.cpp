@@ -21,7 +21,7 @@ void Pickable::set_description(const String& description)
     m_description = description;
 }
 
-const String& Pickable::get_desctiption() const
+const String& Pickable::get_description() const
 {
     return m_description;
 }

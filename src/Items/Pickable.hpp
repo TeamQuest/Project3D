@@ -1,11 +1,6 @@
 #pragma once
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
 #include <Urho3D/Scene/LogicComponent.h>
-#pragma clang diagnostic pop
 
 #include <vector>
 
@@ -19,7 +14,7 @@ public:
     const Urho3D::String& get_name() const;
 
     void set_description(const Urho3D::String& item);
-    const Urho3D::String& get_desctiption() const;
+    const Urho3D::String& get_description() const;
 
 private:
     Urho3D::String m_name;

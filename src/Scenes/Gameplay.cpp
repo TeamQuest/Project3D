@@ -146,9 +146,6 @@ void Gameplay::init_gamescene()
             auto collider = box->CreateComponent<CollisionShape>();
             collider->SetBox(Vector3::ONE);
 
-            // std::vector<String> possible_items = {"Health Potion (+40%)", "Old trousers", "Bottle of wine", "Shoes", "Gold (1000GP)", "Gold
-            // (9GP)"}; const auto& random_item = possible_items[Random(0, possible_items.size())]; pickable->set_item(random_item);
-
             if (i % 3 == 0) {
                 auto pickable_hp_potion = box->CreateComponent<HpPotion>();
                 pickable_hp_potion->set_name("HP Potion");

@@ -1,5 +1,4 @@
 #include "Items/Sword.hpp"
-#include "Items/Pickable.hpp"
 
 using namespace Urho3D;
 

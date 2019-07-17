@@ -1,5 +1,4 @@
 #include "Items/HpPotion.hpp"
-#include "Items/Pickable.hpp"
 
 using namespace Urho3D;
 
