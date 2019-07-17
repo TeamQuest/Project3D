@@ -13,6 +13,7 @@ public:
 
     void handle_collision();
     void handle_interaction();
+    void close_window();
 
 private:
     Urho3D::WeakPtr<Urho3D::Node> m_highlighted;

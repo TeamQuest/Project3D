@@ -49,11 +49,7 @@ void InteractionCollider::Start()
     SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
         auto node = static_cast<Node*>(event_data[NodeCollisionEnd::P_OTHERNODE].GetPtr());
         if (auto to_remove = node->GetChild("SpotlightOnSelection")) {
-            if (m_window_open) {
-                const auto ui_root = GetSubsystem<UI>()->GetRoot();
-                ui_root->RemoveChild(ui_root->GetChild("LootWindow", true));
-                m_window_open = false;
-            }
+            close_window();
             node->RemoveChild(to_remove);
             m_highlighted.Reset();
         }
@@ -105,7 +101,8 @@ void InteractionCollider::handle_collision()
 
 void InteractionCollider::handle_interaction()
 {
-    if (m_highlighted && GetSubsystem<Input>()->GetKeyPress(KEY_E) && !m_window_open) {
+    if (m_highlighted && GetSubsystem<Input>()->GetKeyPress(KEY_E)) {
+        close_window();
         m_window_open = true;
         auto ui_root = GetSubsystem<UI>()->GetRoot();
         auto window = new Window(context_);
@@ -130,9 +127,8 @@ void InteractionCollider::handle_interaction()
                 auto item_text = new Text(context_);
                 const auto cache = GetSubsystem<ResourceCache>();
                 item_text->SetText(item->name());
-                item_text->SetStyleAuto();
-                item_text->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 30);
-                item_text->SetFontSize(30);
+                item_text->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"));
+                item_text->SetFontSize(15);
                 item_text->SetAlignment(HA_CENTER, VA_CENTER);
                 item_text->SetTextAlignment(HA_CENTER);
                 item_button->AddChild(item_text);
@@ -140,5 +136,14 @@ void InteractionCollider::handle_interaction()
                 window->AddChild(item_button);
             }
         }
+    }
+}
+
+void InteractionCollider::close_window()
+{
+    if (m_window_open) {
+        const auto ui_root = GetSubsystem<UI>()->GetRoot();
+        ui_root->RemoveChild(ui_root->GetChild("LootWindow", true));
+        m_window_open = false;
     }
 }
