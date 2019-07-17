@@ -44,7 +44,7 @@ void InteractionCollider::Start()
         rigidbody->SetKinematic(true);
         rigidbody->SetCollisionLayerAndMask(2, 1);
         auto&& collider = interaction_node->CreateComponent<CollisionShape>();
-        collider->SetBox({2.f, 2.f, 2.f}, {0.f, 1.f, 1.5f});
+        collider->SetBox({1.f, 2.f, 2.f}, {0.f, 1.f, 1.5f});
     }
     SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
         auto node = static_cast<Node*>(event_data[NodeCollisionEnd::P_OTHERNODE].GetPtr());
@@ -111,8 +111,7 @@ void InteractionCollider::handle_interaction()
         auto window = new Window(context_);
         window->SetName("LootWindow");
         window->SetStyleAuto();
-        window->SetMinSize(300, 300);
-        window->SetLayout(LM_VERTICAL, 6, IntRect(6, 6, 6, 6));
+        window->SetLayout(LM_VERTICAL, 10, {10, 10, 10, 10});
         window->SetAlignment(HA_LEFT, VA_CENTER);
         window->SetPosition(100, 0);
         ui_root->AddChild(window);
@@ -120,23 +119,25 @@ void InteractionCollider::handle_interaction()
         auto window_title = new Text(context_);
         window_title->SetName("LootWindowTitle");
         window_title->SetStyleAuto();
+        window_title->SetText("<Lootable object>");
         window->AddChild(window_title);
 
         if (auto lootable_item = m_highlighted->GetComponent<Lootable>()) {
-            for (Pickable* item : lootable_item->get_items()) {
+            for (auto item : lootable_item->get_items()) {
                 auto item_button = new Button(context_);
                 item_button->SetStyleAuto();
-                item_button->SetMinHeight(24);
-                item_button->SetMinWidth(10);
-                window->AddChild(item_button);
-
-                auto item_text = item_button->CreateChild<Text>("ItemText");
+                item_button->SetMinHeight(50);
+                auto item_text = new Text(context_);
                 const auto cache = GetSubsystem<ResourceCache>();
                 item_text->SetText(item->name());
+                item_text->SetStyleAuto();
                 item_text->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 30);
                 item_text->SetFontSize(30);
+                item_text->SetAlignment(HA_CENTER, VA_CENTER);
+                item_text->SetTextAlignment(HA_CENTER);
                 item_button->AddChild(item_text);
-                window->SetWidth(150);
+                item_button->SetMinWidth(item->name().Length() * 15);
+                window->AddChild(item_button);
             }
         }
     }

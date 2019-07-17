@@ -1,7 +1,7 @@
 #include "Gameplay.hpp"
 
-#include "Items/Pickable.hpp"
 #include "Items/Lootable.hpp"
+#include "Items/Pickable.hpp"
 #include "Utility/FPSCounter.hpp"
 
 #pragma clang diagnostic push
@@ -9,6 +9,7 @@
 #pragma clang diagnostic ignored "-Wextra"
 #pragma clang diagnostic ignored "-Wpedantic"
 
+#include <Urho3D/Core/Context.h>
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
@@ -27,7 +28,6 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/UIEvents.h>
-#include <Urho3D/Core/Context.h>
 
 #pragma clang diagnostic pop
 
@@ -146,7 +146,7 @@ void Gameplay::init_gamescene()
 
             auto lootable = box->CreateComponent<Lootable>();
             std::vector<String> possible_items = {"Health Potion (+40%)", "Old trousers", "Bottle of wine", "Shoes", "Gold (1000GP)", "Gold (9GP)"};
-            for (int i=0; i<Random(1, 6); ++i) {
+            for (int i = 0; i < Random(1, 6); ++i) {
                 const auto& random_name = possible_items[Random(0, possible_items.size())];
                 auto item = new Pickable(context_);
                 item->set_name(random_name);
@@ -157,6 +157,7 @@ void Gameplay::init_gamescene()
             box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
             box_model->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
         }
+        scene->GetChild("Box", false)->SetPosition(Vector3::FORWARD);
     }
 }
 
