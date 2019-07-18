@@ -115,7 +115,7 @@ Window* InteractionCollider::create_popup_window()
     if (auto lootable_item = m_highlighted->GetComponent<Lootable>()) {
         const auto anonymous_pro_font = GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf"));
         for (auto item : lootable_item->get_items()) {
-            auto item_button = *make<Button>(context_).styleauto().minheight(50).minwidth(item->get_name().Length());
+            auto item_button = *make<Button>(context_).styleauto().minheight(50).minwidth(item->get_name().Length() * 15);
             auto item_text = *make<Text>(context_)
                                   .text(item->get_name())
                                   .font(anonymous_pro_font)

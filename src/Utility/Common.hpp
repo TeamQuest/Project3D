@@ -20,6 +20,9 @@ public:
     template <typename U, typename... Args>
     friend FactoryProxy<U> make(Args&&...);
 
+    FactoryProxy(const FactoryProxy&) = delete;
+    FactoryProxy& operator=(const FactoryProxy&) = delete;
+
 private:
     FactoryProxy(T* value) : value{value}
     {
@@ -105,5 +108,5 @@ private:
 template <typename T, typename... Args>
 auto make(Args&&... args) -> FactoryProxy<T>
 {
-    return FactoryProxy<T>{new T{std::forward<Args>(args)...}};
+    return {new T{std::forward<Args>(args)...}};
 }
