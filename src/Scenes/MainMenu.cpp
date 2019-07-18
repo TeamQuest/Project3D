@@ -34,52 +34,51 @@ MainMenu::MainMenu(Context* context) : State(context, Scenes::MainMenu)
     ui_root->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
 
     {  // StartGame button and label
-        auto start_game_button = new Button(context);
-        start_game_button->SetName("StartGameButton");
-        start_game_button->SetStyle("Button");
-        start_game_button->SetSize(500, 100);
-        start_game_button->SetAlignment(HA_CENTER, VA_CENTER);
-        start_game_button->SetPosition(0, -220);
+        auto start_game_button = *make<Button>(context)
+                                      .name("StartGameButton")
+                                      .style("Button")
+                                      .size(500, 100)
+                                      .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
+                                      .position(0, -220);
 
-        auto start_game_label = new Text(context);
-        start_game_label->SetName("StartGameLabel");
-        start_game_label->SetText("start new game");
-        start_game_label->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 30);
-        start_game_label->SetAlignment(HA_CENTER, VA_CENTER);
-        start_game_label->SetTextAlignment(HA_CENTER);
+        auto start_game_label = *make<Text>(context)
+                                     .name("StartGameLabel")
+                                     .text("start new game")
+                                     .font(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 30)
+                                     .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
+                                     .textalignment(HorizontalAlignment::HA_CENTER);
         start_game_button->AddChild(start_game_label);
         ui_root->AddChild(start_game_button);
     }
     {  // Options button and label
-        auto options_button = new Button(context);
-        options_button->SetName("OptionsButton");
-        options_button->SetStyle("Button");
-        options_button->SetSize(500, 100);
-        options_button->SetPosition(0, -110);
-        options_button->SetAlignment(HA_CENTER, VA_CENTER);
+        auto options_button = *make<Button>(context)
+                                   .name("OptionsButton")
+                                   .style("Button")
+                                   .size(500, 100)
+                                   .position(0, -110)
+                                   .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER);
 
-        auto options_button_label = new Text(context);
-        options_button_label->SetName("Options");
-        options_button_label->SetText("options");
-        options_button_label->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 30);
-        options_button_label->SetAlignment(HA_CENTER, VA_CENTER);
-        options_button_label->SetTextAlignment(HA_CENTER);
+        auto options_button_label = *make<Text>(context)
+                                         .name("Options")
+                                         .text("options")
+                                         .font(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 30)
+                                         .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
+                                         .textalignment(HorizontalAlignment::HA_CENTER);
         options_button->AddChild(options_button_label);
         ui_root->AddChild(options_button);
     }
     {  // Quit button and label
-        auto quit_button = new Button(context);
-        quit_button->SetName("QuitButton");
-        quit_button->SetStyle("Button");
-        quit_button->SetSize(500, 100);
-        quit_button->SetAlignment(HA_CENTER, VA_CENTER);
-
-        auto quit_button_label = new Text(context);
-        quit_button_label->SetName("QuitLabel");
-        quit_button_label->SetText("quit game");
-        quit_button_label->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 30);
-        quit_button_label->SetAlignment(HA_CENTER, VA_CENTER);
-        quit_button_label->SetTextAlignment(HA_CENTER);
+        auto quit_button = *make<Button>(context)
+                                .name("QuitButton")
+                                .style("Button")
+                                .size(500, 100)
+                                .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER);
+        auto quit_button_label = *make<Text>(context)
+                                      .name("QuitLabel")
+                                      .text("quit game")
+                                      .font(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 30)
+                                      .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
+                                      .textalignment(HorizontalAlignment::HA_CENTER);
         quit_button->AddChild(quit_button_label);
         ui_root->AddChild(quit_button);
     }

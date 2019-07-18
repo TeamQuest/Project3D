@@ -3,6 +3,7 @@
 #include "Items/Gold.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
+#include "Utility/Common.hpp"
 #include "Utility/FPSCounter.hpp"
 
 #pragma clang diagnostic push
@@ -55,20 +56,19 @@ void Gameplay::init_ui()
     ui_root->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
 
     {  // ExitGame button and label
-        auto exit_game_button = new Button(context_);
-        exit_game_button->SetName("ExitGameButton");
-        exit_game_button->SetStyle("Button");
-        exit_game_button->SetSize(100, 60);
-        exit_game_button->SetAlignment(HA_LEFT, VA_TOP);
-        exit_game_button->SetPosition(100, 100);
-
-        auto exit_game_label = new Text(context_);
-        exit_game_label->SetName("ExitGameLabel");
-        exit_game_label->SetText("exit");
-        exit_game_label->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 17);
-        exit_game_label->SetAlignment(HA_CENTER, VA_CENTER);
-        exit_game_button->AddChild(exit_game_label);
-        ui_root->AddChild(exit_game_button);
+        auto exit_button = *make<Button>(context_)
+                                .name("ExitGameButton")
+                                .style("Button")
+                                .size(100, 60)
+                                .alignment(HorizontalAlignment::HA_LEFT, VerticalAlignment::VA_TOP)
+                                .position(100, 100);
+        auto exit_label = *make<Text>(context_)
+                               .name("ExitGameLabel")
+                               .text("exit")
+                               .font(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 17)
+                               .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER);
+        exit_button->AddChild(exit_label);
+        ui_root->AddChild(exit_button);
     }
 
     SubscribeToEvent(ui_root->GetChild("ExitGameButton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_MENUREQUESTED); });

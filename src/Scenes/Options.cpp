@@ -1,4 +1,5 @@
 #include "Scenes/Options.hpp"
+#include "Utility/Common.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -28,18 +29,13 @@ Options::Options(Context* context) : State(context, Scenes::Options)
     ui_root->SetDefaultStyle(cache->GetResource<XMLFile>("UI/DefaultStyle.xml"));
 
     {  // Quit button and label
-        auto back_to_menu_button = new Button(context);
-        back_to_menu_button->SetName("BackToMenuButton");
-        back_to_menu_button->SetStyle("Button");
-        back_to_menu_button->SetSize(500, 100);
-        back_to_menu_button->SetAlignment(HA_CENTER, VA_CENTER);
-
-        auto back_to_main_button_label = new Text(context);
-        back_to_main_button_label->SetName("BackToMenuButtonLabel");
-        back_to_main_button_label->SetText("back to main");
-        back_to_main_button_label->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 30);
-        back_to_main_button_label->SetAlignment(HA_CENTER, VA_CENTER);
-        back_to_main_button_label->SetTextAlignment(HA_CENTER);
+        auto back_to_menu_button = *make<Button>(context).name("BackToMenuButton").style("Button").size(500, 100).alignment(HA_CENTER, VA_CENTER);
+        auto back_to_main_button_label = *make<Text>(context)
+                                              .name("BackToMenuButtonLabel")
+                                              .text("back to main")
+                                              .font(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 30)
+                                              .alignment(HA_CENTER, VA_CENTER)
+                                              .textalignment(HA_CENTER);
         back_to_menu_button->AddChild(back_to_main_button_label);
         ui_root->AddChild(back_to_menu_button);
     }

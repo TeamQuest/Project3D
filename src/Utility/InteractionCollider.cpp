@@ -2,6 +2,7 @@
 
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
+#include "Utility/Common.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -39,11 +40,11 @@ void InteractionCollider::Start()
 {
     {
         auto interaction_node = node_->CreateChild("Interaction");
-        auto&& rigidbody = interaction_node->CreateComponent<RigidBody>();
+        auto rigidbody = interaction_node->CreateComponent<RigidBody>();
         rigidbody->SetTrigger(true);
         rigidbody->SetKinematic(true);
         rigidbody->SetCollisionLayerAndMask(2, 1);
-        auto&& collider = interaction_node->CreateComponent<CollisionShape>();
+        auto collider = interaction_node->CreateComponent<CollisionShape>();
         collider->SetBox({0.5f, 2.f, 2.f}, {0.f, 1.f, 1.5f});
     }
     SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
@@ -83,6 +84,7 @@ void InteractionCollider::handle_collision()
         const auto dist2 = (rigid2->GetNode()->GetWorldPosition() - collision_body_pos).LengthSquared();
         return dist1 < dist2;
     });
+    // If there is a closer body than the highlighted one
     if (closest_body->GetNode() != m_highlighted) {
         if (m_highlighted) {
             m_highlighted->RemoveChild(m_highlighted->GetChild("SpotlightOnSelection"));
@@ -99,43 +101,40 @@ void InteractionCollider::handle_collision()
     }
 }
 
+Window* InteractionCollider::create_popup_window()
+{
+    m_window_open = true;
+    auto window = *make<Window>(context_)
+                       .name("LootWindow")
+                       .styleauto()
+                       .layout(LM_VERTICAL, 10, IntRect{10, 10, 10, 10})
+                       .aligned(HA_LEFT, VA_CENTER)
+                       .position(100, 0);
+    auto window_title = *make<Text>(context_).styleauto().text("<Lootable object>");
+    window->AddChild(window_title);
+    if (auto lootable_item = m_highlighted->GetComponent<Lootable>()) {
+        const auto anonymous_pro_font = GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf"));
+        for (auto item : lootable_item->get_items()) {
+            auto item_button = *make<Button>(context_).styleauto().minheight(50).minwidth(item->get_name().Length());
+            auto item_text = *make<Text>(context_)
+                                  .text(item->get_name())
+                                  .font(anonymous_pro_font)
+                                  .fontsize(15)
+                                  .alignment(HA_CENTER, VA_CENTER)
+                                  .textaligned(HA_CENTER);
+            item_button->AddChild(item_text);
+            window->AddChild(item_button);
+        }
+    }
+    return window;
+}
+
 void InteractionCollider::handle_interaction()
 {
     if (m_highlighted && GetSubsystem<Input>()->GetKeyPress(KEY_E)) {
         close_window();
-        m_window_open = true;
-        auto ui_root = GetSubsystem<UI>()->GetRoot();
-        auto window = new Window(context_);
-        window->SetName("LootWindow");
-        window->SetStyleAuto();
-        window->SetLayout(LM_VERTICAL, 10, {10, 10, 10, 10});
-        window->SetAlignment(HA_LEFT, VA_CENTER);
-        window->SetPosition(100, 0);
-        ui_root->AddChild(window);
-
-        auto window_title = new Text(context_);
-        window_title->SetName("LootWindowTitle");
-        window_title->SetStyleAuto();
-        window_title->SetText("<Lootable object>");
-        window->AddChild(window_title);
-
-        if (auto lootable_item = m_highlighted->GetComponent<Lootable>()) {
-            for (auto item : lootable_item->get_items()) {
-                auto item_button = new Button(context_);
-                item_button->SetStyleAuto();
-                item_button->SetMinHeight(50);
-                auto item_text = new Text(context_);
-                const auto cache = GetSubsystem<ResourceCache>();
-                item_text->SetText(item->get_name());
-                item_text->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"));
-                item_text->SetFontSize(15);
-                item_text->SetAlignment(HA_CENTER, VA_CENTER);
-                item_text->SetTextAlignment(HA_CENTER);
-                item_button->AddChild(item_text);
-                item_button->SetMinWidth(item->get_name().Length() * 15);
-                window->AddChild(item_button);
-            }
-        }
+        const auto window = create_popup_window();
+        GetSubsystem<UI>()->GetRoot()->AddChild(window);
     }
 }
 
