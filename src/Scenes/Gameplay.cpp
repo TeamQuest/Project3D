@@ -1,5 +1,6 @@
 #include "Gameplay.hpp"
 
+#include "Character/Components/Moveable.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 #include "Utility/FPSCounter.hpp"
@@ -11,6 +12,9 @@
 
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Graphics/AnimatedModel.h>
+#include <Urho3D/Graphics/Animation.h>
+#include <Urho3D/Graphics/AnimationState.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Graphics/Model.h>
@@ -78,6 +82,8 @@ void Gameplay::init_ui()
 void Gameplay::init_gamescene()
 {
     const auto cache = GetSubsystem<ResourceCache>();
+
+    const BoundingBox bounds(Vector3(-20.0f, 0.0f, -20.0f), Vector3(20.0f, 0.0f, 20.0f));
 
     {  // setup_scene_components
         scene->CreateComponent<DebugRenderer>();
@@ -158,6 +164,46 @@ void Gameplay::init_gamescene()
             box_model->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
         }
         scene->GetChild("Box", false)->SetPosition(Vector3::FORWARD);
+    }
+
+    { /* NPC's */
+        constexpr auto NUM_NPC = 30u;
+        for (unsigned i = 0; i < NUM_NPC; ++i) {
+            // auto jack = scene->CreateChild("jack");
+            // jack->SetPosition({0.f, 0.f, 1.f});
+            // m_character = jack->CreateComponent<Character>();
+
+            auto modelNode = scene->CreateChild("Jill");
+            modelNode->SetPosition(Vector3(Random(40.0f) - 20.0f, 0.0f, Random(40.0f) - 20.0f));
+            modelNode->SetRotation(Quaternion(0.0f, Random(360.0f), 0.0f));
+            modelNode->SetScale(1.f);
+
+            auto* modelObject = modelNode->CreateComponent<AnimatedModel>();
+            modelObject->SetModel(cache->GetResource<Model>("Models/Kachujin/Kachujin.mdl"));
+            modelObject->SetMaterial(cache->GetResource<Material>("Models/Kachujin/Materials/Kachujin.xml"));
+            modelObject->SetCastShadows(true);
+
+            /* animations */
+            auto* walkAnimation = cache->GetResource<Animation>("Models/Kachujin/Kachujin_Walk.ani");
+            AnimationState* state = modelObject->AddAnimationState(walkAnimation);
+            // The state would fail to create (return null) if the animation was not found
+            if (state) {
+                state->SetWeight(1.0f);
+                state->SetLooped(true);
+                state->SetTime(Random(walkAnimation->GetLength()));
+            }
+
+            auto rigidbody = modelNode->CreateComponent<RigidBody>();
+            rigidbody->SetMass(1.f);
+
+            auto collider = modelNode->CreateComponent<CollisionShape>();
+            // collider->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
+            collider->SetBox(Vector3::ONE, Vector3(0.f, 0.5f, 0.f));
+
+            // Create our custom Mover component that will move & animate the model during each frame's update
+            auto* mover = modelNode->CreateComponent<Moveable>();
+            mover->SetParameters(1.5f, 5.0f, bounds);
+        }
     }
 }
 
