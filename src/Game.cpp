@@ -1,6 +1,7 @@
 #include "Game.hpp"
 
 #include "Character/Components/Moveable.hpp"
+#include "Character/Npc.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 #include "Scenes/Gameplay.hpp"
@@ -28,6 +29,7 @@ Game::Game(Urho3D::Context* context) : Application(context)
     // Component Register
     register_component<FPSCounter>(context);
     register_component<Character>(context);
+    register_component<Npc>(context);
     register_component<Pickable>(context);
     register_component<InteractionCollider>(context);
     register_component<Lootable>(context);
