@@ -14,8 +14,8 @@ Moveable::Moveable(Context* context) : LogicComponent(context), moveSpeed_(0.0f)
 
 void Moveable::SetParameters(float moveSpeed, float rotationSpeed, const BoundingBox& bounds)
 {
-    moveSpeed_ = moveSpeed;
-    rotationSpeed_ = rotationSpeed;
+    moveSpeed_ = moveSpeedCopy_= moveSpeed;
+    rotationSpeed_ = rotationSpeedCopy_ = rotationSpeed;
     bounds_ = bounds;
 }
 
@@ -30,9 +30,17 @@ void Moveable::Update(float timeStep)
 
     // Get the model's first (only) animation state and advance its time. Note the convenience accessor to other components
     // in the same scene node
-    auto* model = node_->GetComponent<AnimatedModel>(true);
-    if (model->GetNumAnimationStates()) {
-        AnimationState* state = model->GetAnimationStates()[0];
-        state->AddTime(timeStep);
+    if(moveSpeed_ != 0)
+    {
+        auto* model = node_->GetComponent<AnimatedModel>(true);
+        if (model->GetNumAnimationStates()) {
+            AnimationState* state = model->GetAnimationStates()[0];
+            state->AddTime(timeStep);
+        }
     }
+    else
+    {
+
+    }
+    
 }

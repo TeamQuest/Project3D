@@ -1,5 +1,7 @@
 #include "Utility/InteractionCollider.hpp"
 
+#include "Character/Components/Moveable.hpp"
+#include "Character/Npc.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 
@@ -23,6 +25,7 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/Window.h>
+#include <Urho3D/Graphics/Camera.h>
 
 #pragma clang diagnostic pop
 
@@ -60,6 +63,7 @@ void InteractionCollider::Update(float /* time_step */)
 {
     handle_collision();
     handle_interaction();
+    handle_collision_with_npc();
 }
 
 void InteractionCollider::handle_collision()
@@ -71,7 +75,7 @@ void InteractionCollider::handle_collision()
     auto last_rigid_ptr = std::remove_if(bodies.Buffer(), bodies.Buffer() + bodies.Size(), [](RigidBody* rigid) {
         // Remove all non-pickable nodes
         auto node = rigid->GetNode();
-        return !node->HasComponent<Pickable>() && !node->HasComponent<Lootable>();
+        return !node->HasComponent<Pickable>() && !node->HasComponent<Lootable>() && !node->HasComponent<Moveable>();
     });
     if (bodies.Empty() || bodies.Buffer() == last_rigid_ptr) {
         return;
@@ -145,5 +149,27 @@ void InteractionCollider::close_window()
         const auto ui_root = GetSubsystem<UI>()->GetRoot();
         ui_root->RemoveChild(ui_root->GetChild("LootWindow", true));
         m_window_open = false;
+    }
+}
+
+void InteractionCollider::handle_collision_with_npc()
+{
+    if (m_highlighted && GetSubsystem<Input>()->GetKeyPress(KEY_F)) {
+        auto npc = m_highlighted->GetComponent<Moveable>();
+        if(npc->if_focus())
+        {   
+            npc->un_stop();
+        }
+        else
+        {
+            //Todo make rotation to npc during stoping
+            // auto camera = node_->GetComponent<Camera>();
+            // auto possition = camera->GetDistance(Vector3::ONE);
+            // auto bounds = npc->GetBounds();
+            // bounds.Merge(possition);
+
+            npc->stop();
+        }
+        
     }
 }

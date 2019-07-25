@@ -76,7 +76,15 @@ void Npc::Start()
     // collider->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
     collider->SetBox(Vector3::ONE, Vector3(0.f, 0.5f, 0.f));
 
+    node_->CreateComponent<InteractionCollider>();
+
     // Create our custom Mover component that will move & animate the model during each frame's update
     auto* mover = modelNode->CreateComponent<Moveable>();
     mover->SetParameters(1.5f, 5.0f, bounds);
+
+    SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Npc, handle_collision));
+}
+
+void Npc::handle_collision(StringHash /* event_type */, VariantMap& event_data)
+{
 }

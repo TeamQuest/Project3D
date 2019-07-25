@@ -18,10 +18,26 @@ public:
     void Update(float timeStep) override;
 
     /// Return forward movement speed.
-    float GetMoveSpeed() const
+    float get_move_speed() const
     {
         return moveSpeed_;
     }
+
+    void stop()
+    {
+        moveSpeed_= rotationSpeed_ = 0;
+    }
+     
+    void un_stop()
+    {
+        moveSpeed_ = moveSpeedCopy_;
+    }
+
+    bool if_focus() const 
+    {
+        return moveSpeed_ == 0;
+    }
+
     /// Return rotation speed.
     float GetRotationSpeed() const
     {
@@ -36,8 +52,12 @@ public:
 private:
     /// Forward movement speed.
     float moveSpeed_;
+    /// Hold orginal speed which was set during init.
+    float moveSpeedCopy_;
     /// Rotation speed.
     float rotationSpeed_;
+    /// Hold orginal speed which was set during init.
+    float rotationSpeedCopy_;
     /// Movement boundaries.
     BoundingBox bounds_;
 };
