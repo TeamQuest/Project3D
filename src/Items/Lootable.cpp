@@ -8,17 +8,17 @@ Lootable::Lootable(Context* context) : LogicComponent(context)
 {
 }
 
-void Lootable::add_item(Pickable* item)
+void Lootable::add_item(SharedPtr<Pickable> item)
 {
     m_items.push_back(item);
 }
 
-void Lootable::remove_item(Pickable* item)
+void Lootable::remove_item(SharedPtr<Pickable> item)
 {
     m_items.erase(find(begin(m_items), end(m_items), item));
 }
 
-const std::vector<Pickable*>& Lootable::get_items()
+const std::vector<SharedPtr<Pickable>>& Lootable::get_items()
 {
     return m_items;
 }

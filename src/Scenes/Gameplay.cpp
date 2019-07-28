@@ -147,7 +147,7 @@ void Gameplay::init_gamescene()
 
             auto lootable = box->CreateComponent<Lootable>();
             for (int i = 0; i < Random(1, 6); ++i) {
-                auto gold_coins = new Gold(context_);
+                auto gold_coins = MakeShared<Gold>(context_);
                 auto random_amount = Random(100, 1000);
                 gold_coins->set_name(ToString("%d gold coins", random_amount));
                 gold_coins->set_description("Gold coins");
