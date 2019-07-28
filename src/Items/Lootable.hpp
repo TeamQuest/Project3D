@@ -10,12 +10,12 @@ class Lootable : public Urho3D::LogicComponent {
     URHO3D_OBJECT(Lootable, LogicComponent);
 
 public:
-    Lootable(Urho3D::Context* context);
+    explicit Lootable(Urho3D::Context* context);
 
-    void add_item(Pickable* item);
-    const std::vector<Pickable*>& get_items();
-    void remove_item(Pickable* item);
+    void add_item(Urho3D::SharedPtr<Pickable> item);
+    const std::vector<Urho3D::SharedPtr<Pickable>>& get_items();
+    void remove_item(Urho3D::SharedPtr<Pickable> item);
 
 private:
-    std::vector<Pickable*> m_items{};
+    std::vector<Urho3D::SharedPtr<Pickable>> m_items{};
 };

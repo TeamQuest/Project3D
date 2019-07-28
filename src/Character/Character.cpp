@@ -1,6 +1,7 @@
 #include "Character/Character.hpp"
 
 #include "Constants.hpp"
+#include "Items/Inventory.hpp"
 #include "Items/Pickable.hpp"
 #include "Utility/InteractionCollider.hpp"
 
@@ -86,6 +87,9 @@ void Character::Start()
 
     // Set an interaction component
     node_->CreateComponent<InteractionCollider>();
+
+    //
+    node_->CreateComponent<Inventory>();
 
     // Component has been inserted into its scene node. Subscribe to events now
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_collision));
@@ -178,14 +182,18 @@ void Character::handle_movement()
     m_controls.Set(MovementKey::JUMP, input->GetKeyDown(KEY_SPACE));
 
     // Add character yaw & pitch from the mouse motion
-    const auto [mouse_x, mouse_y] = input->GetMouseMove();
-    m_controls.yaw_ += static_cast<float>(mouse_x) * YAW_SENSITIVITY;
-    m_controls.pitch_ += static_cast<float>(mouse_y) * YAW_SENSITIVITY;
 
-    // Limit pitch
-    m_controls.pitch_ = Clamp(m_controls.pitch_, -80.0f, 80.0f);
-    // Set rotation already here so that it's updated every rendering frame instead of every physics frame
-    node_->SetRotation(Quaternion(m_controls.yaw_, Vector3::UP));
+    // input->SetMouseVisible(true);
+    if (input->GetMouseButtonDown(Urho3D::MOUSEB_LEFT)) {
+        // input->SetMouseVisible(false);
+        const auto [mouse_x, mouse_y] = input->GetMouseMove();
+        m_controls.yaw_ += static_cast<float>(mouse_x) * YAW_SENSITIVITY;
+        m_controls.pitch_ += static_cast<float>(mouse_y) * YAW_SENSITIVITY;
+        // Limit pitch
+        m_controls.pitch_ = Clamp(m_controls.pitch_, -80.0f, 80.0f);
+        // Set rotation already here so that it's updated every rendering frame instead of every physics frame
+        node_->SetRotation(Quaternion(m_controls.yaw_, Vector3::UP));
+    }
 }
 
 void Character::handle_camera(SharedPtr<Node> camera, PhysicsWorld* world)

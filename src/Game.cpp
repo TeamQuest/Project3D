@@ -2,6 +2,7 @@
 
 #include "Items/Gold.hpp"
 #include "Items/HpPotion.hpp"
+#include "Items/Inventory.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 #include "Items/Sword.hpp"
@@ -35,6 +36,7 @@ Game::Game(Urho3D::Context* context) : Application(context)
     register_component<Gold>(context);
     register_component<InteractionCollider>(context);
     register_component<Lootable>(context);
+    register_component<Inventory>(context);
 }
 
 void Game::Setup()

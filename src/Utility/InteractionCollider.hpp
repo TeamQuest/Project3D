@@ -6,6 +6,8 @@ namespace Urho3D {
 class Window;
 }
 
+class Pickable;
+
 class InteractionCollider : public Urho3D::LogicComponent {
     URHO3D_OBJECT(InteractionCollider, Urho3D::LogicComponent);
 
@@ -17,12 +19,13 @@ public:
 
     void handle_collision();
     void handle_interaction();
+    void open_window();
     void close_window();
 
 private:
-    Urho3D::Window* create_popup_window();
+    void item_clicked(Urho3D::SharedPtr<Pickable> item);
 
 private:
     Urho3D::WeakPtr<Urho3D::Node> m_highlighted;
-    bool m_window_open = false;
+    Urho3D::Window* m_window;
 };
