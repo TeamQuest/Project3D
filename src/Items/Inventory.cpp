@@ -40,6 +40,8 @@ void Inventory::Start()
     m_window = *make<Window>(context_)
                     .name("InventoryWindow")
                     .styleauto()
+                    .layout(LM_VERTICAL, 10, IntRect{10, 10, 10, 10})
+                    .minsize(300, 300)
                     .aligned(HorizontalAlignment::HA_LEFT, VerticalAlignment::VA_CENTER)
                     .position(100, 0);
     m_window->SetEnabledRecursive(false);
@@ -81,23 +83,38 @@ void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */
         loot_window->RemoveAllChildren();
         m_window->SetEnabledRecursive(false);
         m_window->SetVisible(false);
-        m_opened = false;
     }
     else {
         URHO3D_LOGINFO("Opening inventory...");
+        m_window->SetEnabled(true);
+        m_window->SetVisible(true);
         const auto anonymous_pro_font = GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf"));
-        auto item_button = *make<Button>(context_).styleauto().size(200, 200).alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER);
 
         auto item_text = *make<Text>(context_)
                               .text("okienko")
                               .font(anonymous_pro_font)
                               .fontsize(20)
-                              .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
+                              //   .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
                               .textaligned(HA_CENTER);
 
-        item_button->AddChild(item_text);
-        m_window->AddChild(item_button);
-        m_opened = true;
+        m_window->AddChild(item_text);
+        for (auto item : m_items) {
+            auto item_button = *make<Button>(context_)
+                                    .styleauto()
+                                    // .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
+                                    .minwidth(200)
+                                    .fixedheight(50);
+
+            auto item_text = *make<Text>(context_)
+                                  .text(item->get_name())
+                                  .font(anonymous_pro_font)
+                                  .fontsize(20)
+                                  //   .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
+                                  .textaligned(HA_CENTER);
+
+            item_button->AddChild(item_text);
+            m_window->AddChild(item_button);
+        }
     }
 }
 

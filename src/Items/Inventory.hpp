@@ -28,6 +28,5 @@ public:
 private:
     std::vector<Pickable*> m_items{};
     Urho3D::Window* m_window;
-    bool m_opened = false;
     int m_capacity = 5;
 };

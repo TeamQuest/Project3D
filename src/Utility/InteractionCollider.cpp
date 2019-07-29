@@ -178,10 +178,12 @@ void InteractionCollider::close_window()
 
 bool InteractionCollider::handle_item_clicked(Pickable* item)
 {
+    ////// Uncomment code below when using event signals:
     // URHO3D_LOGINFO("InteractionCollider::item_clicked");
     // auto&& event_data = GetEventDataMap();
     // event_data[ItemClickedEvent::P_ITEM] = item;
     // SendEvent(E_ITEM_CLICKED, event_data);
+    //////
 
     if (auto inv = node_->GetComponent<Inventory>()) {
         if (inv->add(item)) {
