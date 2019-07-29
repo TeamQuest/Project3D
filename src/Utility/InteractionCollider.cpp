@@ -1,7 +1,9 @@
 #include "Utility/InteractionCollider.hpp"
 
+#include "Items/Inventory.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
+#include "Scenes/Scenes.hpp"
 #include "Utility/Common.hpp"
 
 #pragma clang diagnostic push
@@ -23,6 +25,7 @@
 #include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
+#include <Urho3D/UI/UIEvents.h>
 #include <Urho3D/UI/Window.h>
 
 #pragma clang diagnostic pop
@@ -47,14 +50,29 @@ void InteractionCollider::Start()
         auto collider = interaction_node->CreateComponent<CollisionShape>();
         collider->SetBox({0.5f, 2.f, 2.f}, {0.f, 1.f, 1.5f});
     }
-    SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
+    {
+        m_window = *make<Window>(context_)
+                        .name("LootWindow")
+                        .styleauto()
+                        .layout(LM_VERTICAL, 10, IntRect{10, 10, 10, 10})
+                        .aligned(HA_LEFT, VA_CENTER)
+                        .position(100, 0);
+        m_window->SetEnabledRecursive(false);
+        m_window->SetVisible(false);
+        GetSubsystem<UI>()->GetRoot()->AddChild(m_window);
+    }
+    SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [this](auto, VariantMap& event_data) {
         auto node = static_cast<Node*>(event_data[NodeCollisionEnd::P_OTHERNODE].GetPtr());
-        if (auto to_remove = node->GetChild("SpotlightOnSelection")) {
+        if (auto spotlight_to_remove = node->GetChild("SpotlightOnSelection")) {
             close_window();
-            node->RemoveChild(to_remove);
+            node->RemoveChild(spotlight_to_remove);
             m_highlighted.Reset();
         }
     });
+    // auto children = m_window->GetChildren();
+    // for (auto child : children) {
+    //     SubscribeToEvent(child, E_RELEASED, URHO3D_HANDLER(InteractionCollider, item_clicked));
+    // }
 }
 
 void InteractionCollider::Update(float /* time_step */)
@@ -101,21 +119,31 @@ void InteractionCollider::handle_collision()
     }
 }
 
-Window* InteractionCollider::create_popup_window()
+void InteractionCollider::handle_interaction()
 {
-    m_window_open = true;
-    auto window = *make<Window>(context_)
-                       .name("LootWindow")
-                       .styleauto()
-                       .layout(LM_VERTICAL, 10, IntRect{10, 10, 10, 10})
-                       .aligned(HA_LEFT, VA_CENTER)
-                       .position(100, 0);
-    auto window_title = *make<Text>(context_).styleauto().text("<Lootable object>");
-    window->AddChild(window_title);
+    if (m_highlighted && GetSubsystem<Input>()->GetKeyPress(KEY_E)) {
+        close_window();
+        open_window();
+    }
+}
+
+void InteractionCollider::open_window()
+{
+    m_window->SetEnabledRecursive(true);
+    m_window->SetVisible(true);
     if (auto lootable_item = m_highlighted->GetComponent<Lootable>()) {
+        const auto window_title = *make<Text>(context_).styleauto().text("<Lootable object>");
+        m_window->AddChild(window_title);
+        if (lootable_item->get_items().empty()) {
+            // No items to display
+            // TODO: Maybe show an empty window
+            //       but remember to focus correctly
+            return;
+        }
+
         const auto anonymous_pro_font = GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf"));
         for (auto item : lootable_item->get_items()) {
-            auto item_button = *make<Button>(context_).styleauto().minheight(50).minwidth(item->get_name().Length() * 15);
+            auto item_button = *make<Button>(context_).styleauto().fixedheight(50).minwidth(item->get_name().Length() * 15);
             auto item_text = *make<Text>(context_)
                                   .text(item->get_name())
                                   .font(anonymous_pro_font)
@@ -123,26 +151,47 @@ Window* InteractionCollider::create_popup_window()
                                   .alignment(HA_CENTER, VA_CENTER)
                                   .textaligned(HA_CENTER);
             item_button->AddChild(item_text);
-            window->AddChild(item_button);
+            item_button->SetVar("item", item.Get());
+            SubscribeToEvent(item_button, E_RELEASED, [this](auto, auto event_data) {
+                auto button = static_cast<Button*>(event_data[Released::P_ELEMENT].GetPtr());
+                auto item = static_cast<Pickable*>(button->GetVar("item").GetPtr());
+                if (handle_item_clicked(item)) {
+                    button->Remove();
+                }
+            });
+            m_window->AddChild(item_button);
         }
-    }
-    return window;
-}
-
-void InteractionCollider::handle_interaction()
-{
-    if (m_highlighted && GetSubsystem<Input>()->GetKeyPress(KEY_E)) {
-        close_window();
-        const auto window = create_popup_window();
-        GetSubsystem<UI>()->GetRoot()->AddChild(window);
+        // The 0th element is the Text Label
+        m_window->GetChild(1)->SetFocus(true);
     }
 }
 
 void InteractionCollider::close_window()
 {
-    if (m_window_open) {
-        const auto ui_root = GetSubsystem<UI>()->GetRoot();
-        ui_root->RemoveChild(ui_root->GetChild("LootWindow", true));
-        m_window_open = false;
+    if (m_window->IsEnabled()) {
+        const auto loot_window = GetSubsystem<UI>()->GetRoot()->GetChild("LootWindow", false);
+        loot_window->RemoveAllChildren();
+        m_window->SetEnabledRecursive(false);
+        m_window->SetVisible(false);
     }
+}
+
+bool InteractionCollider::handle_item_clicked(Pickable* item)
+{
+    ////// Uncomment code below when using event signals:
+    // URHO3D_LOGINFO("InteractionCollider::item_clicked");
+    // auto&& event_data = GetEventDataMap();
+    // event_data[ItemClickedEvent::P_ITEM] = item;
+    // SendEvent(E_ITEM_CLICKED, event_data);
+    //////
+
+    if (auto inv = node_->GetComponent<Inventory>()) {
+        if (inv->add(item)) {
+            return true;
+        }
+        else {
+            URHO3D_LOGWARNING("Inventory is full");
+        }
+    }
+    return false;
 }

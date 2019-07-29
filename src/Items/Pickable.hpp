@@ -2,8 +2,8 @@
 
 #include <Urho3D/Scene/LogicComponent.h>
 
-class Pickable : public Urho3D::LogicComponent {
-    URHO3D_OBJECT(Pickable, Urho3D::LogicComponent);
+class Pickable : public Urho3D::Object {
+    URHO3D_OBJECT(Pickable, Urho3D::Object);
 
 public:
     Pickable(Urho3D::Context* context);

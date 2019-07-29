@@ -42,6 +42,8 @@ Gameplay::Gameplay(Context* context) : State(context, Scenes::Gameplay)
 {
     URHO3D_LOGINFO("Gameplay scene enabled");
 
+    GetSubsystem<Input>()->SetMouseVisible(true);
+
     init_ui();
     init_gamescene();
 }
@@ -163,7 +165,7 @@ void Gameplay::init_gamescene()
     }
 }
 
-void Gameplay::handle_key_down(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& event_data)
+void Gameplay::handle_key_down(StringHash /* event_type */, VariantMap& event_data)
 {
     int key = event_data[KeyDown::P_KEY].GetInt();
     switch (key) {
@@ -177,13 +179,12 @@ void Gameplay::handle_key_down(Urho3D::StringHash /* event_type */, Urho3D::Vari
 
 void Gameplay::update(float /* time_step */)
 {
+    if (GetSubsystem<UI>()->GetFocusElement()) {
+        // return;
+    }
     if (m_character) {
         m_character->handle_movement();
         m_character->adjust_head_pitch();
-
-        if (GetSubsystem<Input>()->IsMouseVisible() || GetSubsystem<UI>()->GetFocusElement()) {
-            return;
-        }
 
         if (auto camera = m_camera.Lock()) {
             m_character->handle_camera(camera, scene->GetComponent<PhysicsWorld>());

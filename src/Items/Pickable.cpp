@@ -2,7 +2,7 @@
 
 using namespace Urho3D;
 
-Pickable::Pickable(Context* context) : LogicComponent(context)
+Pickable::Pickable(Context* context) : Object(context)
 {
 }
 
