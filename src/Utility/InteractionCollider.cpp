@@ -1,5 +1,6 @@
 #include "Utility/InteractionCollider.hpp"
 
+#include "Items/Inventory.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 #include "Scenes/Scenes.hpp"
@@ -60,7 +61,7 @@ void InteractionCollider::Start()
         m_window->SetVisible(false);
         GetSubsystem<UI>()->GetRoot()->AddChild(m_window);
     }
-    SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
+    SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [this](auto, VariantMap& event_data) {
         auto node = static_cast<Node*>(event_data[NodeCollisionEnd::P_OTHERNODE].GetPtr());
         if (auto spotlight_to_remove = node->GetChild("SpotlightOnSelection")) {
             close_window();
@@ -142,11 +143,7 @@ void InteractionCollider::open_window()
 
         const auto anonymous_pro_font = GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf"));
         for (auto item : lootable_item->get_items()) {
-            URHO3D_LOGERRORF("REFCOUNT: %d", item->Refs());
-            item->AddRef();
-            item->AddRef();
-            URHO3D_LOGERRORF("REFCOUNT: %d", item->Refs());
-            auto item_button = *make<Button>(context_).styleauto().minheight(50).minwidth(item->get_name().Length() * 15);
+            auto item_button = *make<Button>(context_).styleauto().fixedheight(50).minwidth(item->get_name().Length() * 15);
             auto item_text = *make<Text>(context_)
                                   .text(item->get_name())
                                   .font(anonymous_pro_font)
@@ -154,15 +151,14 @@ void InteractionCollider::open_window()
                                   .alignment(HA_CENTER, VA_CENTER)
                                   .textaligned(HA_CENTER);
             item_button->AddChild(item_text);
-            // SubscribeToEvent(item_button, E_RELEASED, URHO3D_HANDLER(InteractionCollider, item_clicked));
-            SubscribeToEvent(item_button, E_RELEASED, [&](auto&&...) {
-                item_clicked(item);
-
-                // VariantMap event_data;
-                // event_data[ItemClickedEvent::P_ITEM] = " ";
-                // SendEvent(E_ITEM_CLICKED, event_data);
+            item_button->SetVar("item", item.Get());
+            SubscribeToEvent(item_button, E_RELEASED, [this](auto, auto event_data) {
+                auto button = static_cast<Button*>(event_data[Released::P_ELEMENT].GetPtr());
+                auto item = static_cast<Pickable*>(button->GetVar("item").GetPtr());
+                if (handle_item_clicked(item)) {
+                    button->Remove();
+                }
             });
-
             m_window->AddChild(item_button);
         }
         // The 0th element is the Text Label
@@ -180,15 +176,20 @@ void InteractionCollider::close_window()
     }
 }
 
-void InteractionCollider::item_clicked(SharedPtr<Pickable> item)
+bool InteractionCollider::handle_item_clicked(Pickable* item)
 {
-    URHO3D_LOGINFO("InteractionCollider::item_clicked");
-
-    assert(item);
-    VariantMap event_data;
-    Variant v = " ";
-    Variant i = item;
+    // URHO3D_LOGINFO("InteractionCollider::item_clicked");
+    // auto&& event_data = GetEventDataMap();
     // event_data[ItemClickedEvent::P_ITEM] = item;
-    // event_data[ItemClickedEvent::P_ITEM] = " ";
     // SendEvent(E_ITEM_CLICKED, event_data);
+
+    if (auto inv = node_->GetComponent<Inventory>()) {
+        if (inv->add(item)) {
+            return true;
+        }
+        else {
+            URHO3D_LOGWARNING("Inventory is full");
+        }
+    }
+    return false;
 }

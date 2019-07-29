@@ -53,16 +53,20 @@ void Inventory::Update(float /* time_step */)
 {
 }
 
-void Inventory::push_back(Pickable* pickable)
+bool Inventory::add(Pickable* pickable)
 {
+    if (is_full()) {
+        return false;
+    }
     m_items.push_back(pickable);
-    URHO3D_LOGINFO("Item " + pickable->get_name() + " added to Inventory");
+    URHO3D_LOGINFO("Item " + pickable->get_name() + " added to inventory");
+    return true;
 }
 
-void Inventory::erase(Pickable* pickable)
+void Inventory::remove(Pickable* pickable)
 {
     m_items.erase(find(begin(m_items), end(m_items), pickable));
-    URHO3D_LOGINFO("Item " + pickable->get_name() + " removed from Inventory");
+    URHO3D_LOGINFO("Item " + pickable->get_name() + " removed from inventory");
 }
 
 void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */)
@@ -95,4 +99,9 @@ void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */
         m_window->AddChild(item_button);
         m_opened = true;
     }
+}
+
+bool Inventory::is_full() const
+{
+    return m_items.size() >= m_capacity;
 }

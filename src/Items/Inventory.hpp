@@ -19,15 +19,15 @@ public:
     void Start() override;
     void Update(float time_step) override;
 
-    void push_back(Pickable* pickable);
-    void erase(Pickable* pickable);
+    bool add(Pickable* pickable);
+    void remove(Pickable* pickable);
+    bool is_full() const;
 
     void toggle(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
 
 private:
     std::vector<Pickable*> m_items{};
-    bool m_opened = false;
     Urho3D::Window* m_window;
-
-    // int capacity;
+    bool m_opened = false;
+    int m_capacity = 5;
 };
