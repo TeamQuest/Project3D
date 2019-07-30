@@ -8,7 +8,7 @@ class Sword : public Pickable {
     URHO3D_OBJECT(Sword, Urho3D::LogicComponent);
 
 public:
-    Sword(Urho3D::Context* context);
+    explicit Sword(Urho3D::Context* context);
 
     void set_dmg(int value);
     const int& get_dmg() const;

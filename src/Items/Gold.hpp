@@ -8,7 +8,7 @@ class Gold : public Pickable {
     URHO3D_OBJECT(Gold, Urho3D::LogicComponent);
 
 public:
-    Gold(Urho3D::Context* context);
+    explicit Gold(Urho3D::Context* context);
 
     void set_amount(int value);
     const int& get_amount() const;
