@@ -25,7 +25,8 @@ constexpr auto MOVE_FORCE = 0.8f;
 constexpr auto INAIR_MOVE_FORCE = 0.08f;
 constexpr auto BRAKE_FORCE = 0.2f;
 constexpr auto JUMP_FORCE = 7.0f;
-constexpr auto YAW_SENSITIVITY = 0.1f;
+constexpr auto YAW_SENSITIVITY = 0.3f;
+constexpr auto PITCH_SENSITIVITY = 0.1f;
 constexpr auto INAIR_THRESHOLD_TIME = 0.1f;
 
 constexpr auto CAMERA_MIN_DIST = 1.0f;

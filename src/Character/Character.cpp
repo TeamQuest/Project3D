@@ -188,7 +188,7 @@ void Character::handle_movement()
         // input->SetMouseVisible(false);
         const auto [mouse_x, mouse_y] = input->GetMouseMove();
         m_controls.yaw_ += static_cast<float>(mouse_x) * YAW_SENSITIVITY;
-        m_controls.pitch_ += static_cast<float>(mouse_y) * YAW_SENSITIVITY;
+        m_controls.pitch_ += static_cast<float>(mouse_y) * PITCH_SENSITIVITY;
         // Limit pitch
         m_controls.pitch_ = Clamp(m_controls.pitch_, -80.0f, 80.0f);
         // Set rotation already here so that it's updated every rendering frame instead of every physics frame
