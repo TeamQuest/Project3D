@@ -2,6 +2,7 @@
 
 #include "Character/Components/Moveable.hpp"
 #include "Constants.hpp"
+#include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 #include "Utility/InteractionCollider.hpp"
 
@@ -41,17 +42,17 @@ using namespace Urho3D;
 
 Npc::Npc(Context* context) : LogicComponent(context)
 {
-    SetUpdateEventMask(USE_FIXEDUPDATE);
+    SetUpdateEventMask(USE_UPDATE);
 }
 
 void Npc::Start()
 {
-    const BoundingBox bounds(Vector3(-20.0f, 0.0f, -20.0f), Vector3(20.0f, 0.0f, 20.0f));
     auto cache = GetSubsystem<ResourceCache>();
 
-    auto modelNode = node_->CreateChild("Jill");
+    auto modelNode = node_->CreateChild("Npc");
+    modelNode->SetRotation(Quaternion(180.f, Vector3(0.f, 1.f, 0.f)));
     modelNode->SetPosition(Vector3(Random(40.0f) - 20.0f, 0.0f, Random(40.0f) - 20.0f));
-    modelNode->SetRotation(Quaternion(0.0f, Random(360.0f), 0.0f));
+    // modelNode->SetRotation(Quaternion(0.0f, Random(360.0f), 0.0f));
     modelNode->SetScale(1.f);
 
     auto* modelObject = modelNode->CreateComponent<AnimatedModel>();
@@ -73,18 +74,43 @@ void Npc::Start()
     rigidbody->SetMass(1.f);
 
     auto collider = modelNode->CreateComponent<CollisionShape>();
-    // collider->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f));
     collider->SetBox(Vector3::ONE, Vector3(0.f, 0.5f, 0.f));
 
-    node_->CreateComponent<InteractionCollider>();
-
     // Create our custom Mover component that will move & animate the model during each frame's update
-    auto* mover = modelNode->CreateComponent<Moveable>();
-    mover->SetParameters(1.5f, 5.0f, bounds);
+    modelNode->CreateComponent<Lootable>();
 
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Npc, handle_collision));
 }
 
 void Npc::handle_collision(StringHash /* event_type */, VariantMap& event_data)
 {
+}
+
+void Npc::Update(float time_step)
+{
+    // node_->Translate(Vector3::FORWARD * moveSpeed_ * timeStep);
+    auto body = node_->GetChild("Npc")->GetComponent<RigidBody>();
+    body->ApplyImpulse(node_->GetRotation() * Vector3::ONE * 0.05);
+
+    // If in risk of going outside the plane, rotate the model right
+    Vector3 pos = node_->GetPosition();
+
+    // Get the model's first (only) animation state and advance its time. Note the convenience accessor to other components
+    // in the same scene node
+    if (body->GetLinearVelocity().Length() != 0) {
+        auto* model = node_->GetComponent<AnimatedModel>(true);
+        if (model->GetNumAnimationStates()) {
+            AnimationState* state = model->GetAnimationStates()[0];
+            state->AddTime(time_step);
+        }
+    }
+    else {
+    }
+}
+
+void Npc::set_focused(Node* node)
+{
+    // auto rigid_body = node->GetComponent<RigidBody>();
+    auto x = node_->GetChild("Npc")->GetComponent<Moveable>();
+    x->stop();
 }

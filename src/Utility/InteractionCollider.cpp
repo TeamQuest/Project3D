@@ -4,12 +4,14 @@
 #include "Character/Npc.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
+#include "Scenes/Scenes.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
 #pragma clang diagnostic ignored "-Wextra"
 #pragma clang diagnostic ignored "-Wpedantic"
 
+#include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/Light.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Input/Input.h>
@@ -25,7 +27,6 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/Window.h>
-#include <Urho3D/Graphics/Camera.h>
 
 #pragma clang diagnostic pop
 
@@ -75,7 +76,7 @@ void InteractionCollider::handle_collision()
     auto last_rigid_ptr = std::remove_if(bodies.Buffer(), bodies.Buffer() + bodies.Size(), [](RigidBody* rigid) {
         // Remove all non-pickable nodes
         auto node = rigid->GetNode();
-        return !node->HasComponent<Pickable>() && !node->HasComponent<Lootable>() && !node->HasComponent<Moveable>();
+        return !node->HasComponent<Pickable>() && !node->HasComponent<Lootable>();
     });
     if (bodies.Empty() || bodies.Buffer() == last_rigid_ptr) {
         return;
@@ -154,22 +155,8 @@ void InteractionCollider::close_window()
 
 void InteractionCollider::handle_collision_with_npc()
 {
-    if (m_highlighted && GetSubsystem<Input>()->GetKeyPress(KEY_F)) {
-        auto npc = m_highlighted->GetComponent<Moveable>();
-        if(npc->if_focus())
-        {   
-            npc->un_stop();
-        }
-        else
-        {
-            //Todo make rotation to npc during stoping
-            // auto camera = node_->GetComponent<Camera>();
-            // auto possition = camera->GetDistance(Vector3::ONE);
-            // auto bounds = npc->GetBounds();
-            // bounds.Merge(possition);
-
-            npc->stop();
-        }
-        
+    if (m_highlighted && m_highlighted->HasComponent<Moveable>()) {
+        auto npc = m_highlighted->GetParent()->GetComponent<Npc>();
+        npc->set_focused(node_->GetChild("Interaction"));
     }
 }

@@ -18,6 +18,9 @@ public:
     explicit Npc(Urho3D::Context* context);
 
     void Start() override;
+    void Update(float time_step) override;
+
+    void set_focused(Urho3D::Node* node);
 
 private:
     void handle_collision(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
