@@ -50,10 +50,10 @@ void Npc::Start()
     auto cache = GetSubsystem<ResourceCache>();
 
     auto modelNode = node_->CreateChild("Npc");
-    modelNode->SetRotation(Quaternion(180.f, Vector3(0.f, 1.f, 0.f)));
-    modelNode->SetPosition(Vector3(Random(40.0f) - 20.0f, 0.0f, Random(40.0f) - 20.0f));
+    node_->SetRotation(Quaternion(180.f, Vector3(0.f, 1.f, 0.f)));
+    node_->SetPosition(Vector3(Random(40.0f) - 20.0f, 0.0f, Random(40.0f) - 20.0f));
     // modelNode->SetRotation(Quaternion(0.0f, Random(360.0f), 0.0f));
-    modelNode->SetScale(1.f);
+    node_->SetScale(1.f);
 
     auto* modelObject = modelNode->CreateComponent<AnimatedModel>();
     modelObject->SetModel(cache->GetResource<Model>("Models/Kachujin/Kachujin.mdl"));
@@ -70,14 +70,14 @@ void Npc::Start()
         state->SetTime(Random(walkAnimation->GetLength()));
     }
 
-    auto rigidbody = modelNode->CreateComponent<RigidBody>();
+    auto rigidbody = node_->CreateComponent<RigidBody>();
     rigidbody->SetMass(1.f);
 
-    auto collider = modelNode->CreateComponent<CollisionShape>();
+    auto collider = node_->CreateComponent<CollisionShape>();
     collider->SetBox(Vector3::ONE, Vector3(0.f, 0.5f, 0.f));
 
     // Create our custom Mover component that will move & animate the model during each frame's update
-    modelNode->CreateComponent<Lootable>();
+    node_->CreateComponent<Lootable>();
 
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Npc, handle_collision));
 }
@@ -88,12 +88,12 @@ void Npc::handle_collision(StringHash /* event_type */, VariantMap& event_data)
 
 void Npc::Update(float time_step)
 {
-    // node_->Translate(Vector3::FORWARD * moveSpeed_ * timeStep);
-    auto body = node_->GetChild("Npc")->GetComponent<RigidBody>();
-    body->ApplyImpulse(node_->GetRotation() * Vector3::ONE * 0.05);
+    node_->Translate(Vector3::FORWARD * time_step);
+    node_->Yaw(0.3f);
 
-    // If in risk of going outside the plane, rotate the model right
-    Vector3 pos = node_->GetPosition();
+    auto body = node_->GetComponent<RigidBody>();
+
+    // node_->Yaw(1.f);
 
     // Get the model's first (only) animation state and advance its time. Note the convenience accessor to other components
     // in the same scene node
