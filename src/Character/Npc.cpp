@@ -1,6 +1,5 @@
 #include "Character/Npc.hpp"
 
-#include "Character/Components/Moveable.hpp"
 #include "Constants.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
@@ -26,6 +25,7 @@
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Scene/SceneEvents.h>
+#include <Urho3D/Scene/SmoothedTransform.h>
 #include <Urho3D/UI/UI.h>
 
 #include <Urho3D/Graphics/AnimatedModel.h>
@@ -40,7 +40,7 @@
 
 using namespace Urho3D;
 
-Npc::Npc(Context* context) : LogicComponent(context)
+Npc::Npc(Context* context) : LogicComponent(context), move_speed(1.f), rotation_speed(Random(0.f,0.5f))
 {
     SetUpdateEventMask(USE_UPDATE);
 }
@@ -76,8 +76,8 @@ void Npc::Start()
     auto collider = node_->CreateComponent<CollisionShape>();
     collider->SetBox(Vector3::ONE, Vector3(0.f, 0.5f, 0.f));
 
-    // Create our custom Mover component that will move & animate the model during each frame's update
     node_->CreateComponent<Lootable>();
+    node_->CreateComponent<SmoothedTransform>();
 
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Npc, handle_collision));
 }
@@ -88,15 +88,12 @@ void Npc::handle_collision(StringHash /* event_type */, VariantMap& event_data)
 
 void Npc::Update(float time_step)
 {
-    node_->Translate(Vector3::FORWARD * time_step);
-    node_->Yaw(0.3f);
+    node_->Translate(Vector3::FORWARD * move_speed * time_step);
+    if(focused()) return;
+    node_->Yaw(rotation_speed);
 
     auto body = node_->GetComponent<RigidBody>();
 
-    // node_->Yaw(1.f);
-
-    // Get the model's first (only) animation state and advance its time. Note the convenience accessor to other components
-    // in the same scene node
     if (body->GetLinearVelocity().Length() != 0) {
         auto* model = node_->GetComponent<AnimatedModel>(true);
         if (model->GetNumAnimationStates()) {
@@ -104,13 +101,38 @@ void Npc::Update(float time_step)
             state->AddTime(time_step);
         }
     }
-    else {
-    }
 }
 
-void Npc::set_focused(Node* node)
+void Npc::stop(const Vector3 & target)
 {
-    // auto rigid_body = node->GetComponent<RigidBody>();
-    auto x = node_->GetChild("Npc")->GetComponent<Moveable>();
-    x->stop();
+    move_speed = 0;
+
+    saved_rotation = node_->GetRotation();
+    node_->LookAt(target);
+
+    auto target_rotation = node_->GetRotation();
+    auto smoothed_transform = node_->GetComponent<SmoothedTransform>();
+
+    smoothed_transform->SetTargetRotation(target_rotation);
+}
+
+void Npc::resume()
+{
+    move_speed = 1.f;
+
+    auto smoothed_transform = node_->GetComponent<SmoothedTransform>();
+    smoothed_transform->SetTargetRotation(saved_rotation);
+    //node_->SetRotation(saved_rotation);
+}
+
+bool Npc::focused()
+{
+    return move_speed == 0;
+}
+
+
+void Npc::go_to(const Urho3D::Vector3 &position)
+{
+    auto smoothed_transform = node_->GetComponent<SmoothedTransform>();
+    smoothed_transform->SetTargetWorldPosition(position);
 }

@@ -20,10 +20,18 @@ public:
     void Start() override;
     void Update(float time_step) override;
 
-    void set_focused(Urho3D::Node* node);
+    void set_focused();
+
+    void stop(const Urho3D::Vector3 & target);
+    void resume();
+    bool focused();
+
+    void go_to(const Urho3D::Vector3 &position);
 
 private:
     void handle_collision(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
 
-private:
+    float move_speed;
+    float rotation_speed;
+    Urho3D::Quaternion saved_rotation;
 };

@@ -1,6 +1,5 @@
 #include "Utility/InteractionCollider.hpp"
 
-#include "Character/Components/Moveable.hpp"
 #include "Character/Npc.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
@@ -53,11 +52,19 @@ void InteractionCollider::Start()
     SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
         auto node = static_cast<Node*>(event_data[NodeCollisionEnd::P_OTHERNODE].GetPtr());
         if (auto to_remove = node->GetChild("SpotlightOnSelection")) {
+            
+            if(auto npc = m_highlighted->GetComponent<Npc>()){
+                 npc->resume();
+            }
+           
             close_window();
             node->RemoveChild(to_remove);
             m_highlighted.Reset();
+                   
         }
+
     });
+    
 }
 
 void InteractionCollider::Update(float /* time_step */)
@@ -155,8 +162,9 @@ void InteractionCollider::close_window()
 
 void InteractionCollider::handle_collision_with_npc()
 {
-    if (m_highlighted && m_highlighted->HasComponent<Moveable>()) {
-        auto npc = m_highlighted->GetParent()->GetComponent<Npc>();
-        npc->set_focused(node_->GetChild("Interaction"));
+    if (m_highlighted && m_highlighted->HasComponent<Npc>()) {
+        auto npc = m_highlighted->GetComponent<Npc>();
+        if(!npc->focused())
+            npc->stop(node_->GetPosition());
     }
 }
