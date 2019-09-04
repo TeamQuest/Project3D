@@ -26,10 +26,9 @@ set(TARGET_NAME project3D)
 
 # define_source_files()
 file(GLOB_RECURSE CPP_FILES src/*.cpp)
-
-# file(GLOB H_FILES src/*.h* src/*/*.h* RECURSE GROUP)
+file(GLOB_RECURSE HPP_FILES src/*.h*)
 include_directories(src)
 
-set(SOURCE_FILES ${CPP_FILES} ${H_FILES})
+set(SOURCE_FILES ${CPP_FILES} ${HPP_FILES})
 
 setup_main_executable()

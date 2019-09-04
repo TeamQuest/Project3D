@@ -1,4 +1,4 @@
-#include "Gameplay.hpp"
+#include "Scenes/Gameplay.hpp"
 
 #include "Items/Gold.hpp"
 #include "Items/Lootable.hpp"
@@ -179,9 +179,10 @@ void Gameplay::handle_key_down(StringHash /* event_type */, VariantMap& event_da
 
 void Gameplay::update(float /* time_step */)
 {
-    if (GetSubsystem<UI>()->GetFocusElement()) {
-        // return;
-    }
+    ///// Does it need to be here?
+    // if (GetSubsystem<UI>()->GetFocusElement()) {
+    //     return;
+    // }
     if (m_character) {
         m_character->handle_movement();
         m_character->adjust_head_pitch();

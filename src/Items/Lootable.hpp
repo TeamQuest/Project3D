@@ -14,7 +14,7 @@ public:
 
     void add_item(Urho3D::SharedPtr<Pickable> item);
     const std::vector<Urho3D::SharedPtr<Pickable>>& get_items();
-    void remove_item(Urho3D::SharedPtr<Pickable> item);
+    void remove_item(Pickable* item);
 
 private:
     std::vector<Urho3D::SharedPtr<Pickable>> m_items{};

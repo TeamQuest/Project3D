@@ -6,7 +6,7 @@ class FPSCounter final : public Urho3D::LogicComponent {
     URHO3D_OBJECT(FPSCounter, LogicComponent);
 
 public:
-    FPSCounter(Urho3D::Context*);
+    explicit FPSCounter(Urho3D::Context*);
     ~FPSCounter();
 
     void Update(float time_step) override;

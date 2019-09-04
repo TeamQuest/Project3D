@@ -4,7 +4,7 @@
 
 class Options : public State {
 public:
-    Options(Urho3D::Context* context);
+    explicit Options(Urho3D::Context* context);
     ~Options();
 
     void update(float time_step) override;

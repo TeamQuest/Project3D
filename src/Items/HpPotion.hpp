@@ -8,5 +8,5 @@ class HpPotion : public Pickable {
     URHO3D_OBJECT(HpPotion, Urho3D::LogicComponent);
 
 public:
-    HpPotion(Urho3D::Context* context);
+    explicit HpPotion(Urho3D::Context* context);
 };

@@ -13,7 +13,7 @@
 
 class Game : public Urho3D::Application {
 public:
-    Game(Urho3D::Context* context);
+    explicit Game(Urho3D::Context* context);
 
     void Setup() override;
     void Start() override;

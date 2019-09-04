@@ -187,6 +187,7 @@ bool InteractionCollider::handle_item_clicked(Pickable* item)
 
     if (auto inv = node_->GetComponent<Inventory>()) {
         if (inv->add(item)) {
+            m_highlighted->GetComponent<Lootable>()->remove_item(item);
             return true;
         }
         else {

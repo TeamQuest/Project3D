@@ -12,7 +12,7 @@ class InteractionCollider : public Urho3D::LogicComponent {
     URHO3D_OBJECT(InteractionCollider, Urho3D::LogicComponent);
 
 public:
-    InteractionCollider(Urho3D::Context*);
+    explicit InteractionCollider(Urho3D::Context*);
 
     void Start() override;
     void Update(float time_step) override;
