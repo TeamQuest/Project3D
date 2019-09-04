@@ -6,6 +6,8 @@
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 #include "Items/Sword.hpp"
+#include "Quests/QuestGiver.hpp"
+#include "Quests/QuestRunner.hpp"
 #include "Scenes/Gameplay.hpp"
 #include "Scenes/MainMenu.hpp"
 #include "Scenes/Options.hpp"
@@ -26,7 +28,7 @@
 
 using namespace Urho3D;
 
-Game::Game(Urho3D::Context* context) : Application(context)
+Game::Game(Context* context) : Application(context)
 {
     // Component Register
     register_component<FPSCounter>(context);
@@ -37,6 +39,8 @@ Game::Game(Urho3D::Context* context) : Application(context)
     register_component<InteractionCollider>(context);
     register_component<Lootable>(context);
     register_component<Inventory>(context);
+    register_component<QuestGiver>(context);
+    register_component<QuestRunner>(context);
 }
 
 void Game::Setup()
@@ -99,7 +103,7 @@ void Game::handle_change_state(StringHash /* event_type */, VariantMap& /* event
     m_next_state = Scenes::Empty;
 }
 
-void Game::handle_key_down(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& event_data)
+void Game::handle_key_down(StringHash /* event_type */, VariantMap& event_data)
 {
     int key = event_data[KeyDown::P_KEY].GetInt();
     switch (key) {
@@ -115,17 +119,17 @@ void Game::handle_key_down(Urho3D::StringHash /* event_type */, Urho3D::VariantM
     }
 }
 
-void Game::handle_update(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& event_data)
+void Game::handle_update(StringHash /* event_type */, VariantMap& event_data)
 {
-    const auto time_step = event_data[Urho3D::Update::P_TIMESTEP].GetFloat();
+    const auto time_step = event_data[Update::P_TIMESTEP].GetFloat();
     m_active_state->update(time_step);
 }
 
-void Game::handle_postrender_update(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& /* event_data */)
+void Game::handle_postrender_update(StringHash /* event_type */, VariantMap& /* event_data */)
 {
 }
 
-void Game::handle_post_update(Urho3D::StringHash /* event_type */, Urho3D::VariantMap& /* event_data */)
+void Game::handle_post_update(StringHash /* event_type */, VariantMap& /* event_data */)
 {
 }
 

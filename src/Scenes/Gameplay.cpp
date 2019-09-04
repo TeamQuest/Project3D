@@ -2,9 +2,11 @@
 
 #include "Items/Gold.hpp"
 #include "Items/Lootable.hpp"
-#include "Items/Pickable.hpp"
+#include "Quests/QuestGiver.hpp"
+#include "Quests/QuestRunner.hpp"
 #include "Utility/Common.hpp"
 #include "Utility/FPSCounter.hpp"
+#include "Constants.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -13,6 +15,7 @@
 
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Graphics/AnimationController.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Graphics/Model.h>
@@ -29,12 +32,10 @@
 #include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
+
 #include <Urho3D/UI/UIEvents.h>
 
 #pragma clang diagnostic pop
-
-#include <cmath>
-#include <vector>
 
 using namespace Urho3D;
 
@@ -89,7 +90,7 @@ void Gameplay::init_gamescene()
     }
 
     { /* Character */
-        auto jack = scene->CreateChild("jack");
+        auto jack = scene->CreateChild(PLAYER_NAME);
         jack->SetPosition({0.f, 0.f, 1.f});
         m_character = jack->CreateComponent<Character>();
     }
@@ -148,7 +149,7 @@ void Gameplay::init_gamescene()
             collider->SetBox(Vector3::ONE);
 
             auto lootable = box->CreateComponent<Lootable>();
-            for (int i = 0; i < Random(1, 6); ++i) {
+            for (int j = 0; j < Random(1, 6); ++j) {
                 auto gold_coins = MakeShared<Gold>(context_);
                 auto random_amount = Random(100, 1000);
                 gold_coins->set_name(ToString("%d gold coins", random_amount));
@@ -163,6 +164,18 @@ void Gameplay::init_gamescene()
         }
         scene->GetChild("Box", false)->SetPosition(Vector3::FORWARD);
     }
+    { /* Ninja */
+        auto ninja = scene->CreateChild("Ninja1");
+        ninja->LoadXML(cache->GetResource<XMLFile>("Objects/Ninja1.xml")->GetRoot());
+        auto anim_ctrl = ninja->GetComponent<AnimationController>(true);
+        anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Idle3.ani", 0, true, 0.2);
+        ninja->SetPosition(Vector3::FORWARD * 5.f);
+        ninja->SetRotation(Quaternion(180.f, Vector3::UP));
+        auto quest_runner = ninja->CreateComponent<QuestGiver>();
+        auto _1st_quest = new FirstQuest{context_};
+        quest_runner->get_quests().try_emplace(_1st_quest->get_name(), _1st_quest);
+        ninja->SetName("Ninja1");
+    }
 }
 
 void Gameplay::handle_key_down(StringHash /* event_type */, VariantMap& event_data)
@@ -173,6 +186,12 @@ void Gameplay::handle_key_down(StringHash /* event_type */, VariantMap& event_da
             const auto is_mouse_visible = GetSubsystem<Input>()->IsMouseVisible();
             GetSubsystem<Input>()->SetMouseVisible(!is_mouse_visible);
             break;
+        }
+        case KEY_R: {
+            auto character = scene->GetChild(PLAYER_NAME)->GetComponent<Character>();
+            for (auto [quest_name, quest] : character->GetComponent<QuestRunner>()->get_quests()) {
+                URHO3D_LOGWARNINGF("Quest: %s, address: %p", quest_name.CString(), quest);
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ class Window;
 }
 
 class Pickable;
+class QuestGiver;
 
 class InteractionCollider : public Urho3D::LogicComponent {
     URHO3D_OBJECT(InteractionCollider, Urho3D::LogicComponent);
@@ -27,5 +28,5 @@ private:
 
 private:
     Urho3D::WeakPtr<Urho3D::Node> m_highlighted;
-    Urho3D::Window* m_window;
+    Urho3D::Window* m_window{};
 };
