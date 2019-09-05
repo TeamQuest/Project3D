@@ -43,7 +43,7 @@ void Quest::assign_to(QuestRunner* runner) {
 }
 
 void Quest::unassign(bool set_available) {
-    if (auto runner = m_runner.Get()) {
+    if (auto runner = m_runner.Lock()) {
         auto&& quests = runner->get_quests();
         quests.erase(m_name);
         m_current_stage = set_available ? available : unavailable;

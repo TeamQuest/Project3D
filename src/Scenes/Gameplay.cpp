@@ -178,6 +178,49 @@ void Gameplay::init_gamescene()
         quest_giver->assign_quest(_2nd_quest);
         ninja->SetName("Ninja1");
     }
+    auto place_wall = [&](const String& name, const Vector3& position, const Quaternion& rotation, const Vector3& scale) {
+        /* Walls */
+        auto wall = scene->CreateChild(name);
+        wall->SetPosition(position);
+        wall->SetRotation(rotation);
+        wall->SetScale(scale);
+
+        auto rigidbody = wall->CreateComponent<RigidBody>();
+        rigidbody->SetMass(0.f);
+        rigidbody->SetCollisionLayer(2);
+
+        auto collider = wall->CreateComponent<CollisionShape>();
+        collider->SetBox(Vector3::ONE);
+
+        auto box_model = wall->CreateComponent<StaticModel>();
+        box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+        box_model->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
+    };
+    place_wall("Ceiling",
+               Vector3(0.f, 0.f, 0.f),
+               Quaternion(0.f, 0.f, 0.f),
+               Vector3(20.f, 0.5f, 20.f)
+    );
+    place_wall("Wall_1",
+               Vector3(-3.f, -2.5f, 0.f),
+               Quaternion(90.f, 90.f, 0.f),
+               Vector3(20.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_2",
+               Vector3(3.f, -2.5f, -5.f),
+               Quaternion(90.f, 90.f, 0.f),
+               Vector3(15.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_3",
+               Vector3(9.5f, -2.5f, 10.f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(25.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_1",
+               Vector3(3.f, -2.5f, 10.f),
+               Quaternion(90.f, 90.f, 0.f),
+               Vector3(8.f, 0.5f, 6.f)
+    );
 }
 
 void Gameplay::handle_key_down(StringHash /* event_type */, VariantMap& event_data)
@@ -204,6 +247,32 @@ void Gameplay::update(float /* time_step */)
     // if (GetSubsystem<UI>()->GetFocusElement()) {
     //     return;
     // }
+    static auto wall_txt = [&]() -> Text* {
+        auto txt = *make<Text>(context_)
+                .text("wall name: None")
+                .name("wallid")
+                .font(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/gta5.ttf"), 50)
+                .texteffect(TextEffect::TE_STROKE)
+                .effectstrokethickness(5)
+                .effectcolor(Color(0.f, 0.f, 0.f))
+                .color(Color(1.f, 1.f, 1.f))
+                .alignment(HA_RIGHT, VA_TOP)
+                .position(-40, 20);
+        scene->GetSubsystem<UI>()->GetRoot()->AddChild(txt);
+        return txt;
+    }();
+    const auto ray_dir = m_camera->GetDirection();
+    auto ray_distance = 1000.f;
+    PhysicsRaycastResult raycast;
+    auto ray = Ray(m_character->GetNode()->GetPosition() + Vector3(0, 2, 0), ray_dir);
+    scene->GetComponent<PhysicsWorld>()->RaycastSingle(raycast, ray, ray_distance, 2);
+    if (raycast.body_ && raycast.body_->GetNode()->GetName() != "Floor") {
+        wall_txt->SetText("wall name: " + raycast.body_->GetNode()->GetName() + "\n" + String(raycast.distance_));
+    }
+    else {
+        wall_txt->SetText("wall name: None");
+    }
+
     if (m_character) {
         m_character->handle_movement();
         m_character->adjust_head_pitch();

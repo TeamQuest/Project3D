@@ -47,7 +47,7 @@ void InteractionCollider::Start()
         auto rigidbody = interaction_node->CreateComponent<RigidBody>();
         rigidbody->SetTrigger(true);
         rigidbody->SetKinematic(true);
-        rigidbody->SetCollisionLayerAndMask(2, 1);
+        rigidbody->SetCollisionLayerAndMask(1, 1);
         auto collider = interaction_node->CreateComponent<CollisionShape>();
         collider->SetBox({0.5f, 2.f, 2.f}, {0.f, 1.f, 1.5f});
     }
