@@ -9,7 +9,7 @@
 using quest_map = std::map<Urho3D::String, Quest*>;
 
 class QuestRunner : public Urho3D::LogicComponent {
-URHO3D_OBJECT(QuestRunner, LogicComponent);
+    URHO3D_OBJECT(QuestRunner, LogicComponent);
 
 public:
     explicit QuestRunner(Urho3D::Context*);
@@ -20,6 +20,7 @@ public:
 
     quest_map& get_quests();
     [[nodiscard]] const quest_map& get_quests() const;
+    void assign_quest(Quest* quest);
 
 private:
     quest_map m_quests{};

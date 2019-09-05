@@ -171,9 +171,11 @@ void Gameplay::init_gamescene()
         anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Idle3.ani", 0, true, 0.2);
         ninja->SetPosition(Vector3::FORWARD * 5.f);
         ninja->SetRotation(Quaternion(180.f, Vector3::UP));
-        auto quest_runner = ninja->CreateComponent<QuestGiver>();
+        auto quest_giver = ninja->CreateComponent<QuestGiver>();
         auto _1st_quest = new FirstQuest{context_};
-        quest_runner->get_quests().try_emplace(_1st_quest->get_name(), _1st_quest);
+        auto _2nd_quest = new SecondQuest{context_};
+        quest_giver->assign_quest(_1st_quest);
+        quest_giver->assign_quest(_2nd_quest);
         ninja->SetName("Ninja1");
     }
 }

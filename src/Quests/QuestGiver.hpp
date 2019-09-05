@@ -16,7 +16,7 @@ class QuestGiver : public Urho3D::LogicComponent {
     URHO3D_OBJECT(QuestGiver, LogicComponent);
 
 public:
-    explicit QuestGiver(Urho3D::Context*);
+    explicit QuestGiver(Urho3D::Context* context);
     ~QuestGiver() override = default;
 
     void Start() override;
@@ -24,6 +24,7 @@ public:
 
     quest_map& get_quests();
     [[nodiscard]] const quest_map& get_quests() const;
+    void assign_quest(Quest* quest);
     void setup_window(Urho3D::Window* window);
 
 private:

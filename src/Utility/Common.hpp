@@ -110,3 +110,9 @@ auto make(Args&&... args) -> FactoryProxy<T>
 {
     return {new T{std::forward<Args>(args)...}};
 }
+
+template <typename T>
+T* get(const Urho3D::Variant& variant)
+{
+    return dynamic_cast<T*>(const_cast<Urho3D::Variant&>(variant).GetPtr());
+}

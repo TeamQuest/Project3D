@@ -63,7 +63,7 @@ void InteractionCollider::Start()
         GetSubsystem<UI>()->GetRoot()->AddChild(m_window);
     }
     SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [this](auto, VariantMap& event_data) {
-        auto node = dynamic_cast<Node*>(event_data[NodeCollisionEnd::P_OTHERNODE].GetPtr());
+        auto node = get<Node>(event_data[NodeCollisionEnd::P_OTHERNODE]);
         if (auto spotlight_to_remove = node->GetChild("SpotlightOnSelection")) {
             close_window();
             node->RemoveChild(spotlight_to_remove);
@@ -130,8 +130,6 @@ void InteractionCollider::handle_interaction()
             if (auto runner = body->GetNode()->GetComponent<QuestGiver>()) {
                 close_window();
                 runner->setup_window(m_window);
-                auto first_quest = runner->get_quests().begin()->second;
-                URHO3D_LOGERRORF("is quest finished? %s", first_quest->is_finished() ? "yes" : "no");
                 return;
             }
         }
@@ -169,7 +167,7 @@ void InteractionCollider::open_window()
             item_button->SetVar("item", item.Get());
             SubscribeToEvent(item_button, E_RELEASED, [this](auto, auto event_data) {
                 auto button = static_cast<Button*>(event_data[Released::P_ELEMENT].GetPtr());
-                auto item = dynamic_cast<Pickable*>(button->GetVar("item").GetPtr());
+                auto item = get<Pickable>(button->GetVar("item"));
                 if (handle_item_clicked(item)) {
                     button->Remove();
                 }
