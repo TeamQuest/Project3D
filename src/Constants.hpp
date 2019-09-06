@@ -11,6 +11,9 @@ enum MovementKey {
     LEFT    = 1 << 3,
     RIGHT   = 1 << 4,
     JUMP    = 1 << 5,
+    PUNCH   = 1 << 6,
+    SWIPE   = 1 << 7,
+    KICK    = 1 << 8,
 };
 // clang-format on
 

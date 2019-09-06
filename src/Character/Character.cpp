@@ -144,12 +144,11 @@ void Character::FixedUpdate(float time_step)
         // When on ground, apply a braking force to limit maximum ground velocity
         body->ApplyImpulse(-velocity_xz * BRAKE_FORCE);
 
-        //////// Somebody explain this bit
         if (m_controls.IsDown(MovementKey::JUMP)) {
             if (m_can_jump) {
                 body->ApplyImpulse(Vector3::UP * JUMP_FORCE);
                 m_can_jump = false;
-                animator->PlayExclusive("Models/Mutant/Mutant_Jump1.ani", 0, false, 0.2f);
+                animator->PlayExclusive("Models/Mutant/Mutant_Run.ani", 0, false, 0.2f);
             }
         }
         else {
@@ -164,6 +163,12 @@ void Character::FixedUpdate(float time_step)
         // Play walk animation if moving on ground, otherwise fade it out
         if (soft_grounded && move_dir != Vector3::ZERO) {
             animator->PlayExclusive("Models/Mutant/Mutant_Run.ani", 0, true, 0.2f);
+        } else if (m_controls.IsDown(MovementKey::PUNCH)) {
+            animator->PlayExclusive("Models/Mutant/Mutant_Punch.ani", 0, true, 0.2f);
+        } else if (m_controls.IsDown(MovementKey::SWIPE)) {
+            animator->PlayExclusive("Models/Mutant/Mutant_Swipe.ani", 0, true, 0.2f);
+        } else if (m_controls.IsDown(MovementKey::KICK)) {
+            animator->PlayExclusive("Models/Mutant/Mutant_Kick.ani", 0, true, 0.2f);
         }
         else {
             animator->PlayExclusive("Models/Mutant/Mutant_Idle0.ani", 0, true, 0.2f);
@@ -187,6 +192,9 @@ void Character::handle_movement()
     m_controls.Set(MovementKey::LEFT, input->GetKeyDown(KEY_A));
     m_controls.Set(MovementKey::RIGHT, input->GetKeyDown(KEY_D));
     m_controls.Set(MovementKey::JUMP, input->GetKeyDown(KEY_SPACE));
+    m_controls.Set(MovementKey::PUNCH, input->GetKeyDown(KEY_P));
+    m_controls.Set(MovementKey::SWIPE, input->GetKeyDown(KEY_L));
+    m_controls.Set(MovementKey::KICK, input->GetKeyDown(KEY_K));
 
     // Add character yaw & pitch from the mouse motion
 
@@ -207,7 +215,6 @@ void Character::handle_camera(SharedPtr<Node> camera, PhysicsWorld* world)
 {
     auto&& rotation = node_->GetRotation();
     const auto dir = rotation * Quaternion(m_controls.pitch_, Vector3::RIGHT);
-    //////// Somebody explain why aim_point is calculated like this
     // Third person camera: position behind the character
     const auto aim_point = node_->GetPosition() + rotation * Vector3::UP * 1.7f;
     // Collide camera ray with static physics objects (layer bitmask 2) to ensure we see the character properly
