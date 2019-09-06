@@ -26,7 +26,7 @@ public:
     void resume();
     bool focused();
 
-    void go_to(const Urho3D::Vector3 &position);
+    void go_to(const Urho3D::Vector3 &target);
 
 private:
     void handle_collision(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
@@ -34,4 +34,10 @@ private:
     float move_speed;
     float rotation_speed;
     Urho3D::Quaternion saved_rotation;
+    Urho3D::Vector3 direction;
+    Urho3D::Vector3 target_possition;
+    bool go_to_flag;
+
+    void correct_direction();
+    void correct_speed();
 };

@@ -43,6 +43,9 @@ using namespace Urho3D;
 Npc::Npc(Context* context) : LogicComponent(context), move_speed(1.f), rotation_speed(Random(0.f,0.5f))
 {
     SetUpdateEventMask(USE_UPDATE);
+    direction = Urho3D::Vector3::ONE;
+    target_possition = Urho3D::Vector3::ZERO;
+    go_to_flag = false;
 }
 
 void Npc::Start()
@@ -86,9 +89,41 @@ void Npc::handle_collision(StringHash /* event_type */, VariantMap& event_data)
 {
 }
 
+void Npc::correct_direction()
+{   
+     auto possition = node_->GetPosition();
+     direction = (possition - target_possition).Abs().Normalized();
+
+}
+void Npc::correct_speed()
+{   
+    auto possition = node_->GetPosition();
+    auto l_direction = possition - target_possition;
+
+    move_speed = Min(l_direction.Length()/3.f, 3.f);
+
+    //URHO3D_LOGINFO(String(move_speed));
+
+    if(move_speed < 1.8f)
+    {
+        move_speed = 0.f;
+        go_to_flag = false;
+        rotation_speed = 0.f;
+    }
+}
+
 void Npc::Update(float time_step)
 {
-    node_->Translate(Vector3::FORWARD * move_speed * time_step);
+    //auto l_direction = direction.Abs().Normalized();
+    node_->Translate(Vector3::FORWARD * move_speed * direction * time_step);
+
+    if(go_to_flag)
+    {
+        correct_direction();
+        correct_speed();
+    }
+    
+
     if(focused()) return;
     node_->Yaw(rotation_speed);
 
@@ -119,6 +154,8 @@ void Npc::stop(const Vector3 & target)
 void Npc::resume()
 {
     move_speed = 1.f;
+    rotation_speed = 1.f;
+    direction = Urho3D::Vector3::ONE;
 
     auto smoothed_transform = node_->GetComponent<SmoothedTransform>();
     smoothed_transform->SetTargetRotation(saved_rotation);
@@ -131,8 +168,9 @@ bool Npc::focused()
 }
 
 
-void Npc::go_to(const Urho3D::Vector3 &position)
+void Npc::go_to(const Urho3D::Vector3 &target)
 {
-    auto smoothed_transform = node_->GetComponent<SmoothedTransform>();
-    smoothed_transform->SetTargetWorldPosition(position);
+    target_possition = target;
+    go_to_flag = true;
+    
 }
