@@ -91,7 +91,7 @@ void Gameplay::init_gamescene()
 
     { /* Character */
         auto jack = scene->CreateChild(PLAYER_NAME);
-        jack->SetPosition({0.f, 0.f, 1.f});
+        jack->SetPosition({0.f, -2.5f, -8.f});
         m_character = jack->CreateComponent<Character>();
     }
 
@@ -169,7 +169,7 @@ void Gameplay::init_gamescene()
         ninja->LoadXML(cache->GetResource<XMLFile>("Objects/Ninja1.xml")->GetRoot());
         auto anim_ctrl = ninja->GetComponent<AnimationController>(true);
         anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Idle3.ani", 0, true, 0.2);
-        ninja->SetPosition(Vector3::FORWARD * 5.f);
+        ninja->SetPosition(Vector3(0.f, -1.f, 4.f));
         ninja->SetRotation(Quaternion(180.f, Vector3::UP));
         auto quest_giver = ninja->CreateComponent<QuestGiver>();
         auto _1st_quest = new FirstQuest{context_};
@@ -195,11 +195,12 @@ void Gameplay::init_gamescene()
         auto box_model = wall->CreateComponent<StaticModel>();
         box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
         box_model->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
+        return wall;
     };
     place_wall("Ceiling",
-               Vector3(0.f, 0.f, 0.f),
+               Vector3(0.f, 10.f, 0.f),
                Quaternion(0.f, 0.f, 0.f),
-               Vector3(20.f, 0.5f, 20.f)
+               Vector3(200.f, 10.5f, 200.f)
     );
     place_wall("Wall_1",
                Vector3(-3.f, -2.5f, 0.f),
@@ -216,10 +217,55 @@ void Gameplay::init_gamescene()
                Quaternion(90.f, 0.f, 0.f),
                Vector3(25.f, 0.5f, 6.f)
     );
-    place_wall("Wall_1",
+    place_wall("Wall_4",
                Vector3(3.f, -2.5f, 10.f),
                Quaternion(90.f, 90.f, 0.f),
                Vector3(8.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_5",
+               Vector3(-3.f, -2.5f, -10.f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(12.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_6",
+               Vector3(15.3f, -2.5f, 6.25f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(25.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_7",
+               Vector3(14.f, -2.5f, 2.25f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(22.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_8",
+               Vector3(27.f, -2.5f, 6.25f),
+               Quaternion(90.f, 90.f, 0.f),
+               Vector3(50.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_9",
+               Vector3(17.f, -2.5f, -8.25f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(22.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_10",
+               Vector3(8.5f, -2.5f, -12.3f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(12.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_11",
+               Vector3(19.f, -2.5f, -12.3f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(9.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_12",
+               Vector3(16.f, -2.5f, -18.25f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(26.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_13",
+               Vector3(3.f, -2.5f, -20.f),
+               Quaternion(90.f, 90.f, 0.f),
+               Vector3(15.f, 0.5f, 6.f)
     );
 }
 
@@ -247,30 +293,31 @@ void Gameplay::update(float /* time_step */)
     // if (GetSubsystem<UI>()->GetFocusElement()) {
     //     return;
     // }
-    static auto wall_txt = [&]() -> Text* {
-        auto txt = *make<Text>(context_)
-                .text("wall name: None")
-                .name("wallid")
-                .font(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/gta5.ttf"), 50)
-                .texteffect(TextEffect::TE_STROKE)
-                .effectstrokethickness(5)
-                .effectcolor(Color(0.f, 0.f, 0.f))
-                .color(Color(1.f, 1.f, 1.f))
-                .alignment(HA_RIGHT, VA_TOP)
-                .position(-40, 20);
-        scene->GetSubsystem<UI>()->GetRoot()->AddChild(txt);
-        return txt;
-    }();
-    const auto ray_dir = m_camera->GetDirection();
-    auto ray_distance = 1000.f;
-    PhysicsRaycastResult raycast;
-    auto ray = Ray(m_character->GetNode()->GetPosition() + Vector3(0, 2, 0), ray_dir);
-    scene->GetComponent<PhysicsWorld>()->RaycastSingle(raycast, ray, ray_distance, 2);
-    if (raycast.body_ && raycast.body_->GetNode()->GetName() != "Floor") {
-        wall_txt->SetText("wall name: " + raycast.body_->GetNode()->GetName() + "\n" + String(raycast.distance_));
-    }
-    else {
-        wall_txt->SetText("wall name: None");
+    {  /* DEBUG WALLS */
+//        static auto wall_txt = [&]() -> Text * {
+//            auto txt = *make<Text>(context_)
+//                    .text("wall name: None")
+//                    .name("wallid")
+//                    .font(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/gta5.ttf"), 50)
+//                    .texteffect(TextEffect::TE_STROKE)
+//                    .effectstrokethickness(5)
+//                    .effectcolor(Color(0.f, 0.f, 0.f))
+//                    .color(Color(1.f, 1.f, 1.f))
+//                    .alignment(HA_RIGHT, VA_TOP)
+//                    .position(-40, 20);
+//            scene->GetSubsystem<UI>()->GetRoot()->AddChild(txt);
+//            return txt;
+//        }();
+//        const auto ray_dir = m_camera->GetDirection();
+//        auto ray_distance = 1000.f;
+//        PhysicsRaycastResult raycast;
+//        auto ray = Ray(m_character->GetNode()->GetPosition() + Vector3(0, 2, 0), ray_dir);
+//        scene->GetComponent<PhysicsWorld>()->RaycastSingle(raycast, ray, ray_distance, 2);
+//        if (raycast.body_ && raycast.body_->GetNode()->GetName() != "Floor") {
+//            wall_txt->SetText("wall name: " + raycast.body_->GetNode()->GetName() + "\n" + String(raycast.distance_));
+//        } else {
+//            wall_txt->SetText("wall name: None");
+//        }
     }
 
     if (m_character) {
