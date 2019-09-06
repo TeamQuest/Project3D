@@ -31,6 +31,7 @@
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Resource/ResourceCache.h>
+#include <Utility/Common.hpp>
 
 #pragma clang diagnostic pop
 
@@ -96,8 +97,9 @@ void Character::Start()
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_collision));
 
     auto component_status = node_->CreateComponent<Status>();
-    // Set starting hp point for character  
+    // Set starting hp point for character
     component_status->set_hp_points(45);
+    component_status->set_character_name(GetGlobalVar("PlayerName").GetString());
 }
 
 void Character::FixedUpdate(float time_step)

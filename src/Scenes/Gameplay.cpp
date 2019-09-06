@@ -100,6 +100,10 @@ void Gameplay::init_gamescene()
         auto jack = scene->CreateChild("jack");
         jack->SetPosition({0.f, 0.f, 1.f});
         m_character = jack->CreateComponent<Character>();
+
+        auto status_comp = scene->GetComponent<Status>();
+        m_character->GetNode()->CloneComponent(status_comp);
+//        status_comp->Remove();
     }
 
     { /* Camera */

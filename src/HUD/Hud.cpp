@@ -42,8 +42,6 @@ Hud::Hud(Urho3D::Context *context) : LogicComponent(context) {
                 .position(-500, 40);
         ui_root->AddChild(health_label);
     }
-
-
     {
         auto open_inventory_button = *make<Button>(context)
                 .name("OpenInventoryButton")
