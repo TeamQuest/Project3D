@@ -99,7 +99,12 @@ Options::Options(Context* context) : State(context, Scenes::Options)
 
     SubscribeToEvent(ui_root->GetChild("BackToMenuButton", false), E_RELEASED, [&](auto&&...) { SendEvent(E_MENUREQUESTED); });
     SubscribeToEvent(ui_root->GetChild("ApplyNameButton", false), E_RELEASED, [&](auto&&...) {
-        SetGlobalVar("PlayerName",String("characterName"));
+        auto ui_root = GetSubsystem<UI>()->GetRoot();
+        if (auto line_edit = ui_root->GetChildStaticCast<LineEdit>("SetCharacterNameLineEdit", false)) {
+            auto&& player_name = line_edit->GetTextElement()->GetText();
+            SetGlobalVar("PlayerName", player_name);
+            SendEvent(E_MENUREQUESTED);
+        }
     });
 }
 

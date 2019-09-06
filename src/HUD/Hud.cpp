@@ -1,8 +1,13 @@
 #include "HUD/Hud.hpp"
 
+#include "Constants.hpp"
 #include "Utility/Common.hpp"
 #include "Character/Status.hpp"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wall"
+#pragma clang diagnostic ignored "-Wextra"
+#pragma clang diagnostic ignored "-Wpedantic"
 #include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/ProgressBar.h>
 #include <Urho3D/UI/UI.h>
@@ -13,6 +18,7 @@
 #include <Urho3D/UI/Button.h>
 #include <Urho3D/UI/UIEvents.h>
 #include <Scenes/Scenes.hpp>
+#pragma clang diagnostic pop
 
 using namespace Urho3D;
 
@@ -67,10 +73,10 @@ Hud::Hud(Urho3D::Context *context) : LogicComponent(context) {
 void Hud::Start() {
 }
 
-void Hud::Update(float time_step) {
+void Hud::Update(float /* time_step */) {
 
     // update health bar
-    if (auto status_component = GetScene()->GetChild("jack")->GetComponent<Status>()) {
+    if (auto status_component = GetScene()->GetChild(PLAYER_NAME)->GetComponent<Status>()) {
         auto health_bar = GetSubsystem<UI>()->GetRoot()->GetChildStaticCast<ProgressBar>("health_bar", false);
         health_bar->SetValue(status_component->get_hp_points());
     }

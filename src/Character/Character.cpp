@@ -97,13 +97,13 @@ void Character::Start()
     // Allow starting quests from Quest Givers
     node_->CreateComponent<QuestRunner>();
 
-    // Component has been inserted into its scene node. Subscribe to events now
-    SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_collision));
-
+    // Status component
     auto component_status = node_->CreateComponent<Status>();
-    // Set starting hp point for character
     component_status->set_hp_points(45);
     component_status->set_character_name(GetGlobalVar("PlayerName").GetString());
+
+    // Component has been inserted into its scene node. Subscribe to events now
+    SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_collision));
 }
 
 void Character::FixedUpdate(float time_step)

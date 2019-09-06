@@ -1,10 +1,10 @@
 #include "Utility/InteractionCollider.hpp"
 
+#include "Constants.hpp"
 #include "Items/Inventory.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 #include "Quests/QuestGiver.hpp"
-#include "Scenes/Scenes.hpp"
 #include "Utility/Common.hpp"
 
 #pragma clang diagnostic push
@@ -200,7 +200,7 @@ bool InteractionCollider::handle_item_clicked(const SharedPtr<Pickable>& item)
 
     // TODO: pparuzel
     //    if (auto inv = node_->GetComponent<Inventory>()) {
-    if (auto inv = GetScene()->GetChild("jack")->GetComponent<Inventory>()) {
+    if (auto inv = GetScene()->GetChild(PLAYER_NAME)->GetComponent<Inventory>()) {
         if (inv->add(item)) {
             m_highlighted->GetComponent<Lootable>()->remove_item(item);
             return true;

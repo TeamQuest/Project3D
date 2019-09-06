@@ -101,10 +101,6 @@ void Gameplay::init_gamescene()
         auto jack = scene->CreateChild(PLAYER_NAME);
         jack->SetPosition({0.f, -2.5f, -8.f});
         m_character = jack->CreateComponent<Character>();
-
-        auto status_comp = scene->GetComponent<Status>();
-        m_character->GetNode()->CloneComponent(status_comp);
-//        status_comp->Remove();
     }
 
     { /* Camera */
@@ -296,7 +292,7 @@ void Gameplay::init_gamescene()
                Vector3(15.f, 0.5f, 6.f)
     );
     {  /* Status component */
-        if (auto status_component = scene->GetChild("jack")->GetComponent<Status>()) {
+        if (auto status_component = scene->GetChild(PLAYER_NAME)->GetComponent<Status>()) {
             auto character_name_label = *make<Text>(context_)
                     .name("CharacterName")
                     .font(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 50)
