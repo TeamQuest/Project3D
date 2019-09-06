@@ -156,7 +156,7 @@ void Gameplay::init_gamescene()
             collider->SetBox(Vector3::ONE);
 
             auto lootable = box->CreateComponent<Lootable>();
-            for (int i = 0; i < Random(1, 3); ++i) {
+            for (int j = 0; j < Random(1, 3); ++j) {
                 auto gold_coins = MakeShared<Gold>(context_);
                 auto random_amount = Random(100, 1000);
                 gold_coins->set_name(ToString("%d gold coins", random_amount));
@@ -165,7 +165,7 @@ void Gameplay::init_gamescene()
                 lootable->add_item(gold_coins);
             }
 
-            for (int i = 0; i < Random(0, 2); ++i) {
+            for (int k = 0; k < Random(0, 2); ++k) {
                 auto sword = MakeShared<Sword>(context_);
                 auto random_dmg = Random(3, 12);
                 sword->set_name("Medieval sword");
@@ -174,7 +174,7 @@ void Gameplay::init_gamescene()
                 lootable->add_item(sword);
             }
 
-            for (int i = 0; i < Random(0, 3); ++i) {
+            for (int k = 0; k < Random(0, 3); ++k) {
                 auto hp_potion = MakeShared<HpPotion>(context_);
                 hp_potion->set_name("Health Point Potion");
                 hp_potion->set_description("Hp Potion");

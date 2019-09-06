@@ -23,9 +23,9 @@ public:
     void close_window();
 
 private:
-    bool handle_item_clicked(Pickable* item);
+    bool handle_item_clicked(const Urho3D::SharedPtr<Pickable>& item);
 
 private:
     Urho3D::WeakPtr<Urho3D::Node> m_highlighted;
-    Urho3D::Window* m_window;
+    Urho3D::Window* m_window{};
 };

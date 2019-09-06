@@ -62,7 +62,7 @@ void InteractionCollider::Start()
         GetSubsystem<UI>()->GetRoot()->AddChild(m_window);
     }
     SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [this](auto, VariantMap& event_data) {
-        auto node = static_cast<Node*>(event_data[NodeCollisionEnd::P_OTHERNODE].GetPtr());
+        auto node = get<Node>(event_data[NodeCollisionEnd::P_OTHERNODE]);
         if (auto spotlight_to_remove = node->GetChild("SpotlightOnSelection")) {
             close_window();
             node->RemoveChild(spotlight_to_remove);
@@ -142,7 +142,7 @@ void InteractionCollider::open_window()
         }
 
         const auto anonymous_pro_font = GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf"));
-        for (auto item : lootable_item->get_items()) {
+        for (const auto& item : lootable_item->get_items()) {
             auto item_button = *make<Button>(context_).styleauto().fixedheight(50).minwidth(item->get_name().Length() * 15);
             auto item_text = *make<Text>(context_)
                                   .text(item->get_name())
@@ -154,8 +154,8 @@ void InteractionCollider::open_window()
             item_button->SetVar("item", item.Get());
             SubscribeToEvent(item_button, E_RELEASED, [this](auto, auto event_data) {
                 auto button = static_cast<Button*>(event_data[Released::P_ELEMENT].GetPtr());
-                auto item = static_cast<Pickable*>(button->GetVar("item").GetPtr());
-                if (handle_item_clicked(item)) {
+                auto item = get<Pickable>(button->GetVar("item"));
+                if (handle_item_clicked(SharedPtr<Pickable>(item))) {
                     button->Remove();
 
                 }
@@ -177,7 +177,7 @@ void InteractionCollider::close_window()
     }
 }
 
-bool InteractionCollider::handle_item_clicked(Pickable* item)
+bool InteractionCollider::handle_item_clicked(const SharedPtr<Pickable>& item)
 {
     ////// Uncomment code below when using event signals:
     // URHO3D_LOGINFO("InteractionCollider::item_clicked");

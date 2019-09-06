@@ -36,7 +36,7 @@ void Inventory::Start()
     // code
     SubscribeToEvent(E_ITEM_CLICKED, [&](auto, VariantMap& event_data) {
         //
-        auto item = static_cast<Pickable*>(event_data[ItemClickedEvent::P_ITEM].GetPtr());
+        auto item = get<Pickable>(event_data[ItemClickedEvent::P_ITEM]);
         URHO3D_LOGINFOF("Dodaje do inv: %p", item);
     });
     {
@@ -71,7 +71,7 @@ void Inventory::Update(float /* time_step */)
 {
 }
 
-bool Inventory::add(Pickable* pickable)
+bool Inventory::add(const SharedPtr<Pickable>& pickable)
 {
     if (is_full()) {
         return false;
@@ -112,34 +112,33 @@ void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */
         m_window->SetVisible(true);
         const auto anonymous_pro_font = GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf"));
 
-        auto item_text = *make<Text>(context_)
+        auto title_text = *make<Text>(context_)
                               .text("okienko")
                               .font(anonymous_pro_font)
                               .fontsize(20)
                               //   .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
                               .textaligned(HA_CENTER);
 
-        m_window->AddChild(item_text);
-        for (auto item : m_items) {
+        m_window->AddChild(title_text);
+        for (const auto& item : m_items) {
             auto item_button = *make<Button>(context_)
                                     .styleauto()
                                     // .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
                                     .minwidth(200)
-                                    .fixedheight(50);
+                                    .fixedheight(50)
+                                    .var("item", item.Get());
 
             auto item_text = *make<Text>(context_)
-                                  .text("przedmiot")
-                                  // TODO PAWEL app crashes when I want to call getName()
-//                                  .text(item->get_character_name())
+                                  .text(item->get_name())
                                   .font(anonymous_pro_font)
                                   .fontsize(20)
                                   //   .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
                                   .textaligned(HA_CENTER);
 
             // Opening item description
-            SubscribeToEvent(item_button, E_RELEASED, [this](auto, auto event_data) {
+            SubscribeToEvent(item_button, E_RELEASED, [this](auto, auto& event_data) {
                 auto button = static_cast<Button*>(event_data[Released::P_ELEMENT].GetPtr());
-                auto item = static_cast<Pickable*>(button->GetVar("item").GetPtr());
+                auto item = get<Pickable>(button->GetVar("item"));
 
                 if (m_window_description->IsEnabled()) {
                     URHO3D_LOGINFO("Closing item description...");
@@ -160,9 +159,7 @@ void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */
                     m_window_description->AddChild(item_text);
 
                     auto item_description = *make<Text>(context_)
-                            .text("przedmiot taki i siaki")
-                                    // TODO PAWEL same sitution
-//                            .text(item->get_description())
+                            .text(item->get_description())
                             .font(GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf")))
                             .fontsize(20)
                             .textaligned(HA_CENTER);
