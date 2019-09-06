@@ -35,6 +35,8 @@
 
 #include <cmath>
 #include <vector>
+#include <Items/Sword.hpp>
+#include <Items/HpPotion.hpp>
 
 using namespace Urho3D;
 
@@ -151,13 +153,29 @@ void Gameplay::init_gamescene()
             collider->SetBox(Vector3::ONE);
 
             auto lootable = box->CreateComponent<Lootable>();
-            for (int i = 0; i < Random(1, 6); ++i) {
+            for (int i = 0; i < Random(1, 3); ++i) {
                 auto gold_coins = MakeShared<Gold>(context_);
                 auto random_amount = Random(100, 1000);
                 gold_coins->set_name(ToString("%d gold coins", random_amount));
                 gold_coins->set_description("Gold coins");
                 gold_coins->set_amount(random_amount);
                 lootable->add_item(gold_coins);
+            }
+
+            for (int i = 0; i < Random(0, 2); ++i) {
+                auto sword = MakeShared<Sword>(context_);
+                auto random_dmg = Random(3, 12);
+                sword->set_name("Medieval sword");
+                sword->set_description("Beautiful sword");
+                sword->set_dmg(random_dmg);
+                lootable->add_item(sword);
+            }
+
+            for (int i = 0; i < Random(0, 3); ++i) {
+                auto hp_potion = MakeShared<HpPotion>(context_);
+                hp_potion->set_name("Health Point Potion");
+                hp_potion->set_description("Hp Potion");
+                lootable->add_item(hp_potion);
             }
 
             auto box_model = box->CreateComponent<StaticModel>();

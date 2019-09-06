@@ -113,7 +113,9 @@ void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */
                                     .fixedheight(50);
 
             auto item_text = *make<Text>(context_)
-                                  .text(item->get_name())
+                                  .text("przedmiot")
+                                  // TODO tutaj trzeba przeslac getName()
+//                                  .text(item->get_name())
                                   .font(anonymous_pro_font)
                                   .fontsize(20)
                                   //   .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
