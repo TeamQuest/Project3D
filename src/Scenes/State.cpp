@@ -6,6 +6,4 @@ State::State(Context* context, Scenes type) : Object(context), scene(new Scene(c
 {
 }
 
-State::~State()
-{
-}
+State::~State() = default;

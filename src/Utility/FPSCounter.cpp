@@ -33,14 +33,12 @@ FPSCounter::FPSCounter(Context* context) : LogicComponent(context)
     GetSubsystem<UI>()->GetRoot()->AddChild(fps_text);
 }
 
-FPSCounter::~FPSCounter()
-{
-}
+FPSCounter::~FPSCounter() = default;
 
 void FPSCounter::Update(float time_step)
 {
     if ((m_counter += time_step) > FPS_UPDATE_TIME) {
-        auto fps_text = static_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild("FPS", false));
+        auto fps_text = GetSubsystem<UI>()->GetRoot()->GetChildStaticCast<Text>("FPS", false);
         fps_text->SetText(ToString("FPS: %f", std::roundf(m_counter / time_step / FPS_UPDATE_TIME)));
         m_counter = 0;
     }

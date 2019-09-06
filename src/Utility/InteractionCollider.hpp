@@ -7,6 +7,7 @@ class Window;
 }
 
 class Pickable;
+class QuestGiver;
 
 class InteractionCollider : public Urho3D::LogicComponent {
     URHO3D_OBJECT(InteractionCollider, Urho3D::LogicComponent);

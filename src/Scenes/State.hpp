@@ -10,7 +10,7 @@ class State : public Urho3D::Object {
 
 public:
     explicit State(Urho3D::Context*, Scenes type);
-    virtual ~State();
+    ~State() override;
 
     virtual void update(float time_step) = 0;
 

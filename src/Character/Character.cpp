@@ -5,6 +5,7 @@
 #include "Items/Pickable.hpp"
 #include "Status.hpp"
 #include "Utility/InteractionCollider.hpp"
+#include "Quests/QuestRunner.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -37,7 +38,7 @@
 
 using namespace Urho3D;
 
-Character::Character(Context* context) : LogicComponent(context), m_on_ground(false), m_can_jump(true), m_time_in_air(0.f)
+Character::Character(Context* context) : LogicComponent(context)
 {
     SetUpdateEventMask(USE_FIXEDUPDATE);
 }
@@ -90,8 +91,11 @@ void Character::Start()
     // Set an interaction component
     node_->CreateComponent<InteractionCollider>();
 
-    //
+    // Contain items in inventory
     node_->CreateComponent<Inventory>();
+
+    // Allow starting quests from Quest Givers
+    node_->CreateComponent<QuestRunner>();
 
     // Component has been inserted into its scene node. Subscribe to events now
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_collision));

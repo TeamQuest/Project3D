@@ -3,6 +3,7 @@
 #include "Items/Inventory.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
+#include "Quests/QuestGiver.hpp"
 #include "Scenes/Scenes.hpp"
 #include "Utility/Common.hpp"
 
@@ -46,7 +47,7 @@ void InteractionCollider::Start()
         auto rigidbody = interaction_node->CreateComponent<RigidBody>();
         rigidbody->SetTrigger(true);
         rigidbody->SetKinematic(true);
-        rigidbody->SetCollisionLayerAndMask(2, 1);
+        rigidbody->SetCollisionLayerAndMask(1, 1);
         auto collider = interaction_node->CreateComponent<CollisionShape>();
         collider->SetBox({0.5f, 2.f, 2.f}, {0.f, 1.f, 1.5f});
     }
@@ -121,6 +122,18 @@ void InteractionCollider::handle_collision()
 
 void InteractionCollider::handle_interaction()
 {
+    if (GetSubsystem<Input>()->GetKeyPress(KEY_E)) {
+        const auto world = node_->GetScene()->GetComponent<PhysicsWorld>();
+        PODVector<RigidBody*> bodies;
+        world->GetCollidingBodies(bodies, node_->GetChild("Interaction")->GetComponent<RigidBody>());
+        for (auto&& body : bodies) {
+            if (auto runner = body->GetNode()->GetComponent<QuestGiver>()) {
+                close_window();
+                runner->setup_window(m_window);
+                return;
+            }
+        }
+    }
     if (m_highlighted && GetSubsystem<Input>()->GetKeyPress(KEY_E)) {
         close_window();
         open_window();
@@ -157,7 +170,6 @@ void InteractionCollider::open_window()
                 auto item = get<Pickable>(button->GetVar("item"));
                 if (handle_item_clicked(SharedPtr<Pickable>(item))) {
                     button->Remove();
-
                 }
             });
             m_window->AddChild(item_button);
@@ -186,6 +198,8 @@ bool InteractionCollider::handle_item_clicked(const SharedPtr<Pickable>& item)
     // SendEvent(E_ITEM_CLICKED, event_data);
     //////
 
+    // TODO: pparuzel
+    //    if (auto inv = node_->GetComponent<Inventory>()) {
     if (auto inv = GetScene()->GetChild("jack")->GetComponent<Inventory>()) {
         if (inv->add(item)) {
             m_highlighted->GetComponent<Lootable>()->remove_item(item);

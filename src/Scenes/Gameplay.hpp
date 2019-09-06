@@ -6,7 +6,7 @@
 class Gameplay : public State {
 public:
     explicit Gameplay(Urho3D::Context* context);
-    ~Gameplay();
+    ~Gameplay() override;
 
     void init_ui();
     void init_gamescene();
