@@ -119,7 +119,6 @@ void Npc::Update(float time_step)
 
     if(go_to_flag)
     {
-        correct_direction();
         correct_speed();
     }
     
@@ -172,5 +171,6 @@ void Npc::go_to(const Urho3D::Vector3 &target)
 {
     target_possition = target;
     go_to_flag = true;
+    correct_direction();
     
 }

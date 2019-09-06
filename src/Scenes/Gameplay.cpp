@@ -168,7 +168,7 @@ void Gameplay::init_gamescene()
         constexpr auto NUM_NPC = 10u;
         for (unsigned i = 0; i < NUM_NPC; ++i) {
             auto npc = scene->CreateChild("Jill" + String(i));
-            npc->SetPosition({0.f, 0.f, 1.f});
+            npc->SetPosition({0.f, 0.f, 0.f});
             npc->CreateComponent<Npc>();
         }
     }
