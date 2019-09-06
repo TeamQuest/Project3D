@@ -183,6 +183,7 @@ void Gameplay::handle_key_down(Urho3D::StringHash /* event_type */, Urho3D::Vari
             GetSubsystem<Input>()->SetMouseVisible(!is_mouse_visible);
             break;
         }
+        /* TO DELETE , ONLY DEBUG */
         case KEY_M: {
             auto npc = scene->GetChild("Jill1")->GetComponent<Npc>();
             npc->go_to(Urho3D::Vector3(0.f,0.f,0.f));
