@@ -129,8 +129,8 @@ void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */
 
             auto item_text = *make<Text>(context_)
                                   .text("przedmiot")
-                                  // TODO app crashes when I want to call getName()
-//                                  .text(item->get_name())
+                                  // TODO PAWEL app crashes when I want to call getName()
+//                                  .text(item->get_character_name())
                                   .font(anonymous_pro_font)
                                   .fontsize(20)
                                   //   .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
@@ -161,7 +161,7 @@ void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */
 
                     auto item_description = *make<Text>(context_)
                             .text("przedmiot taki i siaki")
-                                    // TODO same sitution
+                                    // TODO PAWEL same sitution
 //                            .text(item->get_description())
                             .font(GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf")))
                             .fontsize(20)

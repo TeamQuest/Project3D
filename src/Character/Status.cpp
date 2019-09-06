@@ -14,3 +14,11 @@ void Status::set_hp_points(float points) {
 float Status::get_hp_points() {
     return hp_points;
 }
+
+void Status::set_character_name(Urho3D::String n) {
+    name = n;
+}
+
+Urho3D::String Status::get_character_name() {
+    return name;
+}

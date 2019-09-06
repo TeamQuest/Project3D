@@ -32,7 +32,7 @@ Hud::Hud(Urho3D::Context *context) : LogicComponent(context) {
 
         auto health_label = *make<Text>(context)
                 .name("health_label")
-                .font(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/gta5.ttf"), 50)
+                .font(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 50)
                 .text("HEALTH")
                 .texteffect(TextEffect::TE_STROKE)
                 .effectstrokethickness(5)

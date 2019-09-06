@@ -30,6 +30,7 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/UIEvents.h>
+#include <Urho3D/Scene/Scene.h>
 
 #pragma clang diagnostic pop
 
@@ -37,6 +38,8 @@
 #include <vector>
 #include <Items/Sword.hpp>
 #include <Items/HpPotion.hpp>
+#include <Character/Status.hpp>
+#include <Scenes/Scenes.hpp>
 
 using namespace Urho3D;
 
@@ -183,6 +186,21 @@ void Gameplay::init_gamescene()
             box_model->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
         }
         scene->GetChild("Box", false)->SetPosition(Vector3::FORWARD);
+    }
+    {
+        if (auto status_component = scene->GetChild("jack")->GetComponent<Status>()) {
+            auto character_name_label = *make<Text>(context_)
+                    .name("CharacterName")
+                    .font(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 50)
+                    .text(status_component->get_character_name())
+                    .texteffect(TextEffect::TE_STROKE)
+                    .effectstrokethickness(3)
+                    .effectcolor(Color(0.f, 0.f, 0.f))
+                    .color(Color(1.f, 1.f, 1.f))
+                    .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
+                    .position(0, -100);
+            GetSubsystem<UI>()->GetRoot()->AddChild(character_name_label);
+        }
     }
 }
 
