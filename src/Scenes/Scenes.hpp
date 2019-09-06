@@ -20,4 +20,8 @@ URHO3D_EVENT(E_ITEM_CLICKED, ItemClickedEvent)
     URHO3D_PARAM(P_ITEM, Item);
 }
 
+URHO3D_EVENT(E_OPEN_INVENTORY, OpenInventoryEvent)
+{
+}
+
 enum class Scenes { Empty, MainMenu, Options, Gameplay };

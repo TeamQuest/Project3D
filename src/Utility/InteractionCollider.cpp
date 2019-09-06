@@ -157,6 +157,7 @@ void InteractionCollider::open_window()
                 auto item = static_cast<Pickable*>(button->GetVar("item").GetPtr());
                 if (handle_item_clicked(item)) {
                     button->Remove();
+
                 }
             });
             m_window->AddChild(item_button);

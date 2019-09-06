@@ -29,4 +29,6 @@ private:
     std::vector<Pickable*> m_items{};
     Urho3D::Window* m_window;
     int m_capacity = 5;
+
+    void toggle_key_down(Urho3D::StringHash, Urho3D::VariantMap &);
 };

@@ -48,7 +48,8 @@ void Inventory::Start()
     m_window->SetVisible(false);
     GetSubsystem<UI>()->GetRoot()->AddChild(m_window);
 
-    SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(Inventory, toggle));
+    SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(Inventory, toggle_key_down));
+    SubscribeToEvent(E_OPEN_INVENTORY, URHO3D_HANDLER(Inventory, toggle) );
 }
 
 void Inventory::Update(float /* time_step */)
@@ -71,12 +72,18 @@ void Inventory::remove(Pickable* pickable)
     URHO3D_LOGINFO("Item " + pickable->get_name() + " removed from inventory");
 }
 
-void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */)
-{
+void Inventory::toggle_key_down(StringHash /* event_type */, VariantMap & /* event_data */) {
+
     const auto input = GetSubsystem<Input>();
     if (!input->GetKeyPress(KEY_I)) {
         return;
     }
+
+    SendEvent(E_OPEN_INVENTORY);
+}
+
+void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */)
+{
     if (m_window->IsEnabled()) {
         URHO3D_LOGINFO("Closing inventory...");
         const auto loot_window = GetSubsystem<UI>()->GetRoot()->GetChild("InventoryWindow", false);

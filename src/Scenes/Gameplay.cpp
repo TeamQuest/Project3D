@@ -2,9 +2,9 @@
 
 #include "Items/Gold.hpp"
 #include "Items/Lootable.hpp"
-#include "Items/Pickable.hpp"
 #include "Utility/Common.hpp"
 #include "Utility/FPSCounter.hpp"
+#include "HUD/Hud.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -52,6 +52,9 @@ void Gameplay::init_ui()
 {
     {  // setup_scene_components
         scene->CreateComponent<FPSCounter>();
+    }
+    {  // setup_hud
+        scene->CreateComponent<Hud>();
     }
     const auto cache = GetSubsystem<ResourceCache>();
     auto ui_root = GetSubsystem<UI>()->GetRoot();

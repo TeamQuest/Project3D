@@ -7,10 +7,12 @@
 #include "Items/Pickable.hpp"
 #include "Items/Sword.hpp"
 #include "Scenes/Gameplay.hpp"
+#include "Character/Status.hpp"
 #include "Scenes/MainMenu.hpp"
 #include "Scenes/Options.hpp"
 #include "Utility/Common.hpp"
 #include "Utility/FPSCounter.hpp"
+#include "HUD/Hud.hpp"
 #include "Utility/InteractionCollider.hpp"
 
 #pragma clang diagnostic push
@@ -37,6 +39,8 @@ Game::Game(Urho3D::Context* context) : Application(context)
     register_component<InteractionCollider>(context);
     register_component<Lootable>(context);
     register_component<Inventory>(context);
+    register_component<Hud>(context);
+    register_component<Status>(context);
 }
 
 void Game::Setup()
@@ -64,6 +68,9 @@ void Game::Start()
     SubscribeToEvent(E_STARTGAME, [&](auto&&...) { m_next_state = Scenes::Gameplay; });
     SubscribeToEvent(E_MENUREQUESTED, [&](auto&&...) { m_next_state = Scenes::MainMenu; });
     SubscribeToEvent(E_OPTIONSREQUESTED, [&](auto&&...) { m_next_state = Scenes::Options; });
+
+    SubscribeToEvent(E_OPTIONSREQUESTED, [&](auto&&...) { m_next_state = Scenes::Options; });
+
 }
 
 void Game::Stop()

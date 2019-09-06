@@ -10,7 +10,7 @@ void register_component(Urho3D::Context* context, Args&&... args)
     template <typename... Args>                       \
     FactoryProxy& f_name(Args&&... args)              \
     {                                                 \
-        value->f_invoke(std::forward<Args>(args)...); \
+        val->f_invoke(std::forward<Args>(args)...); \
         return *this;                                 \
     }
 
@@ -24,7 +24,7 @@ public:
     FactoryProxy& operator=(const FactoryProxy&) = delete;
 
 private:
-    FactoryProxy(T* value) : value{value}
+    FactoryProxy(T* value) : val{value}
     {
     }
 
@@ -95,14 +95,17 @@ public:
     FACTORY_METHOD(texteffect, SetTextEffect);
     FACTORY_METHOD(effectstrokethickness, SetEffectStrokeThickness);
     FACTORY_METHOD(effectcolor, SetEffectColor);
+    FACTORY_METHOD(range, SetRange);
+    FACTORY_METHOD(value, SetValue);
+    FACTORY_METHOD(texture, SetTexture);
 
     T* operator*() const
     {
-        return value;
+        return val;
     }
 
 private:
-    T* value;
+    T* val;
 };
 
 template <typename T, typename... Args>
