@@ -18,6 +18,9 @@
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/UIEvents.h>
 #include <Urho3D/UI/Window.h>
+#include <Urho3D/UI/ProgressBar.h>
+#include <Urho3D/Scene/Scene.h>
+#include <Character/Status.hpp>
 
 #pragma clang diagnostic pop
 
@@ -36,18 +39,30 @@ void Inventory::Start()
         auto item = static_cast<Pickable*>(event_data[ItemClickedEvent::P_ITEM].GetPtr());
         URHO3D_LOGINFOF("Dodaje do inv: %p", item);
     });
-
-    m_window = *make<Window>(context_)
-                    .name("InventoryWindow")
-                    .styleauto()
-                    .layout(LM_VERTICAL, 10, IntRect{10, 10, 10, 10})
-                    .minsize(300, 300)
-                    .aligned(HorizontalAlignment::HA_LEFT, VerticalAlignment::VA_CENTER)
-                    .position(100, 0);
-    m_window->SetEnabledRecursive(false);
-    m_window->SetVisible(false);
-    GetSubsystem<UI>()->GetRoot()->AddChild(m_window);
-
+    {
+        m_window = *make<Window>(context_)
+                .name("InventoryWindow")
+                .styleauto()
+                .layout(LM_VERTICAL, 10, IntRect{10, 10, 10, 10})
+                .minsize(300, 300)
+                .aligned(HorizontalAlignment::HA_LEFT, VerticalAlignment::VA_CENTER)
+                .position(100, 0);
+        m_window->SetEnabledRecursive(false);
+        m_window->SetVisible(false);
+        GetSubsystem<UI>()->GetRoot()->AddChild(m_window);
+    }
+    {
+        m_window_description = *make<Window>(context_)
+                .name("DescriptionWindow")
+                .styleauto()
+                .minsize(300, 300)
+                .layout(LM_VERTICAL, 10, IntRect{10, 10, 10, 10})
+                .aligned(HA_LEFT, VA_CENTER)
+                .position(450, 0);
+        m_window_description->SetEnabledRecursive(false);
+        m_window_description->SetVisible(false);
+        GetSubsystem<UI>()->GetRoot()->AddChild(m_window_description);
+    }
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(Inventory, toggle_key_down));
     SubscribeToEvent(E_OPEN_INVENTORY, URHO3D_HANDLER(Inventory, toggle) );
 }
@@ -114,12 +129,46 @@ void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */
 
             auto item_text = *make<Text>(context_)
                                   .text("przedmiot")
-                                  // TODO tutaj trzeba przeslac getName()
+                                  // TODO app crashes when I want to call getName()
 //                                  .text(item->get_name())
                                   .font(anonymous_pro_font)
                                   .fontsize(20)
                                   //   .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
                                   .textaligned(HA_CENTER);
+
+            // Opening item description
+            SubscribeToEvent(item_button, E_RELEASED, [this](auto, auto event_data) {
+                auto button = static_cast<Button*>(event_data[Released::P_ELEMENT].GetPtr());
+                auto item = static_cast<Pickable*>(button->GetVar("item").GetPtr());
+
+                if (m_window_description->IsEnabled()) {
+                    URHO3D_LOGINFO("Closing item description...");
+                    const auto loot_window = GetSubsystem<UI>()->GetRoot()->GetChild("DescriptionWindow", false);
+                    loot_window->RemoveAllChildren();
+                    m_window_description->SetEnabledRecursive(false);
+                    m_window_description->SetVisible(false);
+                } else {
+                    URHO3D_LOGINFO("Opening item description...");
+                    m_window_description->SetEnabled(true);
+                    m_window_description->SetVisible(true);
+
+                    auto item_text = *make<Text>(context_)
+                            .text("item description")
+                            .font(GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf")))
+                            .fontsize(15)
+                            .textaligned(HA_CENTER);
+                    m_window_description->AddChild(item_text);
+
+                    auto item_description = *make<Text>(context_)
+                            .text("przedmiot taki i siaki")
+                                    // TODO same sitution
+//                            .text(item->get_description())
+                            .font(GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf")))
+                            .fontsize(20)
+                            .textaligned(HA_CENTER);
+                    m_window_description->AddChild(item_description);
+                }
+            });
 
             item_button->AddChild(item_text);
             m_window->AddChild(item_button);
