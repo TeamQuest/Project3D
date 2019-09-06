@@ -3,6 +3,7 @@
 #include "Items/Inventory.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
+#include "Quests/QuestGiver.hpp"
 #include "Scenes/Scenes.hpp"
 #include "Utility/Common.hpp"
 
@@ -46,7 +47,7 @@ void InteractionCollider::Start()
         auto rigidbody = interaction_node->CreateComponent<RigidBody>();
         rigidbody->SetTrigger(true);
         rigidbody->SetKinematic(true);
-        rigidbody->SetCollisionLayerAndMask(2, 1);
+        rigidbody->SetCollisionLayerAndMask(1, 1);
         auto collider = interaction_node->CreateComponent<CollisionShape>();
         collider->SetBox({0.5f, 2.f, 2.f}, {0.f, 1.f, 1.5f});
     }
@@ -62,7 +63,7 @@ void InteractionCollider::Start()
         GetSubsystem<UI>()->GetRoot()->AddChild(m_window);
     }
     SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [this](auto, VariantMap& event_data) {
-        auto node = static_cast<Node*>(event_data[NodeCollisionEnd::P_OTHERNODE].GetPtr());
+        auto node = get<Node>(event_data[NodeCollisionEnd::P_OTHERNODE]);
         if (auto spotlight_to_remove = node->GetChild("SpotlightOnSelection")) {
             close_window();
             node->RemoveChild(spotlight_to_remove);
@@ -121,6 +122,18 @@ void InteractionCollider::handle_collision()
 
 void InteractionCollider::handle_interaction()
 {
+    if (GetSubsystem<Input>()->GetKeyPress(KEY_E)) {
+        const auto world = node_->GetScene()->GetComponent<PhysicsWorld>();
+        PODVector<RigidBody*> bodies;
+        world->GetCollidingBodies(bodies, node_->GetChild("Interaction")->GetComponent<RigidBody>());
+        for (auto&& body : bodies) {
+            if (auto runner = body->GetNode()->GetComponent<QuestGiver>()) {
+                close_window();
+                runner->setup_window(m_window);
+                return;
+            }
+        }
+    }
     if (m_highlighted && GetSubsystem<Input>()->GetKeyPress(KEY_E)) {
         close_window();
         open_window();
@@ -142,7 +155,7 @@ void InteractionCollider::open_window()
         }
 
         const auto anonymous_pro_font = GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf"));
-        for (auto item : lootable_item->get_items()) {
+        for (const auto& item : lootable_item->get_items()) {
             auto item_button = *make<Button>(context_).styleauto().fixedheight(50).minwidth(item->get_name().Length() * 15);
             auto item_text = *make<Text>(context_)
                                   .text(item->get_name())
@@ -154,7 +167,7 @@ void InteractionCollider::open_window()
             item_button->SetVar("item", item.Get());
             SubscribeToEvent(item_button, E_RELEASED, [this](auto, auto event_data) {
                 auto button = static_cast<Button*>(event_data[Released::P_ELEMENT].GetPtr());
-                auto item = static_cast<Pickable*>(button->GetVar("item").GetPtr());
+                auto item = get<Pickable>(button->GetVar("item"));
                 if (handle_item_clicked(item)) {
                     button->Remove();
                 }

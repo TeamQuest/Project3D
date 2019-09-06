@@ -2,9 +2,11 @@
 
 #include "Items/Gold.hpp"
 #include "Items/Lootable.hpp"
-#include "Items/Pickable.hpp"
+#include "Quests/QuestGiver.hpp"
+#include "Quests/QuestRunner.hpp"
 #include "Utility/Common.hpp"
 #include "Utility/FPSCounter.hpp"
+#include "Constants.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -13,6 +15,7 @@
 
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Graphics/AnimationController.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Graphics/Model.h>
@@ -29,12 +32,10 @@
 #include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
+
 #include <Urho3D/UI/UIEvents.h>
 
 #pragma clang diagnostic pop
-
-#include <cmath>
-#include <vector>
 
 using namespace Urho3D;
 
@@ -89,8 +90,8 @@ void Gameplay::init_gamescene()
     }
 
     { /* Character */
-        auto jack = scene->CreateChild("jack");
-        jack->SetPosition({0.f, 0.f, 1.f});
+        auto jack = scene->CreateChild(PLAYER_NAME);
+        jack->SetPosition({0.f, -2.5f, -8.f});
         m_character = jack->CreateComponent<Character>();
     }
 
@@ -148,7 +149,7 @@ void Gameplay::init_gamescene()
             collider->SetBox(Vector3::ONE);
 
             auto lootable = box->CreateComponent<Lootable>();
-            for (int i = 0; i < Random(1, 6); ++i) {
+            for (int j = 0; j < Random(1, 6); ++j) {
                 auto gold_coins = MakeShared<Gold>(context_);
                 auto random_amount = Random(100, 1000);
                 gold_coins->set_name(ToString("%d gold coins", random_amount));
@@ -163,6 +164,109 @@ void Gameplay::init_gamescene()
         }
         scene->GetChild("Box", false)->SetPosition(Vector3::FORWARD);
     }
+    { /* Ninja */
+        auto ninja = scene->CreateChild("Ninja1");
+        ninja->LoadXML(cache->GetResource<XMLFile>("Objects/Ninja1.xml")->GetRoot());
+        auto anim_ctrl = ninja->GetComponent<AnimationController>(true);
+        anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Idle3.ani", 0, true, 0.2);
+        ninja->SetPosition(Vector3(0.f, -1.f, 4.f));
+        ninja->SetRotation(Quaternion(180.f, Vector3::UP));
+        auto quest_giver = ninja->CreateComponent<QuestGiver>();
+        auto _1st_quest = new FirstQuest{context_};
+        auto _2nd_quest = new SecondQuest{context_};
+        quest_giver->assign_quest(_1st_quest);
+        quest_giver->assign_quest(_2nd_quest);
+        ninja->SetName("Ninja1");
+    }
+    auto place_wall = [&](const String& name, const Vector3& position, const Quaternion& rotation, const Vector3& scale) {
+        /* Walls */
+        auto wall = scene->CreateChild(name);
+        wall->SetPosition(position);
+        wall->SetRotation(rotation);
+        wall->SetScale(scale);
+
+        auto rigidbody = wall->CreateComponent<RigidBody>();
+        rigidbody->SetMass(0.f);
+        rigidbody->SetCollisionLayer(2);
+
+        auto collider = wall->CreateComponent<CollisionShape>();
+        collider->SetBox(Vector3::ONE);
+
+        auto box_model = wall->CreateComponent<StaticModel>();
+        box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+        box_model->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
+        return wall;
+    };
+    place_wall("Ceiling",
+               Vector3(0.f, 10.f, 0.f),
+               Quaternion(0.f, 0.f, 0.f),
+               Vector3(200.f, 10.5f, 200.f)
+    );
+    place_wall("Wall_1",
+               Vector3(-3.f, -2.5f, 0.f),
+               Quaternion(90.f, 90.f, 0.f),
+               Vector3(20.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_2",
+               Vector3(3.f, -2.5f, -5.f),
+               Quaternion(90.f, 90.f, 0.f),
+               Vector3(15.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_3",
+               Vector3(9.5f, -2.5f, 10.f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(25.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_4",
+               Vector3(3.f, -2.5f, 10.f),
+               Quaternion(90.f, 90.f, 0.f),
+               Vector3(8.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_5",
+               Vector3(-3.f, -2.5f, -10.f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(12.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_6",
+               Vector3(15.3f, -2.5f, 6.25f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(25.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_7",
+               Vector3(14.f, -2.5f, 2.25f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(22.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_8",
+               Vector3(27.f, -2.5f, 6.25f),
+               Quaternion(90.f, 90.f, 0.f),
+               Vector3(50.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_9",
+               Vector3(17.f, -2.5f, -8.25f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(22.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_10",
+               Vector3(8.5f, -2.5f, -12.3f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(12.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_11",
+               Vector3(19.f, -2.5f, -12.3f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(9.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_12",
+               Vector3(16.f, -2.5f, -18.25f),
+               Quaternion(90.f, 0.f, 0.f),
+               Vector3(26.f, 0.5f, 6.f)
+    );
+    place_wall("Wall_13",
+               Vector3(3.f, -2.5f, -20.f),
+               Quaternion(90.f, 90.f, 0.f),
+               Vector3(15.f, 0.5f, 6.f)
+    );
 }
 
 void Gameplay::handle_key_down(StringHash /* event_type */, VariantMap& event_data)
@@ -174,6 +278,12 @@ void Gameplay::handle_key_down(StringHash /* event_type */, VariantMap& event_da
             GetSubsystem<Input>()->SetMouseVisible(!is_mouse_visible);
             break;
         }
+        case KEY_R: {
+            auto character = scene->GetChild(PLAYER_NAME)->GetComponent<Character>();
+            for (auto [quest_name, quest] : character->GetComponent<QuestRunner>()->get_quests()) {
+                URHO3D_LOGWARNINGF("Quest: %s, address: %p", quest_name.CString(), quest);
+            }
+        }
     }
 }
 
@@ -183,6 +293,33 @@ void Gameplay::update(float /* time_step */)
     // if (GetSubsystem<UI>()->GetFocusElement()) {
     //     return;
     // }
+    {  /* DEBUG WALLS */
+//        static auto wall_txt = [&]() -> Text * {
+//            auto txt = *make<Text>(context_)
+//                    .text("wall name: None")
+//                    .name("wallid")
+//                    .font(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/gta5.ttf"), 50)
+//                    .texteffect(TextEffect::TE_STROKE)
+//                    .effectstrokethickness(5)
+//                    .effectcolor(Color(0.f, 0.f, 0.f))
+//                    .color(Color(1.f, 1.f, 1.f))
+//                    .alignment(HA_RIGHT, VA_TOP)
+//                    .position(-40, 20);
+//            scene->GetSubsystem<UI>()->GetRoot()->AddChild(txt);
+//            return txt;
+//        }();
+//        const auto ray_dir = m_camera->GetDirection();
+//        auto ray_distance = 1000.f;
+//        PhysicsRaycastResult raycast;
+//        auto ray = Ray(m_character->GetNode()->GetPosition() + Vector3(0, 2, 0), ray_dir);
+//        scene->GetComponent<PhysicsWorld>()->RaycastSingle(raycast, ray, ray_distance, 2);
+//        if (raycast.body_ && raycast.body_->GetNode()->GetName() != "Floor") {
+//            wall_txt->SetText("wall name: " + raycast.body_->GetNode()->GetName() + "\n" + String(raycast.distance_));
+//        } else {
+//            wall_txt->SetText("wall name: None");
+//        }
+    }
+
     if (m_character) {
         m_character->handle_movement();
         m_character->adjust_head_pitch();
