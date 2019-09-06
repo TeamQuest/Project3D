@@ -114,11 +114,6 @@ void Game::handle_key_down(Urho3D::StringHash /* event_type */, Urho3D::VariantM
             Stop();
             break;
         }
-        case KEY_K: {
-            // Something bad must happen here... MUAAHAHAHAHAHAHA!
-            m_next_state = Scenes::Gameplay;
-            break;
-        }
     }
 }
 

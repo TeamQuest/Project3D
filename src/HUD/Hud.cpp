@@ -27,19 +27,20 @@ Hud::Hud(Urho3D::Context *context) : LogicComponent(context) {
                 .alignment(HA_RIGHT, VA_TOP)
                 .value(90)
                 .color(Color::BLACK)
-                .position(30, 20);
+                .position(-30, 20);
+
         ui_root->AddChild(health_bar);
 
         auto health_label = *make<Text>(context)
                 .name("health_label")
                 .font(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 50)
-                .text("HEALTH")
+                .text("HP")
                 .texteffect(TextEffect::TE_STROKE)
                 .effectstrokethickness(5)
                 .effectcolor(Color(0.f, 0.f, 0.f))
                 .color(Color(1.f, 1.f, 1.f))
                 .alignment(HA_RIGHT, VA_TOP)
-                .position(-500, 40);
+                .position(-550, 40);
         ui_root->AddChild(health_label);
     }
     {
