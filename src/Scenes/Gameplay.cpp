@@ -165,7 +165,7 @@ void Gameplay::init_gamescene()
     }
 
     { /* NPC's */
-        constexpr auto NUM_NPC = 10u;
+        constexpr auto NUM_NPC = 1u;
         for (unsigned i = 0; i < NUM_NPC; ++i) {
             auto npc = scene->CreateChild("Jill" + String(i));
             npc->SetPosition({0.f, 0.f, 0.f});
@@ -185,8 +185,8 @@ void Gameplay::handle_key_down(Urho3D::StringHash /* event_type */, Urho3D::Vari
         }
         /* TO DELETE , ONLY DEBUG */
         case KEY_M: {
-            auto npc = scene->GetChild("Jill1")->GetComponent<Npc>();
-            npc->go_to(Urho3D::Vector3(0.f,0.f,0.f));
+            auto npc = scene->GetChild("Jill0")->GetComponent<Npc>();
+            npc->follow(scene->GetChild("jack"));
         }
     }
 }

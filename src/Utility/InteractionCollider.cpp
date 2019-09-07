@@ -164,7 +164,8 @@ void InteractionCollider::handle_collision_with_npc()
 {
     if (m_highlighted && m_highlighted->HasComponent<Npc>()) {
         auto npc = m_highlighted->GetComponent<Npc>();
-        if(!npc->focused())
-            npc->stop(node_->GetPosition());
+        if (!npc->focused()) {
+            npc->stop_walking();
+        }
     }
 }

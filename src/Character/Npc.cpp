@@ -2,50 +2,34 @@
 
 #include "Constants.hpp"
 #include "Items/Lootable.hpp"
-#include "Items/Pickable.hpp"
-#include "Utility/InteractionCollider.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
 #pragma clang diagnostic ignored "-Wextra"
 #pragma clang diagnostic ignored "-Wpedantic"
-
 #include <Urho3D/Core/Context.h>
-#include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/AnimatedModel.h>
 #include <Urho3D/Graphics/Animation.h>
-#include <Urho3D/Graphics/AnimationController.h>
 #include <Urho3D/Graphics/AnimationState.h>
 #include <Urho3D/IO/Log.h>
-#include <Urho3D/IO/MemoryBuffer.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Math/Ray.h>
 #include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Physics/PhysicsEvents.h>
-#include <Urho3D/Physics/RigidBody.h>
-#include <Urho3D/Scene/Scene.h>
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Scene/SmoothedTransform.h>
-#include <Urho3D/UI/UI.h>
-
-#include <Urho3D/Graphics/AnimatedModel.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/RigidBody.h>
+#include <Urho3D/Scene/Scene.h>
+#include <Urho3D/Scene/SmoothedTransform.h>
+#include <Urho3D/Graphics/Material.h>
+#include <Urho3D/Graphics/Model.h>
 #include <Urho3D/Resource/ResourceCache.h>
-
 #pragma clang diagnostic pop
 
 using namespace Urho3D;
 
-Npc::Npc(Context* context) : LogicComponent(context), move_speed(1.f), rotation_speed(Random(0.f,0.5f))
+Npc::Npc(Context* context) : LogicComponent(context), move_speed(1.f)
 {
     SetUpdateEventMask(USE_UPDATE);
-    direction = Urho3D::Vector3::ONE;
-    target_possition = Urho3D::Vector3::ZERO;
-    go_to_flag = false;
 }
 
 void Npc::Start()
@@ -53,31 +37,29 @@ void Npc::Start()
     auto cache = GetSubsystem<ResourceCache>();
 
     auto modelNode = node_->CreateChild("Npc");
-    node_->SetRotation(Quaternion(180.f, Vector3(0.f, 1.f, 0.f)));
-    node_->SetPosition(Vector3(Random(40.0f) - 20.0f, 0.0f, Random(40.0f) - 20.0f));
-    // modelNode->SetRotation(Quaternion(0.0f, Random(360.0f), 0.0f));
+    node_->SetRotation(Quaternion(0.f, Vector3::UP));
     node_->SetScale(1.f);
 
-    auto* modelObject = modelNode->CreateComponent<AnimatedModel>();
-    modelObject->SetModel(cache->GetResource<Model>("Models/Kachujin/Kachujin.mdl"));
-    modelObject->SetMaterial(cache->GetResource<Material>("Models/Kachujin/Materials/Kachujin.xml"));
-    modelObject->SetCastShadows(true);
+    auto model = modelNode->CreateComponent<AnimatedModel>();
+    model->SetModel(cache->GetResource<Model>("Models/Kachujin/Kachujin.mdl"));
+    model->SetMaterial(cache->GetResource<Material>("Models/Kachujin/Materials/Kachujin.xml"));
+    model->SetCastShadows(true);
 
     /* animations */
-    auto* walkAnimation = cache->GetResource<Animation>("Models/Kachujin/Kachujin_Walk.ani");
-    AnimationState* state = modelObject->AddAnimationState(walkAnimation);
-    // The state would fail to create (return null) if the animation was not found
+    auto walk_animation = cache->GetResource<Animation>("Models/Kachujin/Kachujin_Walk.ani");
+    auto state = model->AddAnimationState(walk_animation);
     if (state) {
         state->SetWeight(1.0f);
         state->SetLooped(true);
-        state->SetTime(Random(walkAnimation->GetLength()));
+        state->SetTime(Random(walk_animation->GetLength()));
     }
 
     auto rigidbody = node_->CreateComponent<RigidBody>();
     rigidbody->SetMass(1.f);
+    rigidbody->SetAngularFactor(Vector3::ZERO);
 
     auto collider = node_->CreateComponent<CollisionShape>();
-    collider->SetBox(Vector3::ONE, Vector3(0.f, 0.5f, 0.f));
+    collider->SetCapsule(0.7f, 1.8f, Vector3::UP * 0.9);
 
     node_->CreateComponent<Lootable>();
     node_->CreateComponent<SmoothedTransform>();
@@ -85,80 +67,71 @@ void Npc::Start()
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Npc, handle_collision));
 }
 
-void Npc::handle_collision(StringHash /* event_type */, VariantMap& event_data)
+void Npc::handle_collision(StringHash /* event_type */, VariantMap& /* event_data */)
 {
 }
 
-void Npc::correct_direction()
-{   
-     auto possition = node_->GetPosition();
-     direction = (possition - target_possition).Abs().Normalized();
-
-}
 void Npc::correct_speed()
-{   
-    auto possition = node_->GetPosition();
-    auto l_direction = possition - target_possition;
-
-    move_speed = Min(l_direction.Length()/3.f, 3.f);
-
-    //URHO3D_LOGINFO(String(move_speed));
-
-    if(move_speed < 1.8f)
-    {
-        move_speed = 0.f;
-        go_to_flag = false;
-        rotation_speed = 0.f;
+{
+    auto position = node_->GetPosition();
+    if (target) {
+        auto dist = (target->GetPosition() - position).Length();
+        if(dist < 1.8f) {
+            stop_walking();
+            target = nullptr;
+        }
     }
 }
 
 void Npc::Update(float time_step)
 {
-    //auto l_direction = direction.Abs().Normalized();
-    node_->Translate(Vector3::FORWARD * move_speed * direction * time_step);
-
-    if(go_to_flag)
-    {
+    if (target) {
+        node_->LookAt(target->GetPosition());
         correct_speed();
     }
-    
+    auto rigid = GetComponent<RigidBody>();
+    rigid->ApplyImpulse(node_->GetRotation() * Vector3::FORWARD * move_speed * time_step * 20.f);
+    auto velocity_xz = [&] {
+        auto&& v = rigid->GetLinearVelocity();
+        v.y_ = 0;
+        return v;
+    }();
+    rigid->ApplyImpulse(-velocity_xz * BRAKE_FORCE);
 
-    if(focused()) return;
-    node_->Yaw(rotation_speed);
-
-    auto body = node_->GetComponent<RigidBody>();
-
-    if (body->GetLinearVelocity().Length() != 0) {
-        auto* model = node_->GetComponent<AnimatedModel>(true);
+    auto model = node_->GetComponent<AnimatedModel>(true);
+    if (move_speed != 0) {
         if (model->GetNumAnimationStates()) {
-            AnimationState* state = model->GetAnimationStates()[0];
+            auto state = model->GetAnimationStates()[0];
             state->AddTime(time_step);
+        }
+    }
+    else {
+        if (model->GetNumAnimationStates()) {
+            auto state = model->GetAnimationStates()[0];
+            state->SetTime(1.8f);
         }
     }
 }
 
-void Npc::stop(const Vector3 & target)
+void Npc::stop_walking()
 {
     move_speed = 0;
-
     saved_rotation = node_->GetRotation();
-    node_->LookAt(target);
 
+    node_->LookAt(GetScene()->GetChild("jack")->GetPosition());
     auto target_rotation = node_->GetRotation();
-    auto smoothed_transform = node_->GetComponent<SmoothedTransform>();
 
+    auto smoothed_transform = node_->GetComponent<SmoothedTransform>();
     smoothed_transform->SetTargetRotation(target_rotation);
 }
 
 void Npc::resume()
 {
     move_speed = 1.f;
-    rotation_speed = 1.f;
-    direction = Urho3D::Vector3::ONE;
 
     auto smoothed_transform = node_->GetComponent<SmoothedTransform>();
     smoothed_transform->SetTargetRotation(saved_rotation);
-    //node_->SetRotation(saved_rotation);
+    node_->SetRotation(saved_rotation);
 }
 
 bool Npc::focused()
@@ -167,10 +140,8 @@ bool Npc::focused()
 }
 
 
-void Npc::go_to(const Urho3D::Vector3 &target)
+void Npc::follow(Node* new_target)
 {
-    target_possition = target;
-    go_to_flag = true;
-    correct_direction();
-    
+    target = new_target;
+    move_speed = 1.f;
 }
