@@ -1,6 +1,10 @@
 #include "Status.hpp"
 
+#include "Scenes/Scenes.hpp"
+
 #include <Urho3D/IO/Log.h>
+#include <Urho3D/Scene/Scene.h>
+
 using namespace Urho3D;
 
 Status::Status(Context *context) : LogicComponent(context) {
@@ -12,6 +16,9 @@ void Status::set_hp_points(float points) {
 }
 
 float Status::get_hp_points() {
+    if (m_hp_points <= 0) {
+        SendEvent(E_GAMEOVERREQUESTED);
+    }
     return m_hp_points;
 }
 

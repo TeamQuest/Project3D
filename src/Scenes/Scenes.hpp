@@ -15,6 +15,10 @@ URHO3D_EVENT(E_OPTIONSREQUESTED, RequestOptionsEvent)
 {
 }
 
+URHO3D_EVENT(E_GAMEOVERREQUESTED, RequestGameOverEvent)
+{
+}
+
 URHO3D_EVENT(E_ITEM_CLICKED, ItemClickedEvent)
 {
     URHO3D_PARAM(P_ITEM, Item);
@@ -29,4 +33,4 @@ URHO3D_EVENT(E_NPCFOCUSED, NpcFocusEvent)
     URHO3D_PARAM(P_COLLIDER, InteractionCollider);
 }
 
-enum class Scenes { Empty, MainMenu, Options, Gameplay };
+enum class Scenes { Empty, MainMenu, Options, Gameplay, GameOver };

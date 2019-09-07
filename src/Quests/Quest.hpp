@@ -108,9 +108,10 @@ public:
         static auto page_1 = (
                 "W okolicy grasuje Joe the Killer\n"
                 "Musisz go zabic. ");
-        static auto page_2 = ("Widze w Tobie zapal!\n"
-                              "Podejmiesz sie tego\nzadania?");
-        m_name = "Kill Joe the Killer";
+        static auto page_2 = (
+                "Widze w Tobie zapal!\n"
+                "Podejmiesz sie tego\nzadania?");
+        m_name = "Joe the Killer";
         m_pages.emplace_back(wrapped_text(page_1));
         m_pages.emplace_back(wrapped_text(page_2));
     }

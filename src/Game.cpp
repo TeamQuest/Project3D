@@ -11,6 +11,7 @@
 #include "HUD/Hud.hpp"
 #include "Quests/QuestGiver.hpp"
 #include "Quests/QuestRunner.hpp"
+#include "Scenes/Gameover.hpp"
 #include "Scenes/Gameplay.hpp"
 #include "Scenes/MainMenu.hpp"
 #include "Scenes/Options.hpp"
@@ -77,6 +78,7 @@ void Game::Start()
     SubscribeToEvent(E_STARTGAME, [&](auto&&...) { m_next_state = Scenes::Gameplay; });
     SubscribeToEvent(E_MENUREQUESTED, [&](auto&&...) { m_next_state = Scenes::MainMenu; });
     SubscribeToEvent(E_OPTIONSREQUESTED, [&](auto&&...) { m_next_state = Scenes::Options; });
+    SubscribeToEvent(E_GAMEOVERREQUESTED, [&](auto&&...) { m_next_state = Scenes::GameOver; });
 }
 
 void Game::Stop()
@@ -102,6 +104,10 @@ void Game::handle_change_state(StringHash /* event_type */, VariantMap& /* event
         }
         case Scenes::Gameplay: {
             m_active_state = new Gameplay(context_);
+            break;
+        }
+        case Scenes::GameOver: {
+            m_active_state = new Gameover(context_);
             break;
         }
         default:
