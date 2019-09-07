@@ -51,17 +51,21 @@ void Quest::unassign(bool set_available) {
 }
 
 void set_button_based_on_stage(Quest* quest, Button* button) {
+    quest->is_finished();
     auto quest_name = button->GetChildStaticCast<Text>("qname", false)->GetText();
     String suffix;
     switch (quest->m_current_stage) {
+        case Quest::completed:
+            quest->m_current_stage = Quest::done;
+            button->SetEnabled(false);
+            suffix = " is done! Gratz!";
+            break;
         case Quest::done:
             button->SetEnabled(false);
-            button->SetVisible(false);
             suffix = " (done)";
-            break;
         case Quest::unavailable:
             button->SetEnabled(false);
-            suffix = " (unavailable)";
+            button->SetVisible(false);
             break;
         case Quest::in_progress:
             button->SetEnabled(false);

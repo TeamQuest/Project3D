@@ -35,7 +35,6 @@ void Enemy::Start()
     auto anim_ctrl = node_->GetComponent<AnimationController>(true);
     anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Walk.ani", 0, false, 0.2);
 
-    node_->SetPosition({0.f, 0.f, 0.f});
     node_->SetRotation(Quaternion(140.f, Vector3::UP));
 
     auto rigidbody = node_->GetComponent<RigidBody>();
@@ -68,7 +67,6 @@ void Enemy::Update(float time_step)
     }();
     rigid->ApplyImpulse(-velocity_xz * BRAKE_FORCE);
 
-//    auto model = node_->GetComponent<AnimatedModel>(true);
     auto animator = node_->GetComponent<AnimationController>(true);
     if (rigid->GetLinearVelocity().LengthSquared() > 0.0001f) {
         animator->PlayExclusive("Models/NinjaSnowWar/Ninja_Walk.ani", 0, true, 0.2f);
@@ -105,9 +103,13 @@ void Enemy::Update(float time_step)
             animator->PlayExclusive("Models/NinjaSnowWar/Ninja_" + style + ".ani", 3, false, 0.2f);
             during_attack_anim = true;
             auto player = GetScene()->GetChild(PLAYER_NAME);
-            player->GetComponent<RigidBody>()->ApplyForce(node_->GetRotation() * (Vector3::UP + Vector3::FORWARD) * 90.f);
-            player->GetComponent<Status>()->set_hp_points(player->GetComponent<Status>()->get_hp_points() - 5);
-//            player->GetComponent<AnimationController>(true)->PlayExclusive("Models/Mutant/Mutant_HipHop1.ani", 0, false);
+            player->GetComponent<RigidBody>()->ApplyForce(node_->GetRotation() * (0.3f * Vector3::UP + Vector3::FORWARD) * 90.f);
+            if (Random(1.0f) > 0.5f) {
+                player->GetComponent<Status>()->set_hp_points(player->GetComponent<Status>()->get_hp_points() - 2.5f);
+            }
+            else {
+                URHO3D_LOGWARNING("MISS");
+            }
         }
     }
 }

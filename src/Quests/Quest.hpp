@@ -18,7 +18,7 @@ class Quest : public Urho3D::Object {
 public:
     explicit Quest(Urho3D::Context* context, bool is_available = true);
 
-    [[nodiscard]] virtual bool is_finished() const = 0;
+    virtual bool is_finished() = 0;
     ~Quest() override = default;
 
     [[nodiscard]] const Urho3D::String& get_name() const;
@@ -35,6 +35,7 @@ protected:
         unavailable = -1,
         available = 0,
         in_progress,
+        completed,
         done,
         failed,
         timed_out,
@@ -84,7 +85,7 @@ public:
         m_pages.emplace_back(wrapped_text(first_quest_page_2));
     }
 
-    [[nodiscard]] bool is_finished() const override { return false; }
+    bool is_finished() override { return false; }
 };
 
 class SecondQuest : public Quest {
@@ -97,5 +98,29 @@ public:
         m_pages.emplace_back(wrapped_text("PAGE_3_MISSING"));
     }
 
-    [[nodiscard]] bool is_finished() const override { return false; }
+    bool is_finished() override { return false; }
+};
+
+class KillEnemy : public Quest {
+public:
+    explicit KillEnemy(Urho3D::Context* context) : Quest(context)
+    {
+        static auto page_1 = (
+                "W okolicy grasuje Joe the Killer\n"
+                "Musisz go zabic. ");
+        static auto page_2 = ("Widze w Tobie zapal!\n"
+                              "Podejmiesz sie tego zadania?");
+        m_name = "Kill Joe the Killer";
+        m_pages.emplace_back(wrapped_text(page_1));
+        m_pages.emplace_back(wrapped_text(page_2));
+    }
+
+    bool is_finished() override
+    {
+        auto completed = GetGlobalVar("is_joe_killed").GetBool();
+        if (completed) {
+            m_current_stage = Quest::completed;
+        }
+        return completed;
+    }
 };

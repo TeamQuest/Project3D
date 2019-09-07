@@ -165,7 +165,7 @@ void Gameplay::init_gamescene()
                 lootable->add_item(gold_coins);
             }
 
-            for (int k = 0; k < Random(0, 2); ++k) {
+            for (int k = 0; k < Random(1, 2); ++k) {
                 auto sword = MakeShared<Sword>(context_);
                 auto random_dmg = Random(3, 12);
                 sword->set_name("Medieval sword");
@@ -174,7 +174,7 @@ void Gameplay::init_gamescene()
                 lootable->add_item(sword);
             }
 
-            for (int k = 0; k < Random(0, 3); ++k) {
+            for (int k = 0; k < Random(1, 3); ++k) {
                 auto hp_potion = MakeShared<HpPotion>(context_);
                 hp_potion->set_name("Health Point Potion");
                 hp_potion->set_description("Hp Potion");
@@ -195,8 +195,10 @@ void Gameplay::init_gamescene()
         auto quest_giver = npc->CreateComponent<QuestGiver>();
         auto _1st_quest = new FirstQuest{context_};
         auto _2nd_quest = new SecondQuest{context_};
+        auto kill_joe_quest = new KillEnemy{context_};
         quest_giver->assign_quest(_1st_quest);
         quest_giver->assign_quest(_2nd_quest);
+        quest_giver->assign_quest(kill_joe_quest);
     }
 //    { /* Ninja */
 //        auto ninja = scene->CreateChild("Ninja1");
@@ -216,6 +218,7 @@ void Gameplay::init_gamescene()
         auto enemy = scene->CreateChild("Enemy1");
         enemy->LoadXML(cache->GetResource<XMLFile>("Objects/Enemy.xml")->GetRoot());
         enemy->SetName("Enemy1");
+        enemy->SetPosition({6.f, 0.f, -1.f});
         auto enemy_comp = enemy->CreateComponent<Enemy>();
         enemy_comp->assign_target(scene->GetChild(PLAYER_NAME));
 
