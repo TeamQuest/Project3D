@@ -75,7 +75,7 @@ void Npc::correct_speed()
     auto position = node_->GetPosition();
     if (target) {
         auto dist = (target->GetPosition() - position).Length();
-        if(dist < 1.8f) {
+        if (dist < 1.8f) {
             stop_walking();
             target = nullptr;
         }

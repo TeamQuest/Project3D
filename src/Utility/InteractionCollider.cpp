@@ -162,6 +162,7 @@ void InteractionCollider::handle_interaction()
                 if( enemy->get_hp_points() <= 0) {
                     anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Death1.ani", 0, false, 0.2);
                     body->GetComponent<CollisionShape>()->Remove();
+                    enemy->assign_target(nullptr);
                 }
                 return;
             }
@@ -181,6 +182,7 @@ void InteractionCollider::handle_interaction()
                 if( enemy->get_hp_points() <= 0) {
                     anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Death2.ani", 0, false, 0.2);
                     body->GetComponent<CollisionShape>()->Remove();
+                    enemy->assign_target(nullptr);
                 }
                 return;
             }
@@ -200,6 +202,7 @@ void InteractionCollider::handle_interaction()
                 if( enemy->get_hp_points() <= 0) {
                     anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Death2.ani", 0, false, 0.2);
                     body->GetComponent<CollisionShape>()->Remove();
+                    enemy->assign_target(nullptr);
                 }
                 return;
             }

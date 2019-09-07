@@ -22,9 +22,6 @@
 
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Graphics/AnimationController.h>
-#include <Urho3D/Graphics/AnimatedModel.h>
-#include <Urho3D/Graphics/Animation.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Graphics/Model.h>
@@ -45,9 +42,6 @@
 #include <Urho3D/UI/UIEvents.h>
 
 #pragma clang diagnostic pop
-
-#include <cmath>
-#include <vector>
 
 using namespace Urho3D;
 
@@ -97,7 +91,7 @@ void Gameplay::init_gamescene()
     const auto cache = GetSubsystem<ResourceCache>();
 
     {  // setup_scene_components
-//        scene->CreateComponent<DebugRenderer>();
+        scene->CreateComponent<DebugRenderer>();
         scene->CreateComponent<Octree>();
         scene->CreateComponent<PhysicsWorld>();
     }
@@ -219,17 +213,15 @@ void Gameplay::init_gamescene()
 //        ninja->SetName("Ninja1");
 //    }
     { /* Enemy */
-        auto ninja2 = scene->CreateChild("Enemy1");
-        ninja2->CreateComponent<Enemy>();
-//        ninja2->LoadXML(cache->GetResource<XMLFile>("Objects/Enemy.xml")->GetRoot());
-        auto anim_ctrl = ninja2->CreateComponent<AnimationController>();
-        anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Attack2.ani", 0, true, 0.2);
-        ninja2->SetPosition({6.f, 0.f, 0.f});
-        ninja2->SetRotation(Quaternion(140.f, Vector3::UP));
-        ninja2->SetName("Enemy1");
+        auto enemy = scene->CreateChild("Enemy1");
+        enemy->LoadXML(cache->GetResource<XMLFile>("Objects/Enemy.xml")->GetRoot());
+        enemy->SetName("Enemy1");
+        auto enemy_comp = enemy->CreateComponent<Enemy>();
+        enemy_comp->assign_target(scene->GetChild(PLAYER_NAME));
+
     }
+    /* Walls */
     auto place_wall = [&](const String& name, const Vector3& position, const Quaternion& rotation, const Vector3& scale) {
-        /* Walls */
         auto wall = scene->CreateChild(name);
         wall->SetPosition(position);
         wall->SetRotation(rotation);

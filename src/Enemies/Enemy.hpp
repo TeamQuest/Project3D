@@ -22,7 +22,11 @@ public:
 
     void set_hp_points(float points);
     float get_hp_points();
+    void assign_target(Urho3D::Node* target);
 
 private:
     float m_hp_points = 53.f;
+    float m_move_speed = 1.f;
+    Urho3D::Node* m_target = nullptr;
+    bool during_attack_anim = false;
 };
