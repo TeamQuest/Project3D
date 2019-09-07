@@ -1,7 +1,7 @@
 # Project files
 .vscode/
 .idea/
-
+cmake-build-debug/
 # Root build directory
 /build/
 

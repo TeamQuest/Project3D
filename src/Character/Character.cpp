@@ -1,8 +1,11 @@
 #include "Character/Character.hpp"
 
 #include "Constants.hpp"
+#include "Items/Inventory.hpp"
 #include "Items/Pickable.hpp"
+#include "Status.hpp"
 #include "Utility/InteractionCollider.hpp"
+#include "Quests/QuestRunner.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
@@ -29,12 +32,13 @@
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Resource/ResourceCache.h>
+#include <Utility/Common.hpp>
 
 #pragma clang diagnostic pop
 
 using namespace Urho3D;
 
-Character::Character(Context* context) : LogicComponent(context), m_on_ground(false), m_can_jump(true), m_time_in_air(0.f)
+Character::Character(Context* context) : LogicComponent(context)
 {
     SetUpdateEventMask(USE_FIXEDUPDATE);
 }
@@ -87,6 +91,17 @@ void Character::Start()
     // Set an interaction component
     node_->CreateComponent<InteractionCollider>();
 
+    // Contain items in inventory
+    node_->CreateComponent<Inventory>();
+
+    // Allow starting quests from Quest Givers
+    node_->CreateComponent<QuestRunner>();
+
+    // Status component
+    auto component_status = node_->CreateComponent<Status>();
+    component_status->set_hp_points(45);
+    component_status->set_character_name(GetGlobalVar("PlayerName").GetString());
+
     // Component has been inserted into its scene node. Subscribe to events now
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Character, handle_collision));
 }
@@ -133,12 +148,11 @@ void Character::FixedUpdate(float time_step)
         // When on ground, apply a braking force to limit maximum ground velocity
         body->ApplyImpulse(-velocity_xz * BRAKE_FORCE);
 
-        //////// Somebody explain this bit
         if (m_controls.IsDown(MovementKey::JUMP)) {
             if (m_can_jump) {
                 body->ApplyImpulse(Vector3::UP * JUMP_FORCE);
                 m_can_jump = false;
-                animator->PlayExclusive("Models/Mutant/Mutant_Jump1.ani", 0, false, 0.2f);
+                animator->PlayExclusive("Models/Mutant/Mutant_Run.ani", 0, false, 0.2f);
             }
         }
         else {
@@ -153,6 +167,12 @@ void Character::FixedUpdate(float time_step)
         // Play walk animation if moving on ground, otherwise fade it out
         if (soft_grounded && move_dir != Vector3::ZERO) {
             animator->PlayExclusive("Models/Mutant/Mutant_Run.ani", 0, true, 0.2f);
+        } else if (m_controls.IsDown(MovementKey::PUNCH)) {
+            animator->PlayExclusive("Models/Mutant/Mutant_Punch.ani", 0, true, 0.2f);
+        } else if (m_controls.IsDown(MovementKey::SWIPE)) {
+            animator->PlayExclusive("Models/Mutant/Mutant_Swipe.ani", 0, true, 0.2f);
+        } else if (m_controls.IsDown(MovementKey::KICK)) {
+            animator->PlayExclusive("Models/Mutant/Mutant_Kick.ani", 0, true, 0.2f);
         }
         else {
             animator->PlayExclusive("Models/Mutant/Mutant_Idle0.ani", 0, true, 0.2f);
@@ -176,23 +196,29 @@ void Character::handle_movement()
     m_controls.Set(MovementKey::LEFT, input->GetKeyDown(KEY_A));
     m_controls.Set(MovementKey::RIGHT, input->GetKeyDown(KEY_D));
     m_controls.Set(MovementKey::JUMP, input->GetKeyDown(KEY_SPACE));
+    m_controls.Set(MovementKey::PUNCH, input->GetKeyDown(KEY_P));
+    m_controls.Set(MovementKey::SWIPE, input->GetKeyDown(KEY_L));
+    m_controls.Set(MovementKey::KICK, input->GetKeyDown(KEY_K));
 
     // Add character yaw & pitch from the mouse motion
-    const auto [mouse_x, mouse_y] = input->GetMouseMove();
-    m_controls.yaw_ += static_cast<float>(mouse_x) * YAW_SENSITIVITY;
-    m_controls.pitch_ += static_cast<float>(mouse_y) * YAW_SENSITIVITY;
 
-    // Limit pitch
-    m_controls.pitch_ = Clamp(m_controls.pitch_, -80.0f, 80.0f);
-    // Set rotation already here so that it's updated every rendering frame instead of every physics frame
-    node_->SetRotation(Quaternion(m_controls.yaw_, Vector3::UP));
+    // input->SetMouseVisible(true);
+    if (input->GetMouseButtonDown(Urho3D::MOUSEB_LEFT)) {
+        // input->SetMouseVisible(false);
+        const auto [mouse_x, mouse_y] = input->GetMouseMove();
+        m_controls.yaw_ += static_cast<float>(mouse_x) * YAW_SENSITIVITY;
+        m_controls.pitch_ += static_cast<float>(mouse_y) * PITCH_SENSITIVITY;
+        // Limit pitch
+        m_controls.pitch_ = Clamp(m_controls.pitch_, -80.0f, 80.0f);
+        // Set rotation already here so that it's updated every rendering frame instead of every physics frame
+        node_->SetRotation(Quaternion(m_controls.yaw_, Vector3::UP));
+    }
 }
 
 void Character::handle_camera(SharedPtr<Node> camera, PhysicsWorld* world)
 {
     auto&& rotation = node_->GetRotation();
     const auto dir = rotation * Quaternion(m_controls.pitch_, Vector3::RIGHT);
-    //////// Somebody explain why aim_point is calculated like this
     // Third person camera: position behind the character
     const auto aim_point = node_->GetPosition() + rotation * Vector3::UP * 1.7f;
     // Collide camera ray with static physics objects (layer bitmask 2) to ensure we see the character properly

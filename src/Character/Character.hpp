@@ -1,15 +1,17 @@
 #pragma once
 
+#include "Quests/Quest.hpp"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
 #pragma clang diagnostic ignored "-Wextra"
 #pragma clang diagnostic ignored "-Wpedantic"
-
 #include <Urho3D/Input/Controls.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Scene/LogicComponent.h>
-
 #pragma clang diagnostic pop
+
+#include <map>
 
 class Character : public Urho3D::LogicComponent {
     URHO3D_OBJECT(Character, LogicComponent);
@@ -29,7 +31,7 @@ private:
 
 private:
     Urho3D::Controls m_controls;
-    bool m_on_ground;
-    bool m_can_jump;
-    float m_time_in_air;
+    bool m_on_ground = false;
+    bool m_can_jump = true;
+    float m_time_in_air = 0.f;
 };

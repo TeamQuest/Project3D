@@ -1,5 +1,7 @@
 #include "Utility/FPSCounter.hpp"
 
+#include "Utility/Common.hpp"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
 #pragma clang diagnostic ignored "-Wextra"
@@ -18,27 +20,25 @@ using namespace Urho3D;
 
 FPSCounter::FPSCounter(Context* context) : LogicComponent(context)
 {
-    auto fps_text = new Text(context);
-    fps_text->SetName("FPS");
-    fps_text->SetFont(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/gta5.ttf"), 50);
-    fps_text->SetText("FPS: 0");
-    fps_text->SetTextEffect(TextEffect::TE_STROKE);
-    fps_text->SetEffectStrokeThickness(5);
-    fps_text->SetEffectColor(Color(0.f, 0.f, 0.f));
-    fps_text->SetColor(Color(1.f, 1.f, 1.f));
-    fps_text->SetAlignment(HA_LEFT, VA_TOP);
-    fps_text->SetPosition(40, 20);
+    auto fps_text = *make<Text>(context)
+                         .name("FPS")
+                         .font(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/gta5.ttf"), 50)
+                         .text("FPS: 0")
+                         .texteffect(TextEffect::TE_STROKE)
+                         .effectstrokethickness(5)
+                         .effectcolor(Color(0.f, 0.f, 0.f))
+                         .color(Color(1.f, 1.f, 1.f))
+                         .alignment(HA_LEFT, VA_TOP)
+                         .position(40, 20);
     GetSubsystem<UI>()->GetRoot()->AddChild(fps_text);
 }
 
-FPSCounter::~FPSCounter()
-{
-}
+FPSCounter::~FPSCounter() = default;
 
 void FPSCounter::Update(float time_step)
 {
     if ((m_counter += time_step) > FPS_UPDATE_TIME) {
-        auto fps_text = static_cast<Text*>(GetSubsystem<UI>()->GetRoot()->GetChild("FPS", false));
+        auto fps_text = GetSubsystem<UI>()->GetRoot()->GetChildStaticCast<Text>("FPS", false);
         fps_text->SetText(ToString("FPS: %f", std::roundf(m_counter / time_step / FPS_UPDATE_TIME)));
         m_counter = 0;
     }
