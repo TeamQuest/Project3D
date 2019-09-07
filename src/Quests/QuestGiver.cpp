@@ -30,7 +30,29 @@ QuestGiver::QuestGiver(Context* context) : LogicComponent(context)
 
 void QuestGiver::Start()
 {
-    m_window = *make<Window>(context_).fixedsize(300, 300).styleauto().position(300, 300);
+    setup_window();
+}
+
+void QuestGiver::Update(float /* time_step */)
+{
+    if (m_window->IsEnabled()) {
+
+    }
+}
+
+quest_map& QuestGiver::get_quests()
+{
+    return m_quests;
+}
+
+const quest_map& QuestGiver::get_quests() const
+{
+    return m_quests;
+}
+
+void QuestGiver::setup_window()
+{
+    m_window = *make<Window>(context_).fixedsize(300, 300).styleauto().position(300, 300).name("qgiver_window");
     m_window->SetLayout(LayoutMode::LM_FREE, 2, {5, 5, 5, 5});
     const auto anonymous_pro_font = GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf"));
     {  /* Quest pop-up window */
@@ -113,33 +135,17 @@ void QuestGiver::Start()
             auto quest = get<Quest>(m_window->GetVar("quest"));
             auto quest_runner = GetScene()->GetChild(PLAYER_NAME)->GetComponent<QuestRunner>();
             quest->assign_to(quest_runner);
-            get<Window>(m_window->GetVar("prev_window"))->SetVisible(false);
+            if (m_prev_window) {
+                m_prev_window->SetVisible(false);
+            }
             m_window->SetVisible(false);
         });
     }
     m_window->SetVisible(false);
-
     GetSubsystem<UI>()->GetRoot()->AddChild(m_window);
 }
 
-void QuestGiver::Update(float /* time_step */)
-{
-    if (m_window->IsEnabled()) {
-
-    }
-}
-
-quest_map& QuestGiver::get_quests()
-{
-    return m_quests;
-}
-
-const quest_map& QuestGiver::get_quests() const
-{
-    return m_quests;
-}
-
-void QuestGiver::setup_window(Window* window)
+void QuestGiver::handle_window(Window* window)
 {
     window->SetEnabledRecursive(true);
     window->SetVisible(true);
@@ -160,6 +166,8 @@ void QuestGiver::setup_window(Window* window)
         quest_button->SetVar("quest", quest);
         set_button_based_on_stage(quest, quest_button);
         SubscribeToEvent(quest_button, E_RELEASED, [this](auto, auto event_data) {
+            GetSubsystem<UI>()->GetRoot()->GetChild("qgiver_window", false)->Remove();
+            setup_window();
             auto button = static_cast<Menu*>(event_data[Released::P_ELEMENT].GetPtr());
             auto quest = get<Quest>(button->GetVar("quest"));
             // Not too good...
@@ -171,7 +179,7 @@ void QuestGiver::setup_window(Window* window)
             }
         });
         window->AddChild(quest_button);
-        m_window->SetVar("prev_window", window);
+        m_prev_window = window;
     }
 }
 

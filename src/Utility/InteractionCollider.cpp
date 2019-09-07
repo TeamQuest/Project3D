@@ -139,7 +139,7 @@ void InteractionCollider::handle_interaction()
         for (auto&& body : bodies) {
             if (auto runner = body->GetNode()->GetComponent<QuestGiver>()) {
                 close_window();
-                runner->setup_window(m_window);
+                runner->handle_window(m_window);
                 return;
             }
         }
@@ -265,7 +265,6 @@ bool InteractionCollider::handle_item_clicked(const SharedPtr<Pickable>& item)
     // SendEvent(E_ITEM_CLICKED, event_data);
     //////
 
-//    if (auto inv = GetScene()->GetChild(PLAYER_NAME)->GetComponent<Inventory>()) {
     if (auto inv = node_->GetComponent<Inventory>()) {
         if (inv->add(item)) {
             m_highlighted->GetComponent<Lootable>()->remove_item(item);
@@ -280,10 +279,21 @@ bool InteractionCollider::handle_item_clicked(const SharedPtr<Pickable>& item)
 
 void InteractionCollider::handle_collision_with_npc()
 {
-    if (m_highlighted && m_highlighted->HasComponent<Npc>()) {
-        auto npc = m_highlighted->GetComponent<Npc>();
-        if (!npc->focused()) {
-            npc->stop_walking();
+    const auto world = node_->GetScene()->GetComponent<PhysicsWorld>();
+    PODVector<RigidBody*> bodies;
+    world->GetCollidingBodies(bodies, node_->GetChild("Interaction")->GetComponent<RigidBody>());
+    for (auto body : bodies) {
+        if (auto npc = body->GetNode()->GetComponent<Npc>()) {
+            if (!npc->focused()) {
+                npc->stop_walking();
+            }
+            if (m_highlighted) {
+                m_highlighted->RemoveChild(m_highlighted->GetChild("SpotlightOnSelection"));
+                m_highlighted.Reset();
+            }
+            m_highlighted = npc->GetNode();
+            m_highlighted->CreateChild("SpotlightOnSelection");
+            return;
         }
     }
 }

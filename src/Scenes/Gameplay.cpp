@@ -2,6 +2,7 @@
 
 #include "Character/Status.hpp"
 #include "Constants.hpp"
+#include "Enemies/Enemy.hpp"
 #include "HUD/Hud.hpp"
 #include "Items/Gold.hpp"
 #include "Items/HpPotion.hpp"
@@ -24,7 +25,6 @@
 #include <Urho3D/Graphics/AnimationController.h>
 #include <Urho3D/Graphics/AnimatedModel.h>
 #include <Urho3D/Graphics/Animation.h>
-#include <Urho3D/Graphics/AnimationState.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Graphics/Model.h>
@@ -35,6 +35,7 @@
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Physics/CollisionShape.h>
+#include <Urho3D/Physics/PhysicsEvents.h>
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/UI/Button.h>
@@ -47,7 +48,6 @@
 
 #include <cmath>
 #include <vector>
-#include <Enemies/Enemy.hpp>
 
 using namespace Urho3D;
 
@@ -97,7 +97,7 @@ void Gameplay::init_gamescene()
     const auto cache = GetSubsystem<ResourceCache>();
 
     {  // setup_scene_components
-        scene->CreateComponent<DebugRenderer>();
+//        scene->CreateComponent<DebugRenderer>();
         scene->CreateComponent<Octree>();
         scene->CreateComponent<PhysicsWorld>();
     }
@@ -195,28 +195,29 @@ void Gameplay::init_gamescene()
     }
 
     { /* NPC's */
-        constexpr auto NUM_NPC = 1u;
-        for (unsigned i = 0; i < NUM_NPC; ++i) {
-            auto npc = scene->CreateChild("Jill" + String(i));
-            npc->SetPosition({0.f, 0.f, 0.f});
-            npc->CreateComponent<Npc>();
-        }
-    }
-    { /* Ninja */
-        auto ninja = scene->CreateChild("Ninja1");
-        ninja->LoadXML(cache->GetResource<XMLFile>("Objects/Ninja1.xml")->GetRoot());
-        auto anim_ctrl = ninja->GetComponent<AnimationController>(true);
-        anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Idle3.ani", 0, true, 0.2);
-        ninja->SetPosition(Vector3(0.f, -1.f, 4.f));
-        ninja->SetRotation(Quaternion(180.f, Vector3::UP));
-        auto quest_giver = ninja->CreateComponent<QuestGiver>();
+        auto npc = scene->CreateChild("Jill");
+        npc->SetPosition({0.f, 0.f, 8.5f});
+        npc->CreateComponent<Npc>();
+        auto quest_giver = npc->CreateComponent<QuestGiver>();
         auto _1st_quest = new FirstQuest{context_};
         auto _2nd_quest = new SecondQuest{context_};
         quest_giver->assign_quest(_1st_quest);
         quest_giver->assign_quest(_2nd_quest);
-        ninja->SetName("Ninja1");
     }
-
+//    { /* Ninja */
+//        auto ninja = scene->CreateChild("Ninja1");
+//        ninja->LoadXML(cache->GetResource<XMLFile>("Objects/Ninja1.xml")->GetRoot());
+//        auto anim_ctrl = ninja->GetComponent<AnimationController>(true);
+//        anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Idle3.ani", 0, true, 0.2);
+//        ninja->SetPosition(Vector3(0.f, -1.f, 4.f));
+//        ninja->SetRotation(Quaternion(180.f, Vector3::UP));
+//        auto quest_giver = ninja->CreateComponent<QuestGiver>();
+//        auto _1st_quest = new FirstQuest{context_};
+//        auto _2nd_quest = new SecondQuest{context_};
+//        quest_giver->assign_quest(_1st_quest);
+//        quest_giver->assign_quest(_2nd_quest);
+//        ninja->SetName("Ninja1");
+//    }
     { /* Enemy */
         auto ninja2 = scene->CreateChild("Enemy1");
         ninja2->CreateComponent<Enemy>();
@@ -267,7 +268,7 @@ void Gameplay::init_gamescene()
                Vector3(25.f, 0.5f, 6.f)
     );
     place_wall("Wall_4",
-               Vector3(3.f, -2.5f, 10.f),
+               Vector3(3.f, -2.5f, 9.9f),
                Quaternion(90.f, 90.f, 0.f),
                Vector3(8.f, 0.5f, 6.f)
     );
@@ -316,6 +317,28 @@ void Gameplay::init_gamescene()
                Quaternion(90.f, 90.f, 0.f),
                Vector3(15.f, 0.5f, 6.f)
     );
+    {  /* Zone */
+        auto wall = scene->CreateChild("ZonePassed_1");
+        wall->SetPosition(Vector3(-3.f, -2.5f, -3.f));
+        wall->SetRotation(Quaternion(90.f, 0.f, 0.f));
+        wall->SetScale(Vector3(12.f, 0.5f, 6.f));
+        wall->SetVar("Jill", scene->GetChild("Jill", false));
+        auto rigidbody = wall->CreateComponent<RigidBody>();
+        rigidbody->SetMass(0.f);
+        rigidbody->SetTrigger(true);
+        rigidbody->SetKinematic(true);
+        rigidbody->SetCollisionLayerAndMask(1, 1);
+        auto collider = wall->CreateComponent<CollisionShape>();
+        collider->SetBox(Vector3::ONE);
+        SubscribeToEvent(wall, E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
+            [[maybe_unused]] static auto called_once = [&]() {
+                auto node = get<Node>(event_data[NodeCollisionEnd::P_OTHERNODE]);
+                auto npc = scene->GetChild("Jill")->GetComponent<Npc>();
+                npc->follow(node);
+                return true;
+            }();
+        });
+    }
     {  /* Status component */
         if (auto status_component = scene->GetChild(PLAYER_NAME)->GetComponent<Status>()) {
             auto character_name_label = *make<Text>(context_)
@@ -350,7 +373,7 @@ void Gameplay::handle_key_down(StringHash /* event_type */, VariantMap& event_da
         }
         /* TO DELETE , ONLY DEBUG */
         case KEY_M: {
-            auto npc = scene->GetChild("Jill0")->GetComponent<Npc>();
+            auto npc = scene->GetChild("Jill")->GetComponent<Npc>();
             npc->follow(scene->GetChild(PLAYER_NAME));
         }
     }
@@ -362,7 +385,7 @@ void Gameplay::update(float /* time_step */)
     // if (GetSubsystem<UI>()->GetFocusElement()) {
     //     return;
     // }
-    {  /* DEBUG WALLS */
+//    {  /* DEBUG WALLS */
 //        static auto wall_txt = [&]() -> Text * {
 //            auto txt = *make<Text>(context_)
 //                    .text("wall name: None")
@@ -387,7 +410,7 @@ void Gameplay::update(float /* time_step */)
 //        } else {
 //            wall_txt->SetText("wall name: None");
 //        }
-    }
+//    }
     if (m_character) {
         m_character->handle_movement();
         m_character->adjust_head_pitch();
