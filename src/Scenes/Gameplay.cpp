@@ -164,18 +164,7 @@ void Gameplay::init_gamescene()
                 gold_coins->set_amount(random_amount);
                 lootable->add_item(gold_coins);
             }
-
-            for (int k = 0; k < Random(1, 2); ++k) {
-                auto sword = MakeShared<Sword>(context_);
-                auto random_dmg = Random(3, 12);
-                sword->set_name("Medieval sword");
-                sword->set_description(
-                        "A Sword is a type of \n sharp-edged weapon"
-                        );
-                sword->set_dmg(random_dmg);
-                lootable->add_item(sword);
-            }
-
+            
             for (int k = 0; k < Random(1, 3); ++k) {
                 auto hp_potion = MakeShared<HpPotion>(context_);
                 hp_potion->set_name("Health Point Potion");
@@ -351,7 +340,6 @@ void Gameplay::init_gamescene()
         collider->SetBox(Vector3::ONE);
         SubscribeToEvent(wall, E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
             [[maybe_unused]] static auto called_once = [&]() {
-//            auto node = get<Node>(event_data[NodeCollisionEnd::P_OTHERNODE]);
             auto enemy = scene->GetChild("Enemy1")->GetComponent<Enemy>();
             enemy->assign_target(scene->GetChild(PLAYER_NAME));
             return true;

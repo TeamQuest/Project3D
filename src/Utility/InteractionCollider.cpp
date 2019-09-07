@@ -32,11 +32,15 @@
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/UIEvents.h>
 #include <Urho3D/UI/Window.h>
+#include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Graphics/Material.h>
 
 #pragma clang diagnostic pop
 
 #include <algorithm>
 #include <Urho3D/Graphics/AnimationController.h>
+#include <Items/Sword.hpp>
+#include <Urho3D/Graphics/StaticModel.h>
 
 using namespace Urho3D;
 
@@ -131,6 +135,8 @@ void InteractionCollider::handle_collision()
 
 void InteractionCollider::handle_interaction()
 {
+    const auto cache = GetSubsystem<ResourceCache>();
+
     auto input = GetSubsystem<Input>();
     if (input->GetKeyPress(KEY_E)) {
         const auto world = node_->GetScene()->GetComponent<PhysicsWorld>();
@@ -149,6 +155,40 @@ void InteractionCollider::handle_interaction()
         open_window();
     }
 
+    auto kill_off_enemy = [this, &cache](Enemy* enemy, RigidBody* body) {
+        GetScene()->SetGlobalVar("is_joe_killed", true);
+
+        auto box = GetScene()->CreateChild("Box");
+        box->SetPosition(body->GetPosition());
+        box->SetScale(0.3f);
+
+        auto rigidbody = box->CreateComponent<RigidBody>();
+        rigidbody->SetMass(1.f);
+
+        auto collider = box->CreateComponent<CollisionShape>();
+        collider->SetBox(Vector3::ONE);
+
+        auto lootable = box->CreateComponent<Lootable>();
+        auto sword = MakeShared<Sword>(context_);
+        auto random_dmg = Random(3, 12);
+        sword->set_name("Medieval sword");
+        sword->set_description(
+                "A Sword is a type of \n sharp-edged weapon"
+        );
+        sword->set_dmg(random_dmg);
+        lootable->add_item(sword);
+
+        auto box_model = box->CreateComponent<StaticModel>();
+        box_model->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+        box_model->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
+
+        auto anim_ctrl = enemy->GetNode()->GetComponent<AnimationController>(true);
+        anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Death1.ani", 0, false, 0.2);
+        body->GetComponent<CollisionShape>()->Remove();
+        enemy->assign_target(nullptr);
+
+    };
+
     if (input->GetKeyPress(KEY_K)) {
         const auto world = node_->GetScene()->GetComponent<PhysicsWorld>();
         PODVector<RigidBody*> bodies;
@@ -157,13 +197,10 @@ void InteractionCollider::handle_interaction()
             if (auto enemy = body->GetNode()->GetComponent<Enemy>()) {
                 URHO3D_LOGWARNING("Kick...");
                 enemy->set_hp_points(enemy->get_hp_points() - 20);
-                auto anim_ctrl = GetScene()->GetChild("Enemy1")->GetComponent<AnimationController>(true);
+                auto anim_ctrl = enemy->GetNode()->GetComponent<AnimationController>(true);
                 anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Block.ani", 0, false, 0.2);
-                if( enemy->get_hp_points() <= 0) {
-                    anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Death1.ani", 0, false, 0.2);
-                    body->GetComponent<CollisionShape>()->Remove();
-                    enemy->assign_target(nullptr);
-                    GetScene()->SetGlobalVar("is_joe_killed", true);
+                if (enemy->get_hp_points() <= 0) {
+                    kill_off_enemy(enemy, body);
                 }
                 return;
             }
@@ -178,13 +215,10 @@ void InteractionCollider::handle_interaction()
             if (auto enemy = body->GetNode()->GetComponent<Enemy>()) {
                 URHO3D_LOGWARNING("Slide...");
                 enemy->set_hp_points(enemy->get_hp_points() - 25);
-                auto anim_ctrl = GetScene()->GetChild("Enemy1")->GetComponent<AnimationController>(true);
+                auto anim_ctrl = enemy->GetNode()->GetComponent<AnimationController>(true);
                 anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Spin.ani", 0, false, 0.2);
                 if( enemy->get_hp_points() <= 0) {
-                    anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Death2.ani", 0, false, 0.2);
-                    body->GetComponent<CollisionShape>()->Remove();
-                    enemy->assign_target(nullptr);
-                    enemy->SetGlobalVar("is_joe_killed", true);
+                    kill_off_enemy(enemy, body);
                 }
                 return;
             }
@@ -199,13 +233,10 @@ void InteractionCollider::handle_interaction()
             if (auto enemy = body->GetNode()->GetComponent<Enemy>()) {
                 URHO3D_LOGWARNING("Punch...");
                 enemy->set_hp_points(enemy->get_hp_points() - 10);
-                auto anim_ctrl = GetScene()->GetChild("Enemy1")->GetComponent<AnimationController>(true);
+                auto anim_ctrl = enemy->GetNode()->GetComponent<AnimationController>(true);
                 anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Spin.ani", 0, false, 0.2);
                 if( enemy->get_hp_points() <= 0) {
-                    anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Death2.ani", 0, false, 0.2);
-                    body->GetComponent<CollisionShape>()->Remove();
-                    enemy->assign_target(nullptr);
-                    enemy->SetGlobalVar("is_joe_killed", true);
+                    kill_off_enemy(enemy, body);
                 }
                 return;
             }
