@@ -205,9 +205,8 @@ bool InteractionCollider::handle_item_clicked(const SharedPtr<Pickable>& item)
     // SendEvent(E_ITEM_CLICKED, event_data);
     //////
 
-    // TODO: pparuzel
-    //    if (auto inv = node_->GetComponent<Inventory>()) {
-    if (auto inv = GetScene()->GetChild(PLAYER_NAME)->GetComponent<Inventory>()) {
+//    if (auto inv = GetScene()->GetChild(PLAYER_NAME)->GetComponent<Inventory>()) {
+    if (auto inv = node_->GetComponent<Inventory>()) {
         if (inv->add(item)) {
             m_highlighted->GetComponent<Lootable>()->remove_item(item);
             return true;
