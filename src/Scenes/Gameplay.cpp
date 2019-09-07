@@ -212,7 +212,7 @@ void Gameplay::init_gamescene()
         enemy->LoadXML(cache->GetResource<XMLFile>("Objects/Enemy.xml")->GetRoot());
         enemy->SetName("Enemy1");
         enemy->SetPosition({6.f, 0.f, -1.f});
-        auto enemy_comp = enemy->CreateComponent<Enemy>();
+        enemy->CreateComponent<Enemy>();
     }
     /* Walls */
     auto place_wall = [&](const String& name, const Vector3& position, const Quaternion& rotation, const Vector3& scale) {
@@ -318,11 +318,11 @@ void Gameplay::init_gamescene()
         collider->SetBox(Vector3::ONE);
         SubscribeToEvent(wall, E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
             [[maybe_unused]] static auto called_once = [&]() {
-            auto node = get<Node>(event_data[NodeCollisionEnd::P_OTHERNODE]);
-            auto npc = scene->GetChild("Jill")->GetComponent<Npc>();
-            npc->follow(node);
-            return true;
-        }();
+                auto node = get<Node>(event_data[NodeCollisionEnd::P_OTHERNODE]);
+                auto npc = scene->GetChild("Jill")->GetComponent<Npc>();
+                npc->follow(node);
+                return true;
+            }();
         });
     }
     {  /* Zone 2 */
