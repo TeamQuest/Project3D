@@ -4,6 +4,7 @@
 #include "Items/Gold.hpp"
 #include "Items/HpPotion.hpp"
 #include "Items/Inventory.hpp"
+#include "Character/Npc.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 #include "Items/Sword.hpp"
@@ -38,6 +39,8 @@ Game::Game(Context* context) : Application(context)
     register_component<HpPotion>(context);
     register_component<Sword>(context);
     register_component<Gold>(context);
+    register_component<Npc>(context);
+    register_component<Pickable>(context);
     register_component<InteractionCollider>(context);
     register_component<Lootable>(context);
     register_component<Inventory>(context);

@@ -2,16 +2,19 @@
 
 #include "Constants.hpp"
 #include "Items/Inventory.hpp"
+#include "Character/Npc.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 #include "Quests/QuestGiver.hpp"
 #include "Utility/Common.hpp"
+#include "Scenes/Scenes.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
 #pragma clang diagnostic ignored "-Wextra"
 #pragma clang diagnostic ignored "-Wpedantic"
 
+#include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/Light.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Input/Input.h>
@@ -65,6 +68,9 @@ void InteractionCollider::Start()
     SubscribeToEvent(node_->GetChild("Interaction"), E_NODECOLLISIONEND, [this](auto, VariantMap& event_data) {
         auto node = get<Node>(event_data[NodeCollisionEnd::P_OTHERNODE]);
         if (auto spotlight_to_remove = node->GetChild("SpotlightOnSelection")) {
+            if(auto npc = m_highlighted->GetComponent<Npc>()){
+                 npc->resume();
+            }
             close_window();
             node->RemoveChild(spotlight_to_remove);
             m_highlighted.Reset();
@@ -80,6 +86,7 @@ void InteractionCollider::Update(float /* time_step */)
 {
     handle_collision();
     handle_interaction();
+    handle_collision_with_npc();
 }
 
 void InteractionCollider::handle_collision()
@@ -210,4 +217,14 @@ bool InteractionCollider::handle_item_clicked(const SharedPtr<Pickable>& item)
         }
     }
     return false;
+}
+
+void InteractionCollider::handle_collision_with_npc()
+{
+    if (m_highlighted && m_highlighted->HasComponent<Npc>()) {
+        auto npc = m_highlighted->GetComponent<Npc>();
+        if (!npc->focused()) {
+            npc->stop_walking();
+        }
+    }
 }

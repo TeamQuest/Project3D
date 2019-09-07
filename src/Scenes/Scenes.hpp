@@ -24,4 +24,9 @@ URHO3D_EVENT(E_OPEN_INVENTORY, OpenInventoryEvent)
 {
 }
 
+URHO3D_EVENT(E_NPCFOCUSED, NpcFocusEvent)
+{
+    URHO3D_PARAM(P_COLLIDER, InteractionCollider);
+}
+
 enum class Scenes { Empty, MainMenu, Options, Gameplay };

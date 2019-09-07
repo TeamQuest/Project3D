@@ -5,6 +5,7 @@
 #include "HUD/Hud.hpp"
 #include "Items/Gold.hpp"
 #include "Items/HpPotion.hpp"
+#include "Character/Npc.hpp"
 #include "Items/Lootable.hpp"
 #include "Items/Sword.hpp"
 #include "Scenes/Scenes.hpp"
@@ -21,6 +22,9 @@
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/AnimationController.h>
+#include <Urho3D/Graphics/AnimatedModel.h>
+#include <Urho3D/Graphics/Animation.h>
+#include <Urho3D/Graphics/AnimationState.h>
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Graphics/Model.h>
@@ -188,6 +192,15 @@ void Gameplay::init_gamescene()
         }
         scene->GetChild("Box", false)->SetPosition(Vector3::FORWARD);
     }
+
+    { /* NPC's */
+        constexpr auto NUM_NPC = 1u;
+        for (unsigned i = 0; i < NUM_NPC; ++i) {
+            auto npc = scene->CreateChild("Jill" + String(i));
+            npc->SetPosition({0.f, 0.f, 0.f});
+            npc->CreateComponent<Npc>();
+        }
+    }
     { /* Ninja */
         auto ninja = scene->CreateChild("Ninja1");
         ninja->LoadXML(cache->GetResource<XMLFile>("Objects/Ninja1.xml")->GetRoot());
@@ -322,6 +335,11 @@ void Gameplay::handle_key_down(StringHash /* event_type */, VariantMap& event_da
             for (auto [quest_name, quest] : character->GetComponent<QuestRunner>()->get_quests()) {
                 URHO3D_LOGWARNINGF("Quest: %s, address: %p", quest_name.CString(), quest);
             }
+        }
+        /* TO DELETE , ONLY DEBUG */
+        case KEY_M: {
+            auto npc = scene->GetChild("Jill0")->GetComponent<Npc>();
+            npc->follow(scene->GetChild("jack"));
         }
     }
 }

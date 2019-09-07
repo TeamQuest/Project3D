@@ -19,6 +19,7 @@ public:
     void Update(float time_step) override;
 
     void handle_collision();
+    void handle_collision_with_npc();
     void handle_interaction();
     void open_window();
     void close_window();
