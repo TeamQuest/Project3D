@@ -164,18 +164,7 @@ void Gameplay::init_gamescene()
                 gold_coins->set_amount(random_amount);
                 lootable->add_item(gold_coins);
             }
-
-            for (int k = 0; k < Random(1, 2); ++k) {
-                auto sword = MakeShared<Sword>(context_);
-                auto random_dmg = Random(3, 12);
-                sword->set_name("Medieval sword");
-                sword->set_description(
-                        "A Sword is a type of \n sharp-edged weapon"
-                        );
-                sword->set_dmg(random_dmg);
-                lootable->add_item(sword);
-            }
-
+            
             for (int k = 0; k < Random(1, 3); ++k) {
                 auto hp_potion = MakeShared<HpPotion>(context_);
                 hp_potion->set_name("Health Point Potion");
@@ -224,8 +213,6 @@ void Gameplay::init_gamescene()
         enemy->SetName("Enemy1");
         enemy->SetPosition({6.f, 0.f, -1.f});
         auto enemy_comp = enemy->CreateComponent<Enemy>();
-        enemy_comp->assign_target(scene->GetChild(PLAYER_NAME));
-
     }
     /* Walls */
     auto place_wall = [&](const String& name, const Vector3& position, const Quaternion& rotation, const Vector3& scale) {
@@ -331,11 +318,32 @@ void Gameplay::init_gamescene()
         collider->SetBox(Vector3::ONE);
         SubscribeToEvent(wall, E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
             [[maybe_unused]] static auto called_once = [&]() {
-                auto node = get<Node>(event_data[NodeCollisionEnd::P_OTHERNODE]);
-                auto npc = scene->GetChild("Jill")->GetComponent<Npc>();
-                npc->follow(node);
-                return true;
-            }();
+            auto node = get<Node>(event_data[NodeCollisionEnd::P_OTHERNODE]);
+            auto npc = scene->GetChild("Jill")->GetComponent<Npc>();
+            npc->follow(node);
+            return true;
+        }();
+        });
+    }
+    {  /* Zone 2 */
+        auto wall = scene->CreateChild("ZonePassed_2");
+        wall->SetPosition(Vector3(23.f, -2.5f, -8.05f));
+        wall->SetRotation(Quaternion(90.f, 90.f, 0.f));
+        wall->SetScale(Vector3(20.f, 0.5f, 6.f));
+        wall->SetVar("enemy1", scene->GetChild("Enemy1", false));
+        auto rigidbody = wall->CreateComponent<RigidBody>();
+        rigidbody->SetMass(0.f);
+        rigidbody->SetTrigger(true);
+        rigidbody->SetKinematic(true);
+        rigidbody->SetCollisionLayerAndMask(1, 1);
+        auto collider = wall->CreateComponent<CollisionShape>();
+        collider->SetBox(Vector3::ONE);
+        SubscribeToEvent(wall, E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
+            [[maybe_unused]] static auto called_once = [&]() {
+            auto enemy = scene->GetChild("Enemy1")->GetComponent<Enemy>();
+            enemy->assign_target(scene->GetChild(PLAYER_NAME));
+            return true;
+        }();
         });
     }
     {  /* Status component */
