@@ -339,7 +339,7 @@ void Gameplay::handle_key_down(StringHash /* event_type */, VariantMap& event_da
         /* TO DELETE , ONLY DEBUG */
         case KEY_M: {
             auto npc = scene->GetChild("Jill0")->GetComponent<Npc>();
-            npc->follow(scene->GetChild("jack"));
+            npc->follow(scene->GetChild(PLAYER_NAME));
         }
     }
 }

@@ -118,7 +118,7 @@ void Npc::stop_walking()
     move_speed = 0;
     saved_rotation = node_->GetRotation();
 
-    node_->LookAt(GetScene()->GetChild("jack")->GetPosition());
+    node_->LookAt(GetScene()->GetChild(PLAYER_NAME)->GetPosition());
     auto target_rotation = node_->GetRotation();
 
     auto smoothed_transform = node_->GetComponent<SmoothedTransform>();
@@ -138,7 +138,6 @@ bool Npc::focused()
 {
     return move_speed == 0;
 }
-
 
 void Npc::follow(Node* new_target)
 {
