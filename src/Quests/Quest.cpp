@@ -58,23 +58,25 @@ void set_button_based_on_stage(Quest* quest, Button* button) {
         case Quest::completed:
             quest->m_current_stage = Quest::done;
             button->SetEnabled(false);
-            suffix = " is done! Gratz!";
+            button->GetChildStaticCast<Text>("qname", false)->SetText("<DONE>");
             break;
         case Quest::done:
             button->SetEnabled(false);
             suffix = " (done)";
+            button->GetChildStaticCast<Text>("qname", false)->SetText(quest_name + suffix);
         case Quest::unavailable:
             button->SetEnabled(false);
             button->SetVisible(false);
+            button->GetChildStaticCast<Text>("qname", false)->SetText(quest_name + suffix);
             break;
         case Quest::in_progress:
             button->SetEnabled(false);
             suffix = " (in progress)";
+            button->GetChildStaticCast<Text>("qname", false)->SetText(quest_name + suffix);
             break;
         case Quest::available:
         case Quest::failed:
         case Quest::timed_out:
             break;
     }
-    button->GetChildStaticCast<Text>("qname", false)->SetText(quest_name + suffix);
 }
