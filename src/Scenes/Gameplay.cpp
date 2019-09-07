@@ -170,15 +170,19 @@ void Gameplay::init_gamescene()
                 auto sword = MakeShared<Sword>(context_);
                 auto random_dmg = Random(3, 12);
                 sword->set_name("Medieval sword");
-                sword->set_description("Beautiful sword");
+                sword->set_description(
+                        "A Sword is a type of \n sharp-edged weapon"
+                        );
                 sword->set_dmg(random_dmg);
                 lootable->add_item(sword);
             }
 
-            for (int k = 0; k < Random(0, 3); ++k) {
+            for (int k = 0; k < Random(1, 3); ++k) {
                 auto hp_potion = MakeShared<HpPotion>(context_);
                 hp_potion->set_name("Health Point Potion");
-                hp_potion->set_description("Hp Potion");
+                hp_potion->set_description(
+                        "Healing potions replenish \na characters life.\n Works instantly.\n"
+                        );
                 lootable->add_item(hp_potion);
             }
 
