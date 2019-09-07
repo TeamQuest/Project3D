@@ -6,6 +6,7 @@
 #include "Items/Lootable.hpp"
 #include "Items/Pickable.hpp"
 #include "Quests/QuestGiver.hpp"
+#include "Enemies/Enemy.hpp"
 #include "Utility/Common.hpp"
 #include "Scenes/Scenes.hpp"
 
@@ -35,6 +36,7 @@
 #pragma clang diagnostic pop
 
 #include <algorithm>
+#include <Urho3D/Graphics/AnimationController.h>
 
 using namespace Urho3D;
 
@@ -129,7 +131,8 @@ void InteractionCollider::handle_collision()
 
 void InteractionCollider::handle_interaction()
 {
-    if (GetSubsystem<Input>()->GetKeyPress(KEY_E)) {
+    auto input = GetSubsystem<Input>();
+    if (input->GetKeyPress(KEY_E)) {
         const auto world = node_->GetScene()->GetComponent<PhysicsWorld>();
         PODVector<RigidBody*> bodies;
         world->GetCollidingBodies(bodies, node_->GetChild("Interaction")->GetComponent<RigidBody>());
@@ -144,6 +147,63 @@ void InteractionCollider::handle_interaction()
     if (m_highlighted && GetSubsystem<Input>()->GetKeyPress(KEY_E)) {
         close_window();
         open_window();
+    }
+
+    if (input->GetKeyPress(KEY_K)) {
+        const auto world = node_->GetScene()->GetComponent<PhysicsWorld>();
+        PODVector<RigidBody*> bodies;
+        world->GetCollidingBodies(bodies, node_->GetChild("Interaction")->GetComponent<RigidBody>());
+        for (auto&& body : bodies) {
+            if (auto enemy = body->GetNode()->GetComponent<Enemy>()) {
+                URHO3D_LOGWARNING("Kick...");
+                enemy->set_hp_points(enemy->get_hp_points() - 20);
+                auto anim_ctrl = GetScene()->GetChild("Enemy1")->GetComponent<AnimationController>(true);
+                anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Block.ani", 0, false, 0.2);
+                if( enemy->get_hp_points() <= 0) {
+                    anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Death1.ani", 0, false, 0.2);
+                    body->GetComponent<CollisionShape>()->Remove();
+                }
+                return;
+            }
+        }
+    }
+
+    if (input->GetKeyPress(KEY_L)) {
+        const auto world = node_->GetScene()->GetComponent<PhysicsWorld>();
+        PODVector<RigidBody*> bodies;
+        world->GetCollidingBodies(bodies, node_->GetChild("Interaction")->GetComponent<RigidBody>());
+        for (auto&& body : bodies) {
+            if (auto enemy = body->GetNode()->GetComponent<Enemy>()) {
+                URHO3D_LOGWARNING("Slide...");
+                enemy->set_hp_points(enemy->get_hp_points() - 25);
+                auto anim_ctrl = GetScene()->GetChild("Enemy1")->GetComponent<AnimationController>(true);
+                anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Spin.ani", 0, false, 0.2);
+                if( enemy->get_hp_points() <= 0) {
+                    anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Death2.ani", 0, false, 0.2);
+                    body->GetComponent<CollisionShape>()->Remove();
+                }
+                return;
+            }
+        }
+    }
+
+    if (input->GetKeyPress(KEY_P)) {
+        const auto world = node_->GetScene()->GetComponent<PhysicsWorld>();
+        PODVector<RigidBody*> bodies;
+        world->GetCollidingBodies(bodies, node_->GetChild("Interaction")->GetComponent<RigidBody>());
+        for (auto&& body : bodies) {
+            if (auto enemy = body->GetNode()->GetComponent<Enemy>()) {
+                URHO3D_LOGWARNING("Punch...");
+                enemy->set_hp_points(enemy->get_hp_points() - 10);
+                auto anim_ctrl = GetScene()->GetChild("Enemy1")->GetComponent<AnimationController>(true);
+                anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Spin.ani", 0, false, 0.2);
+                if( enemy->get_hp_points() <= 0) {
+                    anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Death2.ani", 0, false, 0.2);
+                    body->GetComponent<CollisionShape>()->Remove();
+                }
+                return;
+            }
+        }
     }
 }
 

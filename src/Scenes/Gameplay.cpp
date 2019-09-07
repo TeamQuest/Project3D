@@ -47,6 +47,7 @@
 
 #include <cmath>
 #include <vector>
+#include <Enemies/Enemy.hpp>
 
 using namespace Urho3D;
 
@@ -214,6 +215,17 @@ void Gameplay::init_gamescene()
         quest_giver->assign_quest(_1st_quest);
         quest_giver->assign_quest(_2nd_quest);
         ninja->SetName("Ninja1");
+    }
+
+    { /* Enemy */
+        auto ninja2 = scene->CreateChild("Enemy1");
+        ninja2->CreateComponent<Enemy>();
+//        ninja2->LoadXML(cache->GetResource<XMLFile>("Objects/Enemy.xml")->GetRoot());
+        auto anim_ctrl = ninja2->CreateComponent<AnimationController>();
+        anim_ctrl->PlayExclusive("Models/NinjaSnowWar/Ninja_Attack2.ani", 0, true, 0.2);
+        ninja2->SetPosition({6.f, 0.f, 0.f});
+        ninja2->SetRotation(Quaternion(140.f, Vector3::UP));
+        ninja2->SetName("Enemy1");
     }
     auto place_wall = [&](const String& name, const Vector3& position, const Quaternion& rotation, const Vector3& scale) {
         /* Walls */
