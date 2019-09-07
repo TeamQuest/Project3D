@@ -26,6 +26,7 @@
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/UI/UI.h>
+#include <Enemies/Enemy.hpp>
 
 #pragma clang diagnostic pop
 
@@ -48,6 +49,7 @@ Game::Game(Context* context) : Application(context)
     register_component<QuestRunner>(context);
     register_component<Hud>(context);
     register_component<Status>(context);
+    register_component<Enemy>(context);
 }
 
 void Game::Setup()

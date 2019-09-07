@@ -36,12 +36,11 @@ void Npc::Start()
 {
     auto cache = GetSubsystem<ResourceCache>();
 
-    auto modelNode = node_->CreateChild("Npc");
+    saved_rotation = node_->GetRotation();
     node_->SetRotation(Quaternion(180.f, Vector3::UP));
     node_->SetScale(0.85f);
-    saved_rotation = node_->GetRotation();
 
-    auto model = modelNode->CreateComponent<AnimatedModel>();
+    auto model = node_->CreateComponent<AnimatedModel>();
     model->SetModel(cache->GetResource<Model>("Models/Kachujin/Kachujin.mdl"));
     model->SetMaterial(cache->GetResource<Material>("Models/Kachujin/Materials/Kachujin.xml"));
     model->SetCastShadows(true);
