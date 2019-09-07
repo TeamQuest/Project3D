@@ -27,7 +27,7 @@
 
 using namespace Urho3D;
 
-Npc::Npc(Context* context) : LogicComponent(context), move_speed(1.f)
+Npc::Npc(Context* context) : LogicComponent(context)
 {
     SetUpdateEventMask(USE_UPDATE);
 }
@@ -37,8 +37,9 @@ void Npc::Start()
     auto cache = GetSubsystem<ResourceCache>();
 
     auto modelNode = node_->CreateChild("Npc");
-    node_->SetRotation(Quaternion(0.f, Vector3::UP));
-    node_->SetScale(1.f);
+    node_->SetRotation(Quaternion(180.f, Vector3::UP));
+    node_->SetScale(0.85f);
+    saved_rotation = node_->GetRotation();
 
     auto model = modelNode->CreateComponent<AnimatedModel>();
     model->SetModel(cache->GetResource<Model>("Models/Kachujin/Kachujin.mdl"));
@@ -61,7 +62,6 @@ void Npc::Start()
     auto collider = node_->CreateComponent<CollisionShape>();
     collider->SetCapsule(0.7f, 1.8f, Vector3::UP * 0.9);
 
-    node_->CreateComponent<Lootable>();
     node_->CreateComponent<SmoothedTransform>();
 
     SubscribeToEvent(node_, E_NODECOLLISION, URHO3D_HANDLER(Npc, handle_collision));
@@ -115,8 +115,9 @@ void Npc::Update(float time_step)
 
 void Npc::stop_walking()
 {
-    move_speed = 0;
+    saved_speed = move_speed;
     saved_rotation = node_->GetRotation();
+    move_speed = 0;
 
     node_->LookAt(GetScene()->GetChild(PLAYER_NAME)->GetPosition());
     auto target_rotation = node_->GetRotation();
@@ -127,8 +128,7 @@ void Npc::stop_walking()
 
 void Npc::resume()
 {
-    move_speed = 1.f;
-
+    move_speed = saved_speed;
     auto smoothed_transform = node_->GetComponent<SmoothedTransform>();
     smoothed_transform->SetTargetRotation(saved_rotation);
     node_->SetRotation(saved_rotation);

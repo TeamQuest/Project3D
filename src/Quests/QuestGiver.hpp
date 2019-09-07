@@ -25,9 +25,11 @@ public:
     quest_map& get_quests();
     [[nodiscard]] const quest_map& get_quests() const;
     void assign_quest(Quest* quest);
-    void setup_window(Urho3D::Window* window);
+    void setup_window();
+    void handle_window(Urho3D::Window* window);
 
 private:
     quest_map m_quests;
     Urho3D::Window* m_window{};
+    Urho3D::Window* m_prev_window;
 };

@@ -22,7 +22,8 @@ private:
     void correct_speed();
 
 private:
-    float move_speed;
+    float move_speed = 0.f;
+    float saved_speed = move_speed;
     Urho3D::Quaternion saved_rotation;
     Urho3D::Node* target = nullptr;
 };
