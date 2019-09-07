@@ -34,15 +34,12 @@ void Enemy::Start()
     auto cache = GetSubsystem<ResourceCache>();
 
     node_->CreateComponent<Npc>();
-    node_->RemoveComponent(
-            node_->GetComponent<AnimatedModel>()
-    );
+    node_->RemoveComponent(node_->GetComponent<AnimatedModel>());
 
     auto model = node_->CreateComponent<AnimatedModel>();
     model->SetModel(cache->GetResource<Model>("Models/NinjaSnowWar/Ninja.mdl"));
     model->SetMaterial(cache->GetResource<Material>("Materials/NinjaSnowWar/Ninja.xml"));
     model->SetCastShadows(true);
-
 }
 
 void Enemy::Update(float /* time_step */)
