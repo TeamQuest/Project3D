@@ -11,7 +11,7 @@ void Sword::set_dmg(int value)
     m_dmg = value;
 }
 
-const int& Sword::get_dmg() const
+int Sword::get_dmg() const
 {
     return m_dmg;
 }

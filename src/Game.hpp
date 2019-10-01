@@ -3,13 +3,8 @@
 #include "Scenes/Scenes.hpp"
 #include "Scenes/State.hpp"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
 #include <Urho3D/Engine/Application.h>
 #include <Urho3D/Scene/Scene.h>
-#pragma clang diagnostic pop
 
 class Game : public Urho3D::Application {
 public:

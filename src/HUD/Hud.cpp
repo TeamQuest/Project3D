@@ -4,10 +4,6 @@
 #include "Utility/Common.hpp"
 #include "Character/Status.hpp"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
 #include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/ProgressBar.h>
 #include <Urho3D/UI/UI.h>
@@ -18,7 +14,6 @@
 #include <Urho3D/UI/Button.h>
 #include <Urho3D/UI/UIEvents.h>
 #include <Scenes/Scenes.hpp>
-#pragma clang diagnostic pop
 
 using namespace Urho3D;
 

@@ -7,11 +7,6 @@
 #include "Utility/InteractionCollider.hpp"
 #include "Quests/QuestRunner.hpp"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
-
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Graphics/AnimationController.h>
 #include <Urho3D/IO/Log.h>
@@ -22,19 +17,13 @@
 #include <Urho3D/Physics/PhysicsEvents.h>
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Scene/Scene.h>
-#include <Urho3D/Scene/SceneEvents.h>
 #include <Urho3D/UI/UI.h>
 
 #include <Urho3D/Graphics/AnimatedModel.h>
 #include <Urho3D/Graphics/Material.h>
 #include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
-#include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Resource/ResourceCache.h>
-#include <Utility/Common.hpp>
-
-#pragma clang diagnostic pop
 
 using namespace Urho3D;
 

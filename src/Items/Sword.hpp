@@ -11,7 +11,7 @@ public:
     explicit Sword(Urho3D::Context* context);
 
     void set_dmg(int value);
-    const int& get_dmg() const;
+    int get_dmg() const;
 
 private:
     int m_dmg;

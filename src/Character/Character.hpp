@@ -2,14 +2,9 @@
 
 #include "Quests/Quest.hpp"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
 #include <Urho3D/Input/Controls.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Scene/LogicComponent.h>
-#pragma clang diagnostic pop
 
 #include <map>
 

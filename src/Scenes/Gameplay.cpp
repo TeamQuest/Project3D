@@ -8,17 +8,11 @@
 #include "Items/HpPotion.hpp"
 #include "Character/Npc.hpp"
 #include "Items/Lootable.hpp"
-#include "Items/Sword.hpp"
 #include "Scenes/Scenes.hpp"
 #include "Utility/Common.hpp"
 #include "Utility/FPSCounter.hpp"
 #include "Quests/QuestGiver.hpp"
 #include "Quests/QuestRunner.hpp"
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
 
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Core/CoreEvents.h>
@@ -40,8 +34,6 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/UIEvents.h>
-
-#pragma clang diagnostic pop
 
 using namespace Urho3D;
 
@@ -338,7 +330,7 @@ void Gameplay::init_gamescene()
         rigidbody->SetCollisionLayerAndMask(1, 1);
         auto collider = wall->CreateComponent<CollisionShape>();
         collider->SetBox(Vector3::ONE);
-        SubscribeToEvent(wall, E_NODECOLLISIONEND, [&](auto, VariantMap& event_data) {
+        SubscribeToEvent(wall, E_NODECOLLISIONEND, [&](auto, VariantMap& /* event_data */) {
             [[maybe_unused]] static auto called_once = [&]() {
             auto enemy = scene->GetChild("Enemy1")->GetComponent<Enemy>();
             enemy->assign_target(scene->GetChild(PLAYER_NAME));

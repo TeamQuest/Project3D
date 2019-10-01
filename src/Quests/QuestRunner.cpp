@@ -1,12 +1,6 @@
 #include "Quests/QuestRunner.hpp"
 
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
 #include "Urho3D/IO/Log.h"
-#pragma clang diagnostic pop
 
 using namespace Urho3D;
 

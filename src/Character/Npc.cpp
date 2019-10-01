@@ -1,12 +1,7 @@
 #include "Character/Npc.hpp"
 
 #include "Constants.hpp"
-#include "Items/Lootable.hpp"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Graphics/AnimatedModel.h>
 #include <Urho3D/Graphics/Animation.h>
@@ -23,7 +18,6 @@
 #include <Urho3D/Graphics/Material.h>
 #include <Urho3D/Graphics/Model.h>
 #include <Urho3D/Resource/ResourceCache.h>
-#pragma clang diagnostic pop
 
 using namespace Urho3D;
 
