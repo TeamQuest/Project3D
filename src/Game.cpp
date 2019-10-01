@@ -19,17 +19,10 @@
 #include "Utility/FPSCounter.hpp"
 #include "Utility/InteractionCollider.hpp"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
-
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/UI/UI.h>
 #include <Enemies/Enemy.hpp>
-
-#pragma clang diagnostic pop
 
 using namespace Urho3D;
 

@@ -1,12 +1,7 @@
 #pragma once
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
 #include "Urho3D/Core/Object.h"
 #include "Urho3D/UI/Button.h"
-#pragma clang diagnostic pop
 
 #include <vector>
 
@@ -24,7 +19,7 @@ public:
     [[nodiscard]] const Urho3D::String& get_name() const;
     [[nodiscard]] virtual Urho3D::String get_description() const;
     [[nodiscard]] bool at_last_page() const;
-    void move_page(int offset);
+    void move_page(std::size_t offset);
     void assign_to(QuestRunner* runner);
     void unassign(bool set_available = true);
 
@@ -43,7 +38,7 @@ protected:
     stage m_current_stage;
     Urho3D::String m_name = "__MISSING_QUEST_NAME__";
     std::vector<Urho3D::String> m_pages;
-    int m_current_page = 0;
+    std::size_t m_current_page = 0;
     Urho3D::WeakPtr<QuestRunner> m_runner;
 };
 

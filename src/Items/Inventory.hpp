@@ -30,7 +30,7 @@ private:
     std::vector<Urho3D::SharedPtr<Pickable>> m_items{};
     Urho3D::Window* m_window;
     Urho3D::Window* m_window_description;
-    int m_capacity = 5;
+    std::size_t m_capacity = 5;
 
     void toggle_key_down(Urho3D::StringHash, Urho3D::VariantMap &);
 };

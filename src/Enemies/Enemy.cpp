@@ -4,10 +4,6 @@
 #include "Constants.hpp"
 #include "Utility/Common.hpp"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
 #include <Urho3D/Graphics/AnimatedModel.h>
 #include <Urho3D/Graphics/Animation.h>
 #include <Urho3D/Graphics/AnimationController.h>
@@ -20,8 +16,6 @@
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/Physics/CollisionShape.h>
-
-#pragma clang diagnostic pop
 
 using namespace Urho3D;
 
