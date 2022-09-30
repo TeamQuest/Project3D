@@ -6,9 +6,7 @@
 
 using namespace Urho3D;
 
-Quest::Quest(Context* context, bool is_available)
-    : Object(context),
-      m_current_stage{is_available ? stage::available : stage::unavailable}
+Quest::Quest(Context* context, bool is_available) : Object(context), m_current_stage{is_available ? stage::available : stage::unavailable}
 {
 }
 
@@ -27,22 +25,26 @@ Quest::Quest(Context* context, bool is_available)
     }
 }
 
-void Quest::move_page(int offset) {
-    m_current_page = Clamp(m_current_page + offset, 0, static_cast<int>(m_pages.size()) - 1);
+void Quest::move_page(std::size_t offset)
+{
+    m_current_page = Clamp(m_current_page + offset, std::size_t{}, m_pages.size() - 1);
 }
 
-bool Quest::at_last_page() const {
+bool Quest::at_last_page() const
+{
     return m_current_page == m_pages.size() - 1;
 }
 
-void Quest::assign_to(QuestRunner* runner) {
+void Quest::assign_to(QuestRunner* runner)
+{
     assert(runner);
     m_runner = runner;
     runner->assign_quest(this);
     m_current_stage = in_progress;
 }
 
-void Quest::unassign(bool set_available) {
+void Quest::unassign(bool set_available)
+{
     if (auto runner = m_runner.Lock()) {
         auto&& quests = runner->get_quests();
         quests.erase(m_name);
@@ -50,7 +52,8 @@ void Quest::unassign(bool set_available) {
     }
 }
 
-void set_button_based_on_stage(Quest* quest, Button* button) {
+void set_button_based_on_stage(Quest* quest, Button* button)
+{
     quest->is_finished();
     auto quest_name = button->GetChildStaticCast<Text>("qname", false)->GetText();
     String suffix;

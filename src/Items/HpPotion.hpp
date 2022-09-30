@@ -9,7 +9,8 @@ class HpPotion : public Pickable {
 
 public:
     explicit HpPotion(Urho3D::Context* context);
-    const float& get_hp_points_to_restore() const;
+
+    [[nodiscard]] float get_hp_points_to_restore() const;
 
 private:
     float m_hp_points = 50;

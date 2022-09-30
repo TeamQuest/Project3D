@@ -4,11 +4,6 @@
 #include "Utility/Common.hpp"
 #include "HpPotion.hpp"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
-
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Resource/ResourceCache.h>
@@ -23,11 +18,10 @@
 #include <Character/Status.hpp>
 #include <Constants.hpp>
 
-#pragma clang diagnostic pop
-
 using namespace Urho3D;
 
-Inventory::Inventory(Context* context) : LogicComponent(context)
+Inventory::Inventory(Context* context)
+        :LogicComponent(context)
 {
     SetUpdateEventMask(USE_UPDATE);
 }
@@ -65,7 +59,7 @@ void Inventory::Start()
         GetSubsystem<UI>()->GetRoot()->AddChild(m_window_description);
     }
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(Inventory, toggle_key_down));
-    SubscribeToEvent(E_OPEN_INVENTORY, URHO3D_HANDLER(Inventory, toggle) );
+    SubscribeToEvent(E_OPEN_INVENTORY, URHO3D_HANDLER(Inventory, toggle));
 }
 
 void Inventory::Update(float /* time_step */)
@@ -88,7 +82,8 @@ void Inventory::remove(Pickable* pickable)
     URHO3D_LOGINFO("Item " + pickable->get_name() + " removed from inventory");
 }
 
-void Inventory::toggle_key_down(StringHash /* event_type */, VariantMap & /* event_data */) {
+void Inventory::toggle_key_down(StringHash /* event_type */, VariantMap& /* event_data */)
+{
 
     const auto input = GetSubsystem<Input>();
     if (!input->GetKeyPress(KEY_I)) {
@@ -114,27 +109,27 @@ void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */
         const auto anonymous_pro_font = GetSubsystem<ResourceCache>()->GetResource<Font>(("Fonts/Anonymous Pro.ttf"));
 
         auto title_text = *make<Text>(context_)
-                              .text("inventory")
-                              .font(anonymous_pro_font)
-                              .fontsize(20)
-                              .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
-                              .textaligned(HA_CENTER);
+                .text("inventory")
+                .font(anonymous_pro_font)
+                .fontsize(20)
+                .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
+                .textaligned(HA_CENTER);
 
         m_window->AddChild(title_text);
         for (const auto& item : m_items) {
             auto item_button = *make<Button>(context_)
-                                    .styleauto()
-                                    .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
-                                    .minwidth(200)
-                                    .fixedheight(50)
-                                    .var("item", item.Get());
+                    .styleauto()
+                    .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
+                    .minwidth(200)
+                    .fixedheight(50)
+                    .var("item", item.Get());
 
             auto item_text = *make<Text>(context_)
-                                  .text(item->get_name())
-                                  .font(anonymous_pro_font)
-                                  .fontsize(20)
-                                  .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
-                                  .textaligned(HA_CENTER);
+                    .text(item->get_name())
+                    .font(anonymous_pro_font)
+                    .fontsize(20)
+                    .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
+                    .textaligned(HA_CENTER);
 
             // Opening item description
             SubscribeToEvent(item_button, E_RELEASED, [this](auto, auto& event_data) {
@@ -148,7 +143,8 @@ void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */
                     loot_window->RemoveAllChildren();
                     m_window_description->SetEnabledRecursive(false);
                     m_window_description->SetVisible(false);
-                } else {
+                }
+                else {
                     URHO3D_LOGINFO("Opening item description...");
                     m_window_description->SetEnabled(true);
                     m_window_description->SetVisible(true);
@@ -168,7 +164,7 @@ void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */
                     m_window_description->AddChild(item_description);
 
                     {
-                        if(auto potion = dynamic_cast<HpPotion*>(item)){
+                        if (auto potion = dynamic_cast<HpPotion*>(item)) {
                             auto use_it_button = *make<Button>(context_)
                                     .name("UseItButton")
                                     .style("Button")
@@ -176,40 +172,45 @@ void Inventory::toggle(StringHash /* event_type */, VariantMap& /* event_data */
                                     .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
                                     .var("potion", potion);
 
-
                             auto use_it_label = *make<Text>(context_)
                                     .name("UseItLabel")
                                     .text("use it")
-                                    .font(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 30)
+                                    .font(GetSubsystem<ResourceCache>()->GetResource<Font>("Fonts/Anonymous Pro.ttf"),
+                                            30)
                                     .alignment(HorizontalAlignment::HA_CENTER, VerticalAlignment::VA_CENTER)
                                     .textalignment(HorizontalAlignment::HA_CENTER);
 
                             use_it_button->AddChild(use_it_label);
                             m_window_description->AddChild(use_it_button);
 
-                            SubscribeToEvent(m_window_description->GetChild("UseItButton", false), E_RELEASED, [&](auto &&...) {
-                                if (auto status_component = GetScene()->GetChild(PLAYER_NAME)->GetComponent<Status>()) {
-                                    auto use_it_button_clicked = static_cast<Button*>(event_data[Released::P_ELEMENT].GetPtr());
-                                    auto pot = get<HpPotion>(use_it_button_clicked->GetVar("potion"));
+                            SubscribeToEvent(m_window_description->GetChild("UseItButton", false), E_RELEASED,
+                                    [&](auto&& ...) {
+                                        if (auto status_component = GetScene()->GetChild(
+                                                PLAYER_NAME)->GetComponent<Status>()) {
+                                            auto use_it_button_clicked = static_cast<Button*>(event_data[Released::P_ELEMENT].GetPtr());
+                                            auto pot = get<HpPotion>(use_it_button_clicked->GetVar("potion"));
 
-                                    URHO3D_LOGINFO("Restoring health...");
+                                            URHO3D_LOGINFO("Restoring health...");
 
-                                    status_component->set_hp_points(status_component->get_hp_points() + pot->get_hp_points_to_restore());
+                                            status_component->set_hp_points(status_component->get_hp_points()
+                                                    + pot->get_hp_points_to_restore());
 
-                                    const auto description_window = GetSubsystem<UI>()->GetRoot()->GetChild("DescriptionWindow", false);
-                                    description_window->RemoveAllChildren();
-                                    m_window_description->SetEnabledRecursive(false);
-                                    m_window_description->SetVisible(false);
+                                            const auto description_window = GetSubsystem<UI>()->GetRoot()->GetChild(
+                                                    "DescriptionWindow", false);
+                                            description_window->RemoveAllChildren();
+                                            m_window_description->SetEnabledRecursive(false);
+                                            m_window_description->SetVisible(false);
 
-                                    URHO3D_LOGINFO("Closing inventory...");
-                                    const auto loot_window = GetSubsystem<UI>()->GetRoot()->GetChild("InventoryWindow", false);
-                                    loot_window->RemoveAllChildren();
-                                    m_window->SetEnabledRecursive(false);
-                                    m_window->SetVisible(false);
+                                            URHO3D_LOGINFO("Closing inventory...");
+                                            const auto loot_window = GetSubsystem<UI>()->GetRoot()->GetChild(
+                                                    "InventoryWindow", false);
+                                            loot_window->RemoveAllChildren();
+                                            m_window->SetEnabledRecursive(false);
+                                            m_window->SetVisible(false);
 
-                                    m_items.erase(find(begin(m_items), end(m_items), pot));
-                                }
-                            });
+                                            m_items.erase(find(begin(m_items), end(m_items), pot));
+                                        }
+                                    });
                         }
                     }
                 }

@@ -2,12 +2,6 @@
 #include "Utility/Common.hpp"
 #include "Utility/FPSCounter.hpp"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
-
-#include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Resource/ResourceCache.h>
@@ -16,8 +10,6 @@
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/UIEvents.h>
-
-#pragma clang diagnostic pop
 
 using namespace Urho3D;
 

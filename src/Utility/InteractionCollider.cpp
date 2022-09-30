@@ -1,6 +1,5 @@
 #include "Utility/InteractionCollider.hpp"
 
-#include "Constants.hpp"
 #include "Items/Inventory.hpp"
 #include "Character/Npc.hpp"
 #include "Items/Lootable.hpp"
@@ -8,12 +7,6 @@
 #include "Quests/QuestGiver.hpp"
 #include "Enemies/Enemy.hpp"
 #include "Utility/Common.hpp"
-#include "Scenes/Scenes.hpp"
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#pragma clang diagnostic ignored "-Wpedantic"
 
 #include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/Light.h>
@@ -34,8 +27,6 @@
 #include <Urho3D/UI/Window.h>
 #include <Urho3D/Graphics/Model.h>
 #include <Urho3D/Graphics/Material.h>
-
-#pragma clang diagnostic pop
 
 #include <algorithm>
 #include <Urho3D/Graphics/AnimationController.h>
